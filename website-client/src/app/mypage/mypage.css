@@ -1,0 +1,154 @@
+/* mypage.css */
+
+/* 전체 컨테이너 (왼쪽은 사이드바, 가운데~오른쪽이 마이페이지)
+   이 예시에선 단순히 2등분 레이아웃 */
+   .mypage-container {
+    display: flex;
+    gap: 2rem;
+    /* 사이드바가 width: 240px이라면, 나머지 영역을 flex로 채움 */
+    margin-left: 240px; /* 만약 사이드바가 fixed라면 이런 식으로 여백 */
+    padding: 2rem;
+    /* 백그라운드 등은 자유롭게 */
+  }
+  
+  /* 중앙 프로필 영역 */
+  .profile-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;  /* 가운데 정렬 */
+    text-align: center;
+    padding: 2rem;
+    gap: 1rem;
+  }
+  
+  /* 프로필 이미지 */
+  .profile-image-wrapper {
+    position: relative;
+  }
+  .profile-image {
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  .upload-label {
+    display: inline-block;
+    margin-top: 0.5rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #666;
+    text-decoration: underline;
+  }
+  
+  /* 텍스트 정보 */
+  .profile-name {
+    font-size: 1.8rem;
+    margin: 0.5rem 0;
+    color: #000;
+  }
+  .profile-major {
+    font-size: 1rem;
+    color: #666;
+  }
+  .profile-role {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #000;
+  }
+  .profile-join-date {
+    font-size: 0.9rem;
+    color: #999;
+  }
+  
+  /* 버튼 영역 */
+  .profile-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+  .edit-button,
+  .admin-button {
+    display: inline-block;
+    padding: 0.6rem 1.2rem;
+    border-radius: 20px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 0.95rem;
+    border: none;
+    transition: background-color 0.2s;
+  }
+  .edit-button {
+    background-color: #ddd;
+    color: #333;
+    text-decoration: none;
+  }
+  .edit-button:hover {
+    background-color: #ccc;
+  }
+  .admin-button {
+    background-color: #2196F3;
+    color: #fff;
+  }
+  .admin-button:hover {
+    background-color: #0b7dda;
+  }
+  
+  /* 우측 포인트 섹션 */
+  .point-section {
+    width: 400px; /* 예시로 고정폭 */
+    padding: 2rem;
+    border-left: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .point-title {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    color: #000;
+  }
+  .point-total {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    color: #000;
+  }
+  .point-unit {
+    font-size: 1.5rem;
+    margin-left: 4px;
+    color: #444;
+  }
+  .point-history-table table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .point-history-table th,
+  .point-history-table td {
+    text-align: left;
+    padding: 0.5rem;
+    border-bottom: 1px solid #eee;
+  }
+  .point-history-table th {
+    font-weight: 600;
+    color: #666;
+  }
+  .point-history-table td {
+    font-size: 0.9rem;
+    color: #333;
+  }
+  
+  /* 간단한 반응형 예시 */
+  @media (max-width: 768px) {
+    .mypage-container {
+      flex-direction: column;
+      margin-left: 0;
+    }
+    .point-section {
+      width: 100%;
+      border-left: none;
+      border-top: 1px solid #eee;
+      margin-top: 2rem;
+      align-items: center;
+    }
+  }
+  
