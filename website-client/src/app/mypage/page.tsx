@@ -60,7 +60,7 @@ export default function MyPage() {
     setProfileImageUrl(localUrl);
 
     // 실제 업로드 로직: 백엔드에 전송 후, 응답으로 저장된 URL을 setProfileImageUrl()  
-    // 예시:
+    //  :
     // const formData = new FormData();
     // formData.append('profileImage', file);
     // const res = await fetch('/api/upload-profile', {
@@ -111,11 +111,17 @@ export default function MyPage() {
           <Link href="/mypage/edit" className="edit-button">
             정보 수정
           </Link>
-          {/* 관리자(core)만 접근 가능한 버튼 예시 */}
+          {/* 관리자(core)만 접근 가능 */}
           {isCore && (
             <>
-              <button className="admin-button">관리자 모드</button>
-              <button className="admin-button">멤버 관리</button>
+                <button className="admin-button">관리자 모드</button>
+
+                {/* 멤버 관리 → /admin */}
+                <Link href="/admin">
+                <button className="admin-button">
+                    멤버 관리
+                </button>
+                </Link>
             </>
           )}
         </div>

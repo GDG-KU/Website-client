@@ -1,0 +1,214 @@
+/* admin-container: 전체 페이지 래퍼 */
+.admin-container {
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+    margin-left: 240px; /* 사이드바 폭 */
+    color: #000;
+  }
+  
+  /* admin-content-wrapper: 왼쪽 + 오른쪽 */
+  .admin-content-wrapper {
+    display: flex;
+    gap: 2rem;
+    /* 상단 필터/검색은 left-side 내부로 넣었으므로, 여긴 단순히 좌우 배치 */
+  }
+  
+  /* 왼쪽 영역 (검색 + 필터 + 테이블 + 페이지네이션) */
+  .left-side {
+    width: 300px; /* 필요 시 조정 */
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* 검색, 필터 */
+  .search-filter-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    color: #000;
+  }
+  .search-input {
+    width: 140px;
+    padding: 0.4rem;
+    font-size: 1rem;
+    color: #000;
+    border: 1px solid #000;
+    border-radius: 4px;
+  }
+  .filter-buttons {
+    display: flex;
+    gap: 0.3rem;
+  }
+  .filter-btn {
+    border: none;
+    padding: 0.4rem 0.8rem;
+    background-color: #eee;
+    cursor: pointer;
+    border-radius: 20px;
+    color: #000;
+    font-size: 0.8rem;
+  }
+  .filter-btn.active {
+    background-color: #333;
+    color: #fff;
+  }
+  
+  /* 멤버 테이블 */
+  .member-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+  }
+  .member-table th,
+  .member-table td {
+    text-align: left;
+    padding: 0.4rem;
+    border-bottom: 1px solid #ddd;
+    cursor: pointer;
+  }
+  .selected-row {
+    background-color: #f0f8ff; 
+  }
+  
+  /* 페이지네이션 */
+  .pagination-row {
+    display: flex;
+    gap: 0.3rem;
+    margin-bottom: 1rem;
+  }
+  .page-btn {
+    border: none;
+    padding: 0.3rem 0.6rem;
+    background-color: #eee;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+  .page-btn.active {
+    background-color: #333;
+    color: #fff;
+  }
+  
+  /* 오른쪽 멤버 상세 */
+  .member-detail-section {
+    flex: 1;
+    background-color: #fafafa;
+    padding: 1rem;
+    border-radius: 8px;
+  }
+  .detail-header {
+    margin-bottom: 1rem;
+  }
+  .detail-header h2 {
+    margin: 0;
+    font-size: 1.3rem;
+    display: inline-block;
+  }
+  .edit-icon {
+    margin-left: 0.5rem;
+    font-size: 0.9rem;
+    color: #666;
+    cursor: pointer;
+  }
+  .detail-major {
+    font-size: 0.9rem;
+    color: #666;
+  }
+  .detail-role {
+    font-size: 1rem;
+    margin: 0.3rem 0;
+  }
+  .detail-point {
+    margin-top: 0.5rem;
+  }
+  .point-edit-btn {
+    margin-left: 1rem;
+    background-color: #eee;
+    border: none;
+    padding: 0.3rem 0.6rem;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.8rem;
+  }
+  
+  /* 점수 수정 히스토리 */
+  .score-history {
+    margin-top: 1rem;
+  }
+  .score-history-table table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0.5rem;
+  }
+  .score-history-table th,
+  .score-history-table td {
+    padding: 0.4rem;
+    border-bottom: 1px solid #ddd;
+    font-size: 0.85rem;
+  }
+  
+  /* 활동 관리 */
+  .activity-manage {
+    margin-top: 1rem;
+  }
+  .tabs {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-bottom: 0.5rem;
+  }
+  .tab-btn {
+    border: none;
+    background-color: #eee;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.8rem;
+  }
+  .tab-btn.active {
+    background-color: #333;
+    color: #fff;
+  }
+  .tab-setting-btn {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+  }
+  .tab-content {
+    background-color: #fff;
+    padding: 1rem;
+    border-radius: 8px;
+  }
+  .activity-panel p {
+    margin: 0.3rem 0;
+  }
+  .save-btn {
+    margin-top: 1rem;
+    border: none;
+    background-color: #ddd;
+    padding: 0.4rem 0.8rem;
+    cursor: pointer;
+    border-radius: 20px;
+    font-size: 0.8rem;
+  }
+  
+  /* (C) 하단 버튼 (페이지 전체 하단) */
+  .admin-bottom-buttons {
+    margin-top: 2rem; /* 위와 간격 */
+    display: flex;
+    gap: 1rem;
+  }
+  .admin-point-btn,
+  .admin-calendar-btn {
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 20px;
+    background-color: #ddd;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  

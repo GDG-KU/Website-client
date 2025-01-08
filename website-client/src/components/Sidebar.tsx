@@ -122,7 +122,7 @@ const Sidebar: React.FC = () => {
       >
         {/* 로고 영역 */}
         <div className="logo-area">
-          <Link href="/overview">
+          <Link href="/aboutus/calendar">
             <picture>
               <source srcSet="/logo.webp" type="image/webp" />
               <img src="/logo.png" alt="GDG KU 로고" className="logo-image" />

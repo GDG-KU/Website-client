@@ -160,7 +160,7 @@ body,
   cursor: pointer;
 }
 
-/* 5) 반응형 예시 */
+/* 5) 반응형   */
 @media (max-width: 768px) {
   .main-sidebar {
     width: 180px;

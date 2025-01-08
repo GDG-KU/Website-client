@@ -1,7 +1,7 @@
 /* mypage.css */
 
 /* 전체 컨테이너 (왼쪽은 사이드바, 가운데~오른쪽이 마이페이지)
-   이 예시에선 단순히 2등분 레이아웃 */
+   이  에선 단순히 2등분 레이아웃 */
    .mypage-container {
     display: flex;
     gap: 2rem;
@@ -95,7 +95,7 @@
   
   /* 우측 포인트 섹션 */
   .point-section {
-    width: 400px; /* 예시로 고정폭 */
+    width: 400px; /*  로 고정폭 */
     padding: 2rem;
     border-left: 1px solid #eee;
     display: flex;
@@ -137,7 +137,7 @@
     color: #333;
   }
   
-  /* 간단한 반응형 예시 */
+  /* 간단한 반응형   */
   @media (max-width: 768px) {
     .mypage-container {
       flex-direction: column;
