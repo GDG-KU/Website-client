@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import './Sidebar.css';
@@ -30,7 +30,7 @@ const menuData: MainItem[] = [
     subItems: [
       { label: 'Google Solution Challenge', path: '/officialevents/googlesolutionchallenge' },
       { label: 'Google Cloud Skills Boost', path: '/officialevents/googlecloudskillsboost' },
-      { label: 'Google I/O Extended', path: '/officialevents/googleiqextended' },
+      { label: 'Google I/O Extended', path: '/officialevents/googleioextended' },
       { label: 'Devfest', path: '/officialevents/devfest' },
     ],
   },
@@ -62,12 +62,20 @@ const menuData: MainItem[] = [
 ];
 
 const Sidebar: React.FC = () => {
+
   // 마우스를 올린 메인 메뉴 index
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   // 사이드바 열림 상태 (기본 false → 사실상 "숨김" 상태, but always visible + translateX로 처리)
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   // 사이드바 전체 hover 상태
   const [isSidebarHovered, setIsSidebarHovered] = useState<boolean>(false);
+
+  useEffect(() => {
+    // 컴포넌트(페이지) 로드 시점에 오버레이/사이드바 상태 초기화
+    setIsSidebarHovered(false);
+    setIsSidebarOpen(false);
+  }, []);
+
 
   // 메인 메뉴에 마우스 올라갔을 때
   const handleMainMenuMouseEnter = (index: number) => {
