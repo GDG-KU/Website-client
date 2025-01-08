@@ -15,7 +15,7 @@
   opacity: 0;
   pointer-events: none;
 
-  transition: opacity 0.3s ease;
+  transition: opacity 0.5s ease;
 }
 
 /* 오버레이 열림 */
@@ -24,22 +24,22 @@
   pointer-events: auto;
 }
 
-/* 2) 메인 사이드바: 왼쪽 고정 (기본 숨김: translateX(-100%)) */
+/* 2) 메인 사이드바: 왼쪽 고정 */
 .main-sidebar {
   position: fixed;
   top: 0;
   left: 0;
   width: 220px;
   height: 100vh;
-
-  background-color: #111;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+  background: linear-gradient(to right, #000, #111);
   color: #fff;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 2rem 0;
 
-  /* 처음에는 화면 밖 (-100%) */
+  /* 화면 내에 고정 */
   transform: translateX(0);
   transition: transform 0.3s ease;
 
@@ -51,37 +51,36 @@
   transform: translateX(0);
 }
 
-/* 3) 서브 사이드바 
-   - 사이드바 폭(240px) 바로 오른쪽에 위치
-   - 초기에는 translateX(-100%)로 숨김
-*/
+/* 3) 서브 사이드바 */
 .sub-sidebar {
   position: absolute;
-  
   top: 0;
-  left: 220px;  /* 메인 사이드바의 폭만큼 오른쪽 offset */
+  left: 220px; /* 메인 사이드바의 너비만큼 오른쪽으로 오프셋 */
   width: 200px;
   height: 100%;
-  background-color: #222;
+  background: linear-gradient(to right, #111, #222);
 
-  transform: translateX(-100%);
+  transform: scaleX(0);
+  transform-origin: left;
   opacity: 0;
   pointer-events: none;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+  transition: transform 0.5s ease-out 0.1s, opacity 0.5s ease-out 0.1s;
 
-  transition: transform 0.3s ease, opacity 0.3s ease;
   display: flex;
   flex-direction: column;
-  padding: 9rem 0 0; /* 메뉴가 아래로 너무 내려가지 않게 조정 가능 */
+  padding: 9rem 0 0; /* 메뉴가 너무 아래로 내려가지 않도록 조정 가능 */
 }
+
 .sub-sidebar.open {
-  transform: translateX(0);
+  transform: scaleX(1);
   opacity: 1;
   pointer-events: auto;
 }
 
 /* 서브 메뉴 목록 */
 .sub-menu-items {
-  padding-left: 0.5rem; 
+  padding-left: 0.5rem;
   display: flex;
   flex-direction: column;
   gap: 2rem;
@@ -89,7 +88,7 @@
 
 /* 서브 메뉴 링크 */
 .sub-menu-link {
-  padding-left: 0.5rem; 
+  padding-left: 0.5rem;
   color: #aaa;
   text-decoration: none;
   transition: color 0.3s;
@@ -170,6 +169,6 @@ body,
   .sub-sidebar {
     left: 180px;
     width: 160px;
-    transform: translateX(-100%);
+    transform: scaleX(0);
   }
 }

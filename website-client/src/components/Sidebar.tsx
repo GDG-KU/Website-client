@@ -164,7 +164,7 @@ const Sidebar: React.FC = () => {
         {/* 서브 사이드바 */}
         {hoveredIndex !== null && menuData[hoveredIndex].subItems && (
           <div
-            className="sub-sidebar open"
+            className={`sub-sidebar ${hoveredIndex !== null ? 'open' : ''}`}
             onMouseEnter={() => handleSubSidebarEnter(hoveredIndex)}
             onMouseLeave={handleSubSidebarLeave}
             aria-label={`${menuData[hoveredIndex].label} 서브 메뉴`}
