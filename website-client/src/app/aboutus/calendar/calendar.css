@@ -1,0 +1,235 @@
+/* calendar.css */
+
+/* 폰트적용 해야함 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  /* body 배경 */
+  body {
+    background-color: #fff;
+  }
+  
+  /* 2) 페이지 레이아웃 */
+  .calendar-page-container {
+    margin-left: 200px; /* 사이드바 있다고 가정 */
+    flex-direction: column;
+  }
+  
+  .calendar-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 2rem;
+    overflow-y: auto;
+  }
+  
+  .calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  .calendar-header h1 {
+    margin: 0;
+    font-size: 1.6rem;
+    color: #000;
+    /* 폰트 중량은 next/font/local 로드 시 CSS 변수로 제어 가능 */
+  }
+  
+  /* 스위치 */
+  .toggle-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 24px;
+  }
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 24px;
+  }
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 18px; width: 18px;
+    left: 3px; top: 3px;
+    background-color: #fff;
+    transition: 0.4s;
+    border-radius: 50%;
+  }
+  input:checked + .slider {
+    background-color: #2196F3;
+  }
+  input:focus + .slider {
+    box-shadow: 0 0 1px #2196F3;
+  }
+  input:checked + .slider:before {
+    transform: translateX(16px);
+  }
+  .slider.round {
+    border-radius: 24px;
+  }
+  .toggle-label {
+    font-size: 0.95rem;
+    color: #333;
+  }
+  
+  /* 달력 래퍼 */
+  .calendar-wrapper {
+    margin: 0 auto;
+    width: 100%;
+    max-width: 1000px;
+    background-color: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 2rem;
+    color: #000;
+  }
+  
+  /* 3) React-Calendar 커스텀 */
+  .react-calendar {
+    width: 100%;
+    border: none;
+    color: #000;
+  }
+  .react-calendar__navigation {
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    color: #000;
+  }
+  .react-calendar__navigation button {
+    font-size: 1.2rem;
+    font-weight: 500; 
+    color: #000;
+  }
+  .react-calendar__month-view__weekdays {
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #888;
+    border-bottom: 1px solid #eaeaea;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .react-calendar__tile {
+    height: 70px;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 6px;
+    overflow: hidden;
+  }
+  .react-calendar__tile:hover {
+    background-color: #f5f5f5;
+  }
+  .react-calendar__tile--now {
+    background: #eaf5ff;
+    border: 1px solid #c2e1ff;
+  }
+  .react-calendar__tile--active {
+    background: #337ab7;
+    color: #000;
+    border-radius: 8px;
+  }
+  .has-activities {
+    background-color: #f9fcff;
+  }
+  
+  /* 날짜 셀 내 일정들 */
+  .day-events-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: 100%;
+    color: #000;
+  }
+  .event-label {
+    font-size: 0.7rem; 
+    background-color: #eee;
+    padding: 2px 4px;
+    border-radius: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  /* 카테고리별 색상 */
+  .event-label.branch {
+    background-color: #FFF9E6;
+    color: #B58500;
+  }
+  .event-label.fetch {
+    background-color: #eaf5ff;
+    color: #0066b2;
+  }
+  .event-label.demo {
+    background-color: #ddd;
+    color: #333;
+  }
+  .event-label.exam {
+    background-color: #ffe6e6;
+    color: #b20000;
+  }
+  .event-label.solution {
+    background-color: #fdeef3;
+    color: #b20057;
+  }
+  .event-label.more-count {
+    background-color: #ccc;
+    color: #444;
+  }
+  
+  /* 하단 CTA 카드 */
+  .cta-cards-container {
+    margin-top: 2rem;
+  }
+  .cta-cards-container h2 {
+    font-weight: 500;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    color: #000;
+  }
+  .cta-cards-row {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+  }
+  .cta-card {
+    min-width: 140px;
+    min-height: 100px;
+    background: #f5f5f5;
+    border-radius: 12px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    text-align: center;
+    color: #000;
+  }
+  .cta-card:hover {
+    background-color: #e3e3e3;
+  }
+  
