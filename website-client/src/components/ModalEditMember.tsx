@@ -16,18 +16,12 @@ export default function ModalEditMember({
   member,
   onSave,
 }: ModalEditMemberProps) {
-  // -------------------------------
-  // (1) state
-  // -------------------------------
   const [editName, setEditName] = useState(member.name);
   const [editMajor, setEditMajor] = useState('컴퓨터학과 22학번');
   const [editPosition, setEditPosition] = useState(member.position);
   const [editRole, setEditRole] = useState(member.role);
   const [editProfileUrl, setEditProfileUrl] = useState(member.profileImageUrl || '');
 
-  // -------------------------------
-  // (2) 모달이 열릴 때마다 state 초기화
-  // -------------------------------
   useEffect(() => {
     if (isOpen) {
       setEditName(member.name);
@@ -36,20 +30,14 @@ export default function ModalEditMember({
       setEditRole(member.role);
       setEditProfileUrl(member.profileImageUrl || '');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, member]); 
-  // 위의 주석은 ESLint 경고 방지용 (필요없다면 제거)
+  }, [isOpen, member]);
 
   if (!isOpen) return null;
 
-  // -------------------------------
-  // (3) 저장 버튼 클릭 → 상위로 전달
-  // -------------------------------
   const handleSave = () => {
     const updatedMember: MemberData = {
       ...member,
       name: editName,
-      // major / 학번은 MemberData에 없으므로, 필요시 확장
       position: editPosition,
       role: editRole,
       profileImageUrl: editProfileUrl,
@@ -57,16 +45,10 @@ export default function ModalEditMember({
     onSave(updatedMember);
   };
 
-  // -------------------------------
-  // (4) 프로필 이미지 변경 핸들러
-  // -------------------------------
   const handleProfileUrlChange = (e: ChangeEvent<HTMLInputElement>) => {
     setEditProfileUrl(e.target.value);
   };
 
-  // -------------------------------
-  // (5) 렌더
-  // -------------------------------
   return (
     <div className="modal-edit-member-backdrop">
       <div className="modal-edit-member-content">
@@ -75,7 +57,6 @@ export default function ModalEditMember({
         </button>
         <h2>멤버 정보 수정</h2>
 
-        {/* 프로필 이미지 (미리보기) */}
         <div className="profile-preview-container">
           <Image
             className="profile-preview-img"

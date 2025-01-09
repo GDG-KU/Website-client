@@ -5,10 +5,11 @@ import './management.css';
 import Image from 'next/image';
 import Link from 'next/link';
 
-// 모달 컴포넌트
 import ModalEditMember from '@/components/ModalEditMember';
 import ModalEditPoint from '@/components/ModalEditPoint';
+import ModalActivitySetting from '@/components/ModalActivitySetting';
 
+/** 로그 데이터 */
 interface LogData {
   date: string;
   name: string;
@@ -17,56 +18,164 @@ interface LogData {
   reason: string;
 }
 
+/** 멤버 데이터 인터페이스 */
 export interface MemberData {
   name: string;
   role: 'Core' | 'DevRel' | 'Member' | 'Junior';
   position: 'FE' | 'BE' | 'AI' | 'DSGN' | 'DevRel';
   points: number;
   logs?: LogData[];
-  // 백엔드에서 받아올 때 프로필 이미지의 URL이 있을 수 있다고 가정
-  // 만약 받아오지 못하면, 'public/profile.svg'를 fallback으로 사용
   profileImageUrl?: string;
+
+  // 탭별 활동 관리 데이터
+  activities?: {
+    fetch: string[];
+    worktree: string[];
+    branch: string[];
+    solutionChallenge: string[];
+  };
 }
 
-// 활동 관리 탭
+/** 활동 관리 탭 */
 const activityTabs = ['fetch', 'worktree', 'branch', 'solution challenge'];
 
 export default function AdminPage() {
-  // 1) 멤버 데이터 상태
+  // 멤버 목록
   const [members, setMembers] = useState<MemberData[]>([]);
 
-  // 2) 검색어, 필터, 페이지네이션, 선택된 멤버, 탭 등
+  // 검색어 / 필터 / 페이지
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] =
     useState<'ALL' | 'DevRel' | 'Core' | 'Member' | 'Junior'>('ALL');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 11;
+
+  // 선택된 멤버 / 탭 / 모달 상태
   const [selectedMember, setSelectedMember] = useState<MemberData | null>(null);
   const [activeTab, setActiveTab] = useState<string>('fetch');
+  const [isModalOpen, setIsModalOpen] = useState(false);       // 회원정보 수정
+  const [isPointModalOpen, setIsPointModalOpen] = useState(false); // 포인트 수정
+  const [isSettingModalOpen, setIsSettingModalOpen] = useState(false); // 활동관리 세팅
 
-  // (A) 회원정보 수정 모달
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  // (B) 포인트 수정 모달
-  const [isPointModalOpen, setIsPointModalOpen] = useState(false);
-
-  // 3) 백엔드에서 멤버 목록을 받아와야함
+  /** mockData를 받아오는 이펙트 */
   useEffect(() => {
-    // ( ) 백엔드에서 받아온다고 가정하는 코드
-    // fetch('/api/members')
-    //   .then((res) => res.json())
-    //   .then((data: MemberData[]) => setMembers(data))
-    //   .catch((err) => console.error('멤버 데이터 불러오기 실패:', err));
-
-    // 일단은 데모용 Mock 데이터
+    //fetch('/api/members')
     const mockData: MemberData[] = [
-      { name: '김성훈', role: 'Member', position: 'AI', points: 80 },
-      { name: '김도연', role: 'Core', position: 'BE', points: 120 },
-      { name: '김서훈', role: 'Core', position: 'DSGN', points: 85 },
-      { name: '김민재', role: 'Member', position: 'DSGN', points: 115 },
-      { name: '김유진', role: 'Member', position: 'AI', points: 110 },
-      { name: '김하빈', role: 'Core', position: 'DevRel', points: 90 },
-      { name: '나을솔', role: 'Member', position: 'DSGN', points: 115 },
+      {
+        name: '김성훈',
+        role: 'Member',
+        position: 'AI',
+        points: 80,
+        logs: [],
+        activities: {
+          fetch: ['Website', 'Design System', 'History', 'Goody Project', '팀별 프로젝트'],
+          worktree: [],
+          branch: [],
+          solutionChallenge: [],
+        },
+      },
+      {
+        name: '김도연',
+        role: 'Core',
+        position: 'BE',
+        points: 120,
+        logs: [],
+        activities: {
+          fetch: ['Website', 'Design System'],
+          worktree: ['Worktree 초기 기여'],
+          branch: [],
+          solutionChallenge: [],
+        },
+      },
+      {
+        name: '김서훈',
+        role: 'Core',
+        position: 'DSGN',
+        points: 85,
+        logs: [
+          {
+            date: '2024-08-01',
+            name: '김서훈',
+            role: 'CORE',
+            pointChange: 5,
+            reason: '디자인 시스템 개선',
+          },
+        ],
+        activities: {
+          fetch: ['디자인 기여', 'UI/UX 점검'],
+          worktree: [],
+          branch: ['DS 브랜치'],
+          solutionChallenge: [],
+        },
+      },
+      {
+        name: '김민재',
+        role: 'Member',
+        position: 'DSGN',
+        points: 115,
+        logs: [],
+        activities: {
+          fetch: [],
+          worktree: ['Worktree 기획'],
+          branch: [],
+          solutionChallenge: [],
+        },
+      },
+      {
+        name: '김유진',
+        role: 'Member',
+        position: 'AI',
+        points: 110,
+        logs: [
+          {
+            date: '2024-11-10',
+            name: '김유진',
+            role: 'MEMBER',
+            pointChange: 3,
+            reason: 'AI 모델 성능 향상 발표',
+          },
+        ],
+        activities: {
+          fetch: [],
+          worktree: [],
+          branch: [],
+          solutionChallenge: ['2023 SC 참여', '2024 SC 보조 기여'],
+        },
+      },
+      {
+        name: '김하빈',
+        role: 'Core',
+        position: 'DevRel',
+        points: 90,
+        logs: [
+          {
+            date: '2024-09-20',
+            name: '김하빈',
+            role: 'CORE',
+            pointChange: 10,
+            reason: 'DevRel 행사 운영',
+          },
+        ],
+        activities: {
+          fetch: ['fetch 발표 준비'],
+          worktree: [],
+          branch: ['branch 튜토리얼 작성'],
+          solutionChallenge: [],
+        },
+      },
+      {
+        name: '나을솔',
+        role: 'Member',
+        position: 'DSGN',
+        points: 115,
+        logs: [],
+        activities: {
+          fetch: [],
+          worktree: [],
+          branch: [],
+          solutionChallenge: [],
+        },
+      },
       {
         name: '도지훈',
         role: 'Core',
@@ -78,21 +187,151 @@ export default function AdminPage() {
           { date: '2024. 09. 03', name: '도지훈', role: 'CORE', pointChange: +5, reason: 'merge 참석' },
           { date: '2024. 07. 11', name: '도지훈', role: 'CORE', pointChange: -2, reason: 'fetch 발표' },
         ],
-        // 일부 mock에는 프로필 이미지를 지정. 없으면 fallback으로 public/profile.svg를 사용
-        profileImageUrl: '', // 여기서는 빈 값으로 놔두면 fallback이 적용되도록
+        profileImageUrl: '',
+        activities: {
+          fetch: ['Website', 'Design System', 'History', 'Goody Project', '방어기 프로젝트'],
+          worktree: [],
+          branch: [],
+          solutionChallenge: [],
+        },
       },
-      { name: '도세린', role: 'Member', position: 'BE', points: 100 },
-      { name: '박주원', role: 'Member', position: 'DSGN', points: 110 },
-      { name: '박세영', role: 'Core', position: 'FE', points: 125 },
-      { name: '박재하', role: 'Member', position: 'BE', points: 75 },
-      { name: '이리서', role: 'Core', position: 'FE', points: 60 },
-      { name: '이가윤', role: 'Member', position: 'FE', points: 135 },
-      { name: '정민서', role: 'Member', position: 'BE', points: 115 },
+      {
+        name: '도세린',
+        role: 'Member',
+        position: 'BE',
+        points: 100,
+        logs: [],
+        activities: {
+          fetch: ['Server fetch 로직 구현'],
+          worktree: [],
+          branch: [],
+          solutionChallenge: [],
+        },
+      },
+      {
+        name: '박주원',
+        role: 'Member',
+        position: 'DSGN',
+        points: 110,
+        logs: [],
+        activities: {
+          fetch: [],
+          worktree: [],
+          branch: [],
+          solutionChallenge: [],
+        },
+      },
+      {
+        name: '박세영',
+        role: 'Core',
+        position: 'FE',
+        points: 125,
+        logs: [
+          {
+            date: '2024-10-05',
+            name: '박세영',
+            role: 'CORE',
+            pointChange: 5,
+            reason: 'FE 리팩토링',
+          },
+        ],
+        activities: {
+          fetch: ['Refactoring FE'],
+          worktree: [],
+          branch: [],
+          solutionChallenge: ['2023 SC 발표'],
+        },
+      },
+      {
+        name: '박재하',
+        role: 'Member',
+        position: 'BE',
+        points: 75,
+        activities: {
+          fetch: [],
+          worktree: [],
+          branch: [],
+          solutionChallenge: [],
+        },
+      },
+      {
+        name: '이리서',
+        role: 'Core',
+        position: 'FE',
+        points: 60,
+        activities: {
+          fetch: ['FE Bugfix'],
+          worktree: [],
+          branch: [],
+          solutionChallenge: [],
+        },
+      },
+      {
+        name: '이가윤',
+        role: 'Member',
+        position: 'FE',
+        points: 135,
+        activities: {
+          fetch: [],
+          worktree: ['Worktree 문서화'],
+          branch: [],
+          solutionChallenge: [],
+        },
+      },
+      {
+        name: '정민서',
+        role: 'Member',
+        position: 'BE',
+        points: 115,
+        activities: {
+          fetch: [],
+          worktree: [],
+          branch: [],
+          solutionChallenge: ['SC Mentor 참여'],
+        },
+      },
+      // 추가로 1~2개 더
+      {
+        name: '한가영',
+        role: 'Junior',
+        position: 'AI',
+        points: 20,
+        logs: [],
+        activities: {
+          fetch: [],
+          worktree: [],
+          branch: [],
+          solutionChallenge: [],
+        },
+      },
+      {
+        name: '오준혁',
+        role: 'Junior',
+        position: 'BE',
+        points: 35,
+        logs: [
+          {
+            date: '2024-09-15',
+            name: '오준혁',
+            role: 'JUNIOR',
+            pointChange: 2,
+            reason: '신입 OT 참석',
+          },
+        ],
+        activities: {
+          fetch: [],
+          worktree: [],
+          branch: [],
+          solutionChallenge: [],
+        },
+      },
     ];
     setMembers(mockData);
   }, []);
 
-  // 4) 검색 + 필터
+  // --------------------------------------------------
+  // 필터 + 검색
+  // --------------------------------------------------
   const filteredData = useMemo(() => {
     let data = members;
     if (filterRole !== 'ALL') {
@@ -104,7 +343,7 @@ export default function AdminPage() {
     return data;
   }, [members, filterRole, searchTerm]);
 
-  // 5) 페이지네이션
+  // 페이지네이션
   const totalItems = filteredData.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -115,32 +354,32 @@ export default function AdminPage() {
     setSelectedMember(member);
   };
 
-  // (A) 오른쪽 상세 '수정 아이콘' 클릭 → 회원정보 수정 모달
+  // --------------------------------------------------
+  // (A) 회원정보 수정 모달
+  // --------------------------------------------------
   const handleEditIconClick = () => {
     if (!selectedMember) return;
     setIsModalOpen(true);
   };
 
-  // (A) 모달에서 수정한 정보를 받아서 members 상태 업데이트
   const handleSaveMemberChanges = (updated: MemberData) => {
-    // 전체 멤버 목록을 돌면서, name이 동일하면 updated로 교체
     const updatedList = members.map((m) =>
       m.name === updated.name ? { ...m, ...updated } : m
     );
     setMembers(updatedList);
-    setSelectedMember(updated); // modal에서 저장된 내용을 현재 선택 멤버에도 반영
+    setSelectedMember(updated);
     setIsModalOpen(false);
   };
 
-  // (B) 포인트 수정 버튼 → 포인트 수정 모달 열기
+  // --------------------------------------------------
+  // (B) 포인트 수정 모달
+  // --------------------------------------------------
   const handleOpenPointModal = () => {
     if (!selectedMember) return;
     setIsPointModalOpen(true);
   };
 
-  // (B) 포인트 수정 모달에서 받은 업데이트 로직
   const handleSavePointChanges = (updated: MemberData) => {
-    // 멤버 교체
     const updatedList = members.map((m) =>
       m.name === updated.name ? { ...m, ...updated } : m
     );
@@ -149,10 +388,48 @@ export default function AdminPage() {
     setIsPointModalOpen(false);
   };
 
+  // --------------------------------------------------
+  // (C) 활동 관리 (세팅) 모달
+  // --------------------------------------------------
+  const handleOpenSettingModal = () => {
+    if (!selectedMember) return;
+    setIsSettingModalOpen(true);
+  };
+
+  const handleSaveActivityChanges = (updatedActivities: string[]) => {
+    if (!selectedMember || !selectedMember.activities) return;
+
+    // 현재 activeTab에 해당하는 부분만 업데이트
+    const newActivities = { ...selectedMember.activities };
+    if (activeTab === 'fetch') {
+      newActivities.fetch = updatedActivities;
+    } else if (activeTab === 'worktree') {
+      newActivities.worktree = updatedActivities;
+    } else if (activeTab === 'branch') {
+      newActivities.branch = updatedActivities;
+    } else if (activeTab === 'solution challenge') {
+      newActivities.solutionChallenge = updatedActivities;
+    }
+
+    const updatedMember: MemberData = {
+      ...selectedMember,
+      activities: newActivities,
+    };
+
+    // members 교체
+    const updatedList = members.map((m) =>
+      m.name === updatedMember.name ? updatedMember : m
+    );
+    setMembers(updatedList);
+    setSelectedMember(updatedMember);
+
+    setIsSettingModalOpen(false);
+  };
+
   return (
     <div className="admin-container">
       <div className="admin-content-wrapper">
-        {/* 왼쪽: 검색창, 필터 버튼, 멤버 목록 & 페이지네이션 */}
+        {/* 좌측 (검색 + 필터 + 테이블 + 페이지네이션) */}
         <div className="left-side">
           {/* 검색창 */}
           <div className="search-section">
@@ -172,7 +449,7 @@ export default function AdminPage() {
                 className={`filter-btn ${filterRole === roleValue ? 'active' : ''}`}
                 onClick={() => {
                   setFilterRole(roleValue as typeof filterRole);
-                  setCurrentPage(1); // 필터 변경 시 페이지를 1로 리셋
+                  setCurrentPage(1);
                 }}
               >
                 {roleValue}
@@ -220,7 +497,7 @@ export default function AdminPage() {
           </div>
         </div>
 
-        {/* 오른쪽: 선택된 멤버 상세 */}
+        {/* 우측 (선택된 멤버 상세) */}
         {selectedMember && (
           <div className="member-detail-section">
             <div className="detail-header">
@@ -242,9 +519,6 @@ export default function AdminPage() {
                   ✏️
                 </span>
               </h2>
-              <div className="detail-major">
-                {/* selectedMember.major*/}
-              </div>
               <div className="detail-role">
                 {selectedMember.position} / {selectedMember.role}
               </div>
@@ -256,6 +530,7 @@ export default function AdminPage() {
               </div>
             </div>
 
+            {/* 점수 수정 히스토리 */}
             <div className="score-history">
               <h3>점수 수정 히스토리</h3>
               <div className="score-history-table">
@@ -294,6 +569,7 @@ export default function AdminPage() {
               </div>
             </div>
 
+            {/* 활동 관리 */}
             <div className="activity-manage">
               <h3>활동 관리</h3>
               <div className="tabs">
@@ -306,32 +582,38 @@ export default function AdminPage() {
                     {tab}
                   </button>
                 ))}
-                <button className="tab-setting-btn">⚙</button>
+                {/* 설정 아이콘 */}
+                <button className="tab-setting-btn" onClick={handleOpenSettingModal}>
+                  <Image src="/settingicon.svg" alt="설정" width={24} height={24} />
+                </button>
               </div>
               <div className="tab-content">
                 {activeTab === 'fetch' && (
                   <div className="activity-panel">
-                    <p>Website</p>
-                    <p>Design System</p>
-                    <p>History</p>
-                    <p>Goody Project</p>
-                    <p>팀별 프로젝트</p>
-                    <button className="save-btn">저장</button>
+                    {selectedMember.activities?.fetch?.map((item, idx) => (
+                      <p key={idx}>{item}</p>
+                    ))}
                   </div>
                 )}
                 {activeTab === 'worktree' && (
                   <div className="activity-panel">
-                    <p>Worktree 관련 프로젝트 목록...</p>
+                    {selectedMember.activities?.worktree?.map((item, idx) => (
+                      <p key={idx}>{item}</p>
+                    ))}
                   </div>
                 )}
                 {activeTab === 'branch' && (
                   <div className="activity-panel">
-                    <p>Branch 관련 프로젝트 목록...</p>
+                    {selectedMember.activities?.branch?.map((item, idx) => (
+                      <p key={idx}>{item}</p>
+                    ))}
                   </div>
                 )}
                 {activeTab === 'solution challenge' && (
                   <div className="activity-panel">
-                    <p>Solution Challenge 진행 내역...</p>
+                    {selectedMember.activities?.solutionChallenge?.map((item, idx) => (
+                      <p key={idx}>{item}</p>
+                    ))}
                   </div>
                 )}
               </div>
@@ -363,6 +645,17 @@ export default function AdminPage() {
           onClose={() => setIsPointModalOpen(false)}
           member={selectedMember}
           onSave={handleSavePointChanges}
+        />
+      )}
+
+      {/* (C) 활동 관리 (세팅) 모달 */}
+      {selectedMember && (
+        <ModalActivitySetting
+          isOpen={isSettingModalOpen}
+          onClose={() => setIsSettingModalOpen(false)}
+          activeTab={activeTab}
+          member={selectedMember}
+          onSave={handleSaveActivityChanges}
         />
       )}
     </div>

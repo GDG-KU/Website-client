@@ -15,7 +15,7 @@ export default function ModalEditPoint({
   member,
   onSave,
 }: ModalEditPointProps) {
-  // 왼쪽 탭/내역
+  // 왼쪽 탭/내역 (데모)
   const pointCategories = [
     '전체',
     '워크트리 관련 내역',
@@ -27,15 +27,11 @@ export default function ModalEditPoint({
 
   // 선택된 카테고리 상태
   const [selectedCategory, setSelectedCategory] = useState<string>('전체');
-
   // 포인트 & 사유 입력 상태
   const [pointChange, setPointChange] = useState('');
   const [reason, setReason] = useState('');
 
-  /**
-   * 모달이 열릴 때(isOpen === true)나 member가 바뀔 때마다
-   * 초기 상태로 재설정하는 로직
-   */
+  // 모달 열릴 때마다 초기화
   useEffect(() => {
     if (isOpen) {
       setSelectedCategory('전체');
@@ -44,7 +40,10 @@ export default function ModalEditPoint({
     }
   }, [isOpen, member]);
 
-  // 저장하기
+  if (!isOpen) {
+    return null;
+  }
+
   const handleSave = () => {
     // 포인트 변동값을 숫자로
     const diff = parseInt(pointChange, 10);
@@ -55,7 +54,7 @@ export default function ModalEditPoint({
 
     // 새로운 log 하나를 추가
     const newLog = {
-      date: new Date().toISOString().slice(0, 10), // 예: "2025-01-09"
+      date: new Date().toISOString().slice(0, 10),
       name: member.name,
       role: member.role.toUpperCase(),
       pointChange: diff,
@@ -64,7 +63,6 @@ export default function ModalEditPoint({
 
     // 기존 포인트에 diff 반영
     const updatedPoints = member.points + diff;
-
     // 기존 logs 배열에 newLog 추가
     const updatedLogs = member.logs ? [...member.logs, newLog] : [newLog];
 
@@ -77,10 +75,6 @@ export default function ModalEditPoint({
     onSave(updatedMember);
   };
 
-  if (!isOpen) {
-    return null;
-  }
-
   return (
     <div className="modal-edit-point-backdrop">
       <div className="modal-edit-point-content">
@@ -88,14 +82,12 @@ export default function ModalEditPoint({
           ✕
         </button>
         <div className="modal-body">
-          {/* 왼쪽: 카테고리 목록 */}
+          {/* 왼쪽 카테고리 */}
           <div className="modal-left">
             {pointCategories.map((cat, idx) => (
               <button
                 key={idx}
-                className={`left-category-btn ${
-                  selectedCategory === cat ? 'active' : ''
-                }`}
+                className={`left-category-btn ${selectedCategory === cat ? 'active' : ''}`}
                 onClick={() => setSelectedCategory(cat)}
               >
                 {cat}
@@ -103,7 +95,7 @@ export default function ModalEditPoint({
             ))}
           </div>
 
-          {/* 오른쪽: 현재 포인트 / 포인트 수정 / 사유 / 저장버튼 */}
+          {/* 오른쪽 입력 */}
           <div className="modal-right">
             <div className="current-point">
               현재 포인트 <strong>{member.points}P</strong>
