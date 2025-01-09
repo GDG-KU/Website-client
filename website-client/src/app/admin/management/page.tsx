@@ -1,10 +1,13 @@
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
-import './management.css';
+import './management.css'; 
+import Image from 'next/image';
+import Link from 'next/link';
 
 // 모달 컴포넌트
 import ModalEditMember from '@/components/ModalEditMember';
+import ModalEditPoint from '@/components/ModalEditPoint';
 
 interface LogData {
   date: string;
@@ -41,12 +44,15 @@ export default function AdminPage() {
   const [selectedMember, setSelectedMember] = useState<MemberData | null>(null);
   const [activeTab, setActiveTab] = useState<string>('fetch');
 
-  // 모달 상태
+  // (A) 회원정보 수정 모달
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // (B) 포인트 수정 모달
+  const [isPointModalOpen, setIsPointModalOpen] = useState(false);
 
   // 3) 백엔드에서 멤버 목록을 받아와야함
   useEffect(() => {
-    // (예시) 백엔드에서 받아온다고 가정하는 코드
+    // ( ) 백엔드에서 받아온다고 가정하는 코드
     // fetch('/api/members')
     //   .then((res) => res.json())
     //   .then((data: MemberData[]) => setMembers(data))
@@ -109,27 +115,44 @@ export default function AdminPage() {
     setSelectedMember(member);
   };
 
-  // 오른쪽 상세 '수정 아이콘' 클릭 → 모달 오픈
+  // (A) 오른쪽 상세 '수정 아이콘' 클릭 → 회원정보 수정 모달
   const handleEditIconClick = () => {
     if (!selectedMember) return;
     setIsModalOpen(true);
   };
 
-  // 모달에서 수정한 정보를 받아서 members 상태 업데이트
+  // (A) 모달에서 수정한 정보를 받아서 members 상태 업데이트
   const handleSaveMemberChanges = (updated: MemberData) => {
     // 전체 멤버 목록을 돌면서, name이 동일하면 updated로 교체
     const updatedList = members.map((m) =>
       m.name === updated.name ? { ...m, ...updated } : m
     );
     setMembers(updatedList);
-    setSelectedMember(updated); // 혹은 modal에서 저장된 내용을 현재 선택 멤버에도 반영
+    setSelectedMember(updated); // modal에서 저장된 내용을 현재 선택 멤버에도 반영
     setIsModalOpen(false);
+  };
+
+  // (B) 포인트 수정 버튼 → 포인트 수정 모달 열기
+  const handleOpenPointModal = () => {
+    if (!selectedMember) return;
+    setIsPointModalOpen(true);
+  };
+
+  // (B) 포인트 수정 모달에서 받은 업데이트 로직
+  const handleSavePointChanges = (updated: MemberData) => {
+    // 멤버 교체
+    const updatedList = members.map((m) =>
+      m.name === updated.name ? { ...m, ...updated } : m
+    );
+    setMembers(updatedList);
+    setSelectedMember(updated);
+    setIsPointModalOpen(false);
   };
 
   return (
     <div className="admin-container">
       <div className="admin-content-wrapper">
-        {/* 왼쪽: 검색창 위, 그 아래 필터 버튼, 그 아래 멤버 목록 & 페이지네이션 */}
+        {/* 왼쪽: 검색창, 필터 버튼, 멤버 목록 & 페이지네이션 */}
         <div className="left-side">
           {/* 검색창 */}
           <div className="search-section">
@@ -202,14 +225,16 @@ export default function AdminPage() {
           <div className="member-detail-section">
             <div className="detail-header">
               {/* 프로필 이미지 */}
-              <img
+              <Image
                 src={
                   selectedMember.profileImageUrl && selectedMember.profileImageUrl.trim() !== ''
                     ? selectedMember.profileImageUrl
                     : '/profile.svg'
                 }
                 alt="프로필 이미지"
-                className="profile-image"
+                className="manage-profile-image"
+                width={120}
+                height={120}
               />
               <h2>
                 {selectedMember.name}
@@ -223,7 +248,9 @@ export default function AdminPage() {
               </div>
               <div className="detail-point">
                 <strong>{selectedMember.points}</strong> P
-                <button className="point-edit-btn">포인트 수정</button>
+                <button className="point-edit-btn" onClick={handleOpenPointModal}>
+                  포인트 수정
+                </button>
               </div>
             </div>
 
@@ -317,13 +344,23 @@ export default function AdminPage() {
         <button className="admin-calendar-btn">캘린더 관리</button>
       </div>
 
-      {/* 모달 (수정 폼) */}
+      {/* (A) 회원정보 수정 모달 */}
       {selectedMember && (
         <ModalEditMember
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           member={selectedMember}
           onSave={handleSaveMemberChanges}
+        />
+      )}
+
+      {/* (B) 포인트 수정 모달 */}
+      {selectedMember && (
+        <ModalEditPoint
+          isOpen={isPointModalOpen}
+          onClose={() => setIsPointModalOpen(false)}
+          member={selectedMember}
+          onSave={handleSavePointChanges}
         />
       )}
     </div>

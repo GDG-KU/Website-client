@@ -72,21 +72,19 @@
     gap: 0.5rem;
     margin-top: 1rem;
   }
-  
-  .save-button,
+
+  .save-button {
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    background: #333;
+    color: #fff;
+  }
   .cancel-button {
     border: none;
     padding: 0.5rem 1rem;
     border-radius: 4px;
     cursor: pointer;
-  }
-  
-  .save-button {
-    background: #333;
-    color: #fff;
-  }
-  
-  .cancel-button {
     background: #ddd;
   }
-  

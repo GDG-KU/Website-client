@@ -37,7 +37,7 @@ export default function ModalEditMember({
     onSave(updatedMember);
   };
 
-  // 프로필 이미지 변경 시 (URL 입력받는 경우로 예시)
+  // 프로필 이미지 변경 시 (URL 입력받는 경우로  )
   const handleProfileUrlChange = (e: ChangeEvent<HTMLInputElement>) => {
     setEditProfileUrl(e.target.value);
   };
