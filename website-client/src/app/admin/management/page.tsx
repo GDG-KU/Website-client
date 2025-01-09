@@ -3,18 +3,26 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import './management.css';
 
-interface MemberData {
-  name: string;        
+// 모달 컴포넌트
+import ModalEditMember from '@/components/ModalEditMember';
+
+interface LogData {
+  date: string;
+  name: string;
+  role: string;
+  pointChange: number;
+  reason: string;
+}
+
+export interface MemberData {
+  name: string;
   role: 'Core' | 'DevRel' | 'Member' | 'Junior';
   position: 'FE' | 'BE' | 'AI' | 'DSGN' | 'DevRel';
   points: number;
-  logs?: Array<{
-    date: string;          
-    name: string;         
-    role: string;         
-    pointChange: number;  
-    reason: string;       
-  }>;
+  logs?: LogData[];
+  // 백엔드에서 받아올 때 프로필 이미지의 URL이 있을 수 있다고 가정
+  // 만약 받아오지 못하면, 'public/profile.svg'를 fallback으로 사용
+  profileImageUrl?: string;
 }
 
 // 활동 관리 탭
@@ -29,12 +37,16 @@ export default function AdminPage() {
   const [filterRole, setFilterRole] =
     useState<'ALL' | 'DevRel' | 'Core' | 'Member' | 'Junior'>('ALL');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 11;
   const [selectedMember, setSelectedMember] = useState<MemberData | null>(null);
   const [activeTab, setActiveTab] = useState<string>('fetch');
 
+  // 모달 상태
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   // 3) 백엔드에서 멤버 목록을 받아와야함
   useEffect(() => {
+    // (예시) 백엔드에서 받아온다고 가정하는 코드
     // fetch('/api/members')
     //   .then((res) => res.json())
     //   .then((data: MemberData[]) => setMembers(data))
@@ -50,13 +62,18 @@ export default function AdminPage() {
       { name: '김하빈', role: 'Core', position: 'DevRel', points: 90 },
       { name: '나을솔', role: 'Member', position: 'DSGN', points: 115 },
       {
-        name: '도지훈', role: 'Core', position: 'FE', points: 120,
+        name: '도지훈',
+        role: 'Core',
+        position: 'FE',
+        points: 120,
         logs: [
           { date: '2024. 11. 24', name: '도지훈', role: 'CORE', pointChange: -3, reason: 'worktree 분할' },
           { date: '2024. 11. 17', name: '도지훈', role: 'CORE', pointChange: +5, reason: 'Hackathon 참석' },
           { date: '2024. 09. 03', name: '도지훈', role: 'CORE', pointChange: +5, reason: 'merge 참석' },
           { date: '2024. 07. 11', name: '도지훈', role: 'CORE', pointChange: -2, reason: 'fetch 발표' },
-        ]
+        ],
+        // 일부 mock에는 프로필 이미지를 지정. 없으면 fallback으로 public/profile.svg를 사용
+        profileImageUrl: '', // 여기서는 빈 값으로 놔두면 fallback이 적용되도록
       },
       { name: '도세린', role: 'Member', position: 'BE', points: 100 },
       { name: '박주원', role: 'Member', position: 'DSGN', points: 110 },
@@ -90,6 +107,23 @@ export default function AdminPage() {
   // 멤버 클릭 → 상세
   const handleMemberClick = (member: MemberData) => {
     setSelectedMember(member);
+  };
+
+  // 오른쪽 상세 '수정 아이콘' 클릭 → 모달 오픈
+  const handleEditIconClick = () => {
+    if (!selectedMember) return;
+    setIsModalOpen(true);
+  };
+
+  // 모달에서 수정한 정보를 받아서 members 상태 업데이트
+  const handleSaveMemberChanges = (updated: MemberData) => {
+    // 전체 멤버 목록을 돌면서, name이 동일하면 updated로 교체
+    const updatedList = members.map((m) =>
+      m.name === updated.name ? { ...m, ...updated } : m
+    );
+    setMembers(updatedList);
+    setSelectedMember(updated); // 혹은 modal에서 저장된 내용을 현재 선택 멤버에도 반영
+    setIsModalOpen(false);
   };
 
   return (
@@ -167,9 +201,21 @@ export default function AdminPage() {
         {selectedMember && (
           <div className="member-detail-section">
             <div className="detail-header">
+              {/* 프로필 이미지 */}
+              <img
+                src={
+                  selectedMember.profileImageUrl && selectedMember.profileImageUrl.trim() !== ''
+                    ? selectedMember.profileImageUrl
+                    : '/profile.svg'
+                }
+                alt="프로필 이미지"
+                className="profile-image"
+              />
               <h2>
                 {selectedMember.name}
-                <span className="edit-icon">✏️</span>
+                <span className="edit-icon" onClick={handleEditIconClick}>
+                  ✏️
+                </span>
               </h2>
               <div className="detail-major">컴퓨터학과 22학번</div>
               <div className="detail-role">
@@ -265,11 +311,21 @@ export default function AdminPage() {
         )}
       </div>
 
-      {/* 하단 버튼은 필요 시 따로 여기에 배치 가능 */}
+      {/* 하단 버튼 (페이지 전체 하단) */}
       <div className="admin-bottom-buttons">
         <button className="admin-point-btn">멤버 포인트/활동 관리</button>
         <button className="admin-calendar-btn">캘린더 관리</button>
       </div>
+
+      {/* 모달 (수정 폼) */}
+      {selectedMember && (
+        <ModalEditMember
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          member={selectedMember}
+          onSave={handleSaveMemberChanges}
+        />
+      )}
     </div>
   );
 }
