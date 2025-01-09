@@ -114,10 +114,11 @@ export default function MyPage() {
           {/* 관리자(core)만 접근 가능 */}
           {isCore && (
             <>
-                <button className="admin-button">관리자 모드</button>
-
-                {/* 멤버 관리 → /admin */}
                 <Link href="/admin">
+                <button className="admin-button">관리자 모드</button>
+                </Link>
+                {/* 멤버 관리 → /admin/management */}
+                <Link href="/admin/management">
                 <button className="admin-button">
                     멤버 관리
                 </button>
