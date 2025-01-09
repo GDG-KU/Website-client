@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './ModalEditPoint.css';
 import { MemberData } from '@/app/admin/management/page';
 
@@ -24,11 +24,25 @@ export default function ModalEditPoint({
     'B 관련 내역',
     'C 관련 내역',
   ];
+
+  // 선택된 카테고리 상태
   const [selectedCategory, setSelectedCategory] = useState<string>('전체');
 
-  // 포인트 & 사유 입력
+  // 포인트 & 사유 입력 상태
   const [pointChange, setPointChange] = useState('');
   const [reason, setReason] = useState('');
+
+  /**
+   * 모달이 열릴 때(isOpen === true)나 member가 바뀔 때마다
+   * 초기 상태로 재설정하는 로직
+   */
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedCategory('전체');
+      setPointChange('');
+      setReason('');
+    }
+  }, [isOpen, member]);
 
   // 저장하기
   const handleSave = () => {
@@ -86,16 +100,14 @@ export default function ModalEditPoint({
               >
                 {cat}
               </button>
-              /*
-                오른쪽에 표시될 내용을 여기서 상태로 관리하거나,
-                단순히 목록만 보여주고 사용하는 등 자유
-               */
             ))}
           </div>
 
           {/* 오른쪽: 현재 포인트 / 포인트 수정 / 사유 / 저장버튼 */}
           <div className="modal-right">
-            <div className="current-point">현재 포인트 <strong>{member.points}P</strong></div>
+            <div className="current-point">
+              현재 포인트 <strong>{member.points}P</strong>
+            </div>
 
             <div className="point-edit-row">
               <label>포인트 수정</label>

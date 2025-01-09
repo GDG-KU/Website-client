@@ -242,7 +242,9 @@ export default function AdminPage() {
                   ✏️
                 </span>
               </h2>
-              <div className="detail-major">컴퓨터학과 22학번</div>
+              <div className="detail-major">
+                {/* selectedMember.major*/}
+              </div>
               <div className="detail-role">
                 {selectedMember.position} / {selectedMember.role}
               </div>

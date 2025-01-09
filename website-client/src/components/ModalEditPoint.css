@@ -53,10 +53,13 @@
     padding: 0.5rem;
     text-align: left;
     cursor: pointer;
+    border-radius: 5px;
+    margin-bottom: 0.2rem;
   }
   .left-category-btn.active {
     background: #333;
     color: #fff;
+    border-radius: 5px;
   }
   
   /* 오른쪽 (포인트 수정 폼) */
