@@ -154,46 +154,29 @@
     background-color: #f9fcff;
   }
   
-  /* 날짜 셀 내 일정들 */
-  .day-events-container {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    width: 100%;
-    color: #000;
-  }
-  .event-label {
-    font-size: 0.7rem; 
-    background-color: #eee;
-    padding: 2px 4px;
-    border-radius: 4px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  
   /* 카테고리별 색상 */
-  .event-label.branch {
+  .branch {
     background-color: #FFF9E6;
     color: #B58500;
+    
   }
-  .event-label.fetch {
+  .fetch {
     background-color: #eaf5ff;
     color: #0066b2;
   }
-  .event-label.demo {
+  .demo {
     background-color: #ddd;
     color: #333;
   }
-  .event-label.exam {
+  .exam {
     background-color: #ffe6e6;
     color: #b20000;
   }
-  .event-label.solution {
+  .solution {
     background-color: #fdeef3;
     color: #b20057;
   }
-  .event-label.more-count {
+  .more-count {
     background-color: #ccc;
     color: #444;
   }

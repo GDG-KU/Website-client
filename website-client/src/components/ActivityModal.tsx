@@ -1,25 +1,45 @@
 'use client';
-import React from 'react';
+import React, {useState} from 'react';
+import Link from "next/link"
 import './ActivityModal.css';
 
+
 interface ActivityItem {
-  id: string;
   title: string;
-  date: string;
-  category: string;
-  startTime?: string;
-  endTime?: string;
-  description?: string;
+  start: Date;
+  end: Date;
+  location: string;
+  link: string;
 }
 
 interface ActivityModalProps {
-  date: Date;                // 선택된 날짜
-  activities: ActivityItem[]; 
+  activity: ActivityItem; 
   onClose: () => void;
 }
 
-const ActivityModal: React.FC<ActivityModalProps> = ({ date, activities, onClose }) => {
-  const dateString = date.toISOString().split('T')[0];
+
+const ActivityModal: React.FC<ActivityModalProps> = ({ activity, onClose }) => {
+  
+  const [attendance, setAttendance] = useState(false)
+
+  // TODO 
+  // request 날려서 지각 여부, 출석 유효 여부 response 받아야 함
+
+  const AttendanceCheck = () => {
+    setAttendance(true)
+  }
+
+  const CreateDayandTime = (date:Date) => {
+    const months = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
+    const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
+
+    const month = months[date.getMonth()]; 
+    const day = date.getDate(); 
+    const weekday = weekdays[date.getDay()]; 
+
+    const formattedDate = `${month} ${day}일(${weekday})`;
+    return formattedDate
+  }
 
   return (
     <div className="modal-overlay">
@@ -27,30 +47,13 @@ const ActivityModal: React.FC<ActivityModalProps> = ({ date, activities, onClose
         <button className="close-button" onClick={onClose}>
           ×
         </button>
-        <h2>{dateString} 일정 상세</h2>
-        {activities.length > 0 ? (
-          <ul className="activities-ul">
-            {activities.map((act) => (
-              <li key={act.id} className="activity-li">
-                <div className="activity-title">
-                  <strong>{act.title}</strong> ({act.category})
-                </div>
-                {(act.startTime && act.endTime) && (
-                  <div className="activity-time">
-                    {act.startTime} ~ {act.endTime}
-                  </div>
-                )}
-                {act.description && (
-                  <div className="activity-description">
-                    {act.description}
-                  </div>
-                )}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>이 날짜에는 등록된 일정이 없습니다.</p>
-        )}
+        <h2>{activity.title}</h2>
+        <div className="modal-body"><img className="modal-icon" src="/time.svg"></img><div>{CreateDayandTime(activity.start)} ~ {CreateDayandTime(activity.end)}</div></div>
+        <div className="modal-body"><img className="modal-icon" src="/location.svg"></img>{activity.location}</div>
+        <Link className="modal-body" href={activity.link}><img className="modal-icon" src="/link.svg"></img>{activity.link}</Link>
+        <div className="attendance-button-container">
+          <button className={`attendance-button ${attendance ? 'complete' : 'incomplete'}`} onClick={AttendanceCheck}>출석</button>
+        </div>
       </div>
     </div>
   );

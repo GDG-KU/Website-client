@@ -1,193 +1,140 @@
 'use client';
 import React, { useState, useMemo } from 'react';
-import Calendar from 'react-calendar';
 import Image from 'next/image';
 import 'react-calendar/dist/Calendar.css';
 import './calendar.css';
+
+import FullCalendar from "@fullcalendar/react";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import { EventClickArg } from '@fullcalendar/core/index.js';
+
 import ActivityModal from '@/components/ActivityModal';
 
-// 일정(활동) 정보를 나타내는 인터페이스
-interface ActivityItem {
-  id: string;
-  title: string;        // 일정 제목
-  startDate: string;    // YYYY-MM-DD (이벤트 시작 날짜)
-  endDate: string;      // YYYY-MM-DD (이벤트 종료 날짜)
-  category: string;     // 일정 종류 (branch, fetch, demo 등)
-  startTime?: string;
-  endTime?: string;
-  description?: string;
-  participants?: string[];
+interface TagResponse {
+  "tag": {
+      "id": number;
+      "title": string;
+      "tag_property": {
+        "id": number;
+        "tag_property": string;
+      }
+    }
 }
 
-// 날짜가 startDate~endDate 범위에 포함되는지 확인하는 함수
-function isDateInRange(dateObj: Date, startStr: string, endStr: string): boolean {
-  const dateTime = dateObj.getTime();
-  const startTime = new Date(startStr).getTime();
-  const endTime = new Date(endStr).getTime();
-  return startTime <= dateTime && dateTime <= endTime;
+interface backendResponse {
+  id: number;
+  title: string;
+  start_date: Date;
+  end_date: Date;
+  location: string;
+  url: string;
+  tag: TagResponse;
 }
 
-// 데모용 일정들
-const sampleActivities: ActivityItem[] = [
-  {
-    id: '1',
-    title: 'branch/ai/WK3',
-    startDate: '2024-12-03',
-    endDate: '2024-12-03',  // 당일 일정
-    category: 'branch',
-    startTime: '19:00',
-    endTime: '20:00',
-    description: 'branch AI weekly 3차 모임',
-    participants: ['userA', 'userB'],
-  },
-  {
-    id: '2',
-    title: 'fetch/be/WK2',
-    startDate: '2024-12-05',
-    endDate: '2024-12-05',
-    category: 'fetch',
-    startTime: '14:00',
-    endTime: '15:30',
-    description: 'fetch backend weekly 2차 모임',
-    participants: ['userA', 'userB'],
-  },
-  {
-    id: '3',
-    title: 'Demo Day',
-    startDate: '2024-12-05',
-    endDate: '2024-12-05',
-    category: 'demo',
-    startTime: '10:00',
-    endTime: '12:00',
-    description: '프로젝트 데모 발표',
-    participants: ['userA', 'userB'],
-  },
-  {
-    id: '4',
-    title: '기말고사',
-    startDate: '2024-12-08',
-    endDate: '2024-12-10', // 3일 간
-    category: 'exam',
-    description: '기말고사 기간',
-    participants: [],
-  },
-  {
-    id: '5',
-    title: 'branch/fe/WK4',
-    startDate: '2024-12-24',
-    endDate: '2024-12-24',
-    category: 'branch',
-    startTime: '19:00',
-    endTime: '20:00',
-    description: 'branch FE weekly 4차 모임',
-    participants: ['userA'],
-  },
-  {
-    id: '6',
-    title: 'branch/ai/WK4',
-    startDate: '2024-12-24',
-    endDate: '2024-12-24',
-    category: 'branch',
-    startTime: '15:00',
-    endTime: '16:30',
-    description: 'branch AI weekly 4차 모임',
-    participants: ['userA'],
-  },
-  {
-    id: '7',
-    title: 'Solution Challenge',
-    startDate: '2024-12-26',
-    endDate: '2024-12-27', // 2일 간
-    category: 'solution',
-    startTime: '19:00',
-    endTime: '21:00',
-    description: '팀 빌딩 및 아이디어 논의',
-    participants: ['userA', 'userB'],
-  },
+// 이벤트 양식 샘플
+const mockEvents = [
+  { title: 'Event 1', start_date: '2025-01-15', end_date: '2025-01-17', location: "우정정보관", url: "www.naver.com", participants: ['userB'] },
+  { title: 'Event 4', start: '2025-01-15', end: '2025-01-17', participants: ['userA'] },
+  { title: 'Event 2', start: '2025-01-18', allDay: true, description: "Lecture", participants: ['userA, userB'] },
+  { title: 'Event 3', start: '2025-01-19T10:30:00', end: '2025-01-19T12:30:00', participants: [] },
 ];
 
-const CalendarPage: React.FC = () => {
-  // 현재 로그인 사용자 (예: 'userB')
-  const currentUser = 'userB';
+// 백엔드 응답 샘플
+const mockBackendResponse: backendResponse[] = [
+  { 
+    id: 1,
+    title: "branch1/week2",
+    start_date: new Date("2025-01-15T18:00:00"),
+    end_date: new Date("2025-01-15T20:00:00"),
+    location: "우정정보관 201호",
+    url: "http://localhost:3002/localevents/branch",
+    tag: {
+      "tag": {
+        "id": 1,
+        "title": "Tag title",
+        "tag_property": {
+          "id": 1,
+          "tag_property": "branch"
+        }
+      }
+    }
+  },
+  { 
+    id: 2,
+    title: "worktree",
+    start_date: new Date("2025-01-18T18:00:00"),
+    end_date: new Date("2025-01-19T20:00:00"),
+    location: "우정정보관 201호",
+    url: "http://localhost:3002/localevents/worktree",
+    tag: {
+      "tag": {
+        "id": 2,
+        "title": "Tag title",
+        "tag_property": {
+          "id": 2,
+          "tag_property": "fetch"
+        }
+      }
+    }
+  }
+];
+
+const Calendar: React.FC = () => {
+
+  const currentUser = 'userB'
 
   // My Activities 스위치
   const [showMyActivities, setShowMyActivities] = useState(false);
-
-  // 선택된 날짜 (모달용)
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  // 모달 오픈 여부
-  const [modalOpen, setModalOpen] = useState(false);
-  // 모달에 표시할 일정들
-  const [modalItems, setModalItems] = useState<ActivityItem[]>([]);
-
-  // 일정 필터링
+  // 일정 필터링 
+  // TODO - 백엔드에서 response에 participants 필드 추가해주면 mockEvents를 backendResponseToEvent(mockbackendResponse)로 완전히 대체
   const filteredActivities = useMemo(() => {
     if (showMyActivities) {
-      return sampleActivities.filter((act) =>
-        act.participants?.includes(currentUser),
+      return mockEvents.filter((e) =>
+        e.participants?.includes(currentUser),
       );
     }
-    return sampleActivities;
+    return mockEvents;
   }, [showMyActivities, currentUser]);
 
-  // 달력 날짜 클릭
-  const handleDayClick = (date: Date) => {
-    setSelectedDate(date);
-    // date가 startDate~endDate 범위 안에 있는 일정들
-    const matched = filteredActivities.filter((act) =>
-      isDateInRange(date, act.startDate, act.endDate),
-    );
-    setModalItems(matched);
-    setModalOpen(true);
-  };
 
+  const [modalOpen, setModalOpen] = useState(false)
+  const [modalItems, setModalItems] = useState({
+    title: "branch",
+    start: new Date("2025-01-15T18:00:00"),
+    end: new Date("2025-01-17T18:00:00"),
+    location: "우정정보관",
+    link: "www.naver.com"
+  })
   const closeModal = () => {
     setModalOpen(false);
-    setSelectedDate(null);
   };
 
-  // 달력의 각 날짜(tile)에 그려질 내용
-  const tileContent = ({ date, view }: { date: Date; view: string }) => {
-    if (view === 'month') {
-      const matched = filteredActivities.filter((act) =>
-        isDateInRange(date, act.startDate, act.endDate),
-      );
-      if (matched.length === 0) return null;
+  // 이벤트(activity) 클릭 시
+  const eventClickHandler = (info:EventClickArg) => {
+    info.jsEvent.preventDefault(); // event가 url 속성을 가지고 있을 경우 클릭 시 자동으로 url을 방문하는 기본 동작 방지 - 참고 https://fullcalendar.io/docs/eventClick
 
-      const MAX_SHOW = 2;
-      const visibleEvents = matched.slice(0, MAX_SHOW);
-      const extraCount = matched.length - MAX_SHOW;
+    setModalOpen((prev) => !prev)
+    setModalItems({
+        title: info.event.title,
+        start: info.event.start,
+        end: info.event.end,
+        location: info.event.extendedProps.location,
+        link: info.event.url
+    })
+  }
 
-      return (
-        <div className="day-events-container">
-          {visibleEvents.map((ev) => (
-            <div key={ev.id} className={`event-label ${ev.category}`}>
-              {ev.title}
-            </div>
-          ))}
-          {extraCount > 0 && (
-            <div className="event-label more-count">
-              + {extraCount}건
-            </div>
-          )}
-        </div>
-      );
-    }
-    return null;
-  };
-
-  // 일정이 있는 날짜면 클래스 추가
-  const tileClassName = ({ date, view }: { date: Date; view: string }) => {
-    if (view === 'month') {
-      const matched = filteredActivities.filter((act) =>
-        isDateInRange(date, act.startDate, act.endDate),
-      );
-      if (matched.length > 0) {
-        return 'has-activities';
-      }
-    }
-    return '';
-  };
+  // 백엔드 응답을 fullcalendar의 event prop 양식으로 변환
+  const backendResponseToEvent = (backendRes: backendResponse[]) => {
+    const events = backendRes.map((bR) => ({
+      title: bR.title,
+      start: bR.start_date,
+      end: bR.end_date,
+      location: bR.location, // 사용자 정의 필드이므로 .extendedProps.location으로 접근해야함
+      url: bR.url,
+      classNames: bR.tag.tag.tag_property.tag_property
+    }));
+    return events
+  }
 
   return (
     <div className="calendar-page-container">
@@ -211,36 +158,29 @@ const CalendarPage: React.FC = () => {
 
         {/* 달력 영역 */}
         <div className="calendar-wrapper">
-          <Calendar
-            onClickDay={handleDayClick}
-            tileContent={tileContent}
-            tileClassName={tileClassName}
-            locale="en-GB"
-            maxDetail="month"
-            prevLabel="<<"
-            nextLabel=">>"
-            prev2Label={null}
-            next2Label={null}
+          <FullCalendar
+            plugins={[dayGridPlugin]}
+            initialView="dayGridMonth"
+            headerToolbar={{
+              left: 'prev',
+              center: 'title',
+              right: 'next'
+            }}
+            events = {backendResponseToEvent(mockBackendResponse)} // json을 받아올 url을 넣어도 됨 (참고)-> https://fullcalendar.io/docs/events-json-feed 
+            dayMaxEventRows = {true} // grid를 넘치는 이벤트는 줄여서 표기, 표시할 이벤트 개수를 작성해도 됨
+            eventClick={eventClickHandler}
           />
         </div>
-
+          
         {/* 모달 (ActivityModal을 직접 쓰거나, 여기서 구현도 가능) */}
-        {modalOpen && selectedDate && (
+        {modalOpen && (
           <ActivityModal
-            date={selectedDate}
             // ActivityModal용으로 형식 맞추기
-            activities={modalItems.map((act) => ({
-              id: act.id,
-              title: act.title,
-              date: act.startDate,  // 단일 날짜만 표시한다면?
-              category: act.category,
-              startTime: act.startTime,
-              endTime: act.endTime,
-              description: act.description,
-            }))}
+            activity={modalItems}
             onClose={closeModal}
           />
         )}
+
         {/* 하단 CTA 카드들 */}
         <div className="cta-cards-container">
           <h2>My Activities</h2>
@@ -286,7 +226,7 @@ const CalendarPage: React.FC = () => {
         </div>
       </main>
     </div>
-  );
-};
+  )
+}
 
-export default CalendarPage;
+export default Calendar;
