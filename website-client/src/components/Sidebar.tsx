@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import './Sidebar.css';
+import LoginModal from '@/components/LoginModal';
+import { useAppSelector } from '@/store/hooks';
 
 interface SubItem {
   label: string;
@@ -62,48 +64,53 @@ const menuData: MainItem[] = [
 ];
 
 const Sidebar: React.FC = () => {
+  // Redux로부터 로그인 여부
+  const { isLoggedIn } = useAppSelector((state) => state.login);
+  // 로그인 모달 열림 여부
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
-  // 마우스를 올린 메인 메뉴 index
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  // 사이드바 열림 상태 (기본 false → 사실상 "숨김" 상태, but always visible + translateX로 처리)
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
-  // 사이드바 전체 hover 상태
   const [isSidebarHovered, setIsSidebarHovered] = useState<boolean>(false);
 
   useEffect(() => {
-    // 컴포넌트(페이지) 로드 시점에 오버레이/사이드바 상태 초기화
     setIsSidebarHovered(false);
     setIsSidebarOpen(false);
   }, []);
 
-
-  // 메인 메뉴에 마우스 올라갔을 때
   const handleMainMenuMouseEnter = (index: number) => {
     setHoveredIndex(index);
   };
-  // 메인 메뉴에서 마우스 나갔을 때
   const handleMainMenuMouseLeave = () => {
-    // 필요에 따라 처리
+    // 필요하면 처리
   };
 
-  // 서브 사이드바 영역으로 마우스가 들어감
   const handleSubSidebarEnter = (index: number) => {
     setHoveredIndex(index);
   };
-  // 서브 사이드바 영역에서 마우스가 나감
   const handleSubSidebarLeave = () => {
     setHoveredIndex(null);
   };
 
-  // 사이드바 영역에 마우스가 들어옴 → 열림
+  // 사이드바 전체 영역 호버
   const onSidebarMouseEnter = () => {
     setIsSidebarHovered(true);
     setIsSidebarOpen(true);
   };
-  // 사이드바 영역에서 나감 → 닫힘
   const onSidebarMouseLeave = () => {
     setIsSidebarHovered(false);
     setIsSidebarOpen(false);
+  };
+
+  // 프로필 클릭
+  const handleProfileClick = () => {
+    if (isLoggedIn) {
+      // 로그인된 상태 → 마이페이지
+      window.location.href = '/mypage';
+    } else {
+      // 미로그인 상태 → 로그인 모달
+      setIsLoginModalOpen(true);
+    }
   };
 
   // 사용자 프로필 이미지
@@ -111,8 +118,12 @@ const Sidebar: React.FC = () => {
 
   return (
     <>
-      {/* 오버레이: 사이드바에 마우스가 올라간 동안만 .open 처리 */}
-      <div className={`sidebar-overlay ${isSidebarHovered ? 'open' : ''}`} />
+      {/* 오버레이: 사이드바 호버 중 .open 처리 + 로그인 모달이 열려도 어둡게 */}
+      <div
+        className={`sidebar-overlay ${
+          isSidebarHovered || isLoginModalOpen ? 'open' : ''
+        }`}
+      />
 
       <aside
         className={`main-sidebar ${isSidebarOpen ? 'open' : ''}`}
@@ -148,17 +159,16 @@ const Sidebar: React.FC = () => {
           ))}
         </nav>
 
-        {/* 마이페이지 아이콘 */}
+        {/* 프로필 아이콘 */}
         <div className="user-area">
-          <Link href="/mypage">
-            <Image
-              src={userProfileImage}
-              alt="사용자 프로필"
-              width={50}
-              height={50}
-              className="user-profile-image"
-            />
-          </Link>
+          <Image
+            src={userProfileImage}
+            alt="사용자 프로필"
+            width={50}
+            height={50}
+            className="user-profile-image"
+            onClick={handleProfileClick}
+          />
         </div>
 
         {/* 서브 사이드바 */}
@@ -171,11 +181,7 @@ const Sidebar: React.FC = () => {
           >
             <div className="sub-menu-items">
               {menuData[hoveredIndex].subItems!.map((sub) => (
-                <Link
-                  key={sub.label}
-                  href={sub.path}
-                  className="sub-menu-link"
-                >
+                <Link key={sub.label} href={sub.path} className="sub-menu-link">
                   {sub.label}
                 </Link>
               ))}
@@ -183,6 +189,12 @@ const Sidebar: React.FC = () => {
           </div>
         )}
       </aside>
+
+      {/* 로그인 모달 */}
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+      />
     </>
   );
 };
