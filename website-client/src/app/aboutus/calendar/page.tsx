@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import 'react-calendar/dist/Calendar.css';
 import './calendar.css';
@@ -135,6 +135,59 @@ const Calendar: React.FC = () => {
     }));
     return events
   }
+  // CTA 카드
+  /*
+  const ctaCardData = Array.from({ length: 16 }, (_, i) => ({
+    id: i + 1,
+    title: `Card ${i + 1}`,
+    imgSrc: `/cta-card/card${i + 1}.svg`,
+    link: `/another-page/card${i + 1}`, // 라우팅용
+  }));
+  */
+  const ctaCardData = [
+    { id: 1, title: 'branch-git', imgSrc: '/cta-card/cta-branch-git.svg', link: '/1' },
+    { id: 2, title: 'branch-junior-ai', imgSrc: '/cta-card/cta-branch-junior-ai.svg', link: '/2' },
+    { id: 3, title: 'branch-junior-be', imgSrc: '/cta-card/cta-branch-junior-be.svg', link: '/3' },
+    { id: 4, title: 'branch-junior-flutter', imgSrc: '/cta-card/cta-branch-junior-flutter.svg', link: '/4' },
+    { id: 5, title: 'branch-member1', imgSrc: '/cta-card/cta-branch-member1.svg', link: '/5' },
+    { id: 6, title: 'branch-member2', imgSrc: '/cta-card/cta-branch-member2.svg', link: '/6' },
+    { id: 7, title: 'fetch-ai', imgSrc: '/cta-card/cta-fetch-ai.svg', link: '/7' },
+    { id: 8, title: 'fetch-be', imgSrc: '/cta-card/cta-fetch-be.svg', link: '/8' },
+    { id: 9, title: 'fetch-dsgn', imgSrc: '/cta-card/cta-fetch-dsgn.svg', link: '/9' },
+    { id: 10, title: 'fetch-fe', imgSrc: '/cta-card/cta-fetch-fe.svg', link: '/10' },
+    { id: 11, title: 'solutionchallenge', imgSrc: '/cta-card/cta-solutionchallenge.svg', link: '/11' },
+    { id: 12, title: 'worktree-design', imgSrc: '/cta-card/cta-worktree-design.svg', link: '/12' },
+    { id: 13, title: 'worktree-discord', imgSrc: '/cta-card/cta-worktree-discord.svg', link: '/13' },
+    { id: 14, title: 'worktree-goody', imgSrc: '/cta-card/cta-worktree-goody.svg', link: '/14' },
+    { id: 15, title: 'worktree-history', imgSrc: '/cta-card/cta-worktree-history.svg', link: '/15' },
+    { id: 16, title: 'worktree-wear', imgSrc: '/cta-card/cta-worktree-wear.svg', link: '/16' },
+    { id: 17, title: 'worktree-website', imgSrc: '/cta-card/cta-worktree-website.svg', link: '/16' },
+  ];
+  // 가로 스크롤 참조
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // auto-scroll
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!scrollRef.current) return;
+
+    const { left, right, width } = scrollRef.current.getBoundingClientRect();
+    // 화면에서 컨테이너의 절대 위치
+    const mouseX = e.clientX;
+    const containerLeft = left;
+    const containerRight = right;
+
+    // 어느 정도 범위를 정해서, 왼쪽 80px 근처면 왼쪽으로, 오른쪽 80px 근처면 오른쪽으로
+    const edgeThreshold = 80;
+
+    // 왼쪽 근처 → 스크롤 왼
+    if (mouseX - containerLeft < edgeThreshold) {
+      scrollRef.current.scrollBy({ left: -10, behavior: 'smooth' });
+    }
+    // 오른쪽 근처 → 스크롤 오른쪽
+    else if (containerRight - mouseX < edgeThreshold) {
+      scrollRef.current.scrollBy({ left: 10, behavior: 'smooth' });
+    }
+  };
 
   return (
     <div className="calendar-page-container">
@@ -183,45 +236,29 @@ const Calendar: React.FC = () => {
 
         {/* 하단 CTA 카드들 */}
         <div className="cta-cards-container">
-          <h2>My Activities</h2>
-          <div className="cta-cards-row">
-            {/* <img> 대신 <Image> 로 교체하여 ESLint 경고 제거 */}
-            <div className="cta-card">
-              <Image
-                src="/fetch.png"
-                alt="fetch"
-                width={50}
-                height={50}
-              />
-              <span>fetch</span>
-            </div>
-            <div className="cta-card">
-              <Image
-                src="/branch.png"
-                alt="branch"
-                width={50}
-                height={50}
-              />
-              <span>branch</span>
-            </div>
-            <div className="cta-card">
-              <Image
-                src="/worktree.png"
-                alt="worktree"
-                width={50}
-                height={50}
-              />
-              <span>worktree</span>
-            </div>
-            <div className="cta-card">
-              <Image
-                src="/solution.png"
-                alt="Solution Challenge"
-                width={50}
-                height={50}
-              />
-              <span>Solution Challenge</span>
-            </div>
+          <h2>My activities</h2>
+          <div
+            className="cta-cards-row"
+            onMouseMove={handleMouseMove}
+            ref={scrollRef}
+          >
+            {ctaCardData.map((card) => (
+              <a
+                key={card.id}
+                href={card.link}
+                className="cta-card"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {/* SVG 이미지 */}
+                <Image
+                  src={card.imgSrc}
+                  alt={card.title}
+                  width={100}
+                  height={100}
+                />
+              </a>
+            ))}
           </div>
         </div>
       </main>
