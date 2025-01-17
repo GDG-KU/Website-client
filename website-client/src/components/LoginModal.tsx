@@ -1,29 +1,29 @@
 'use client';
 
-import React, { useState, useEffect  } from 'react';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { loginAsync } from '@/store/loginSlice';
-import './LoginModal.css';
+import React, { useState, useEffect } from 'react';
+import { useAppDispatch } from '@/store/hooks';
+// import { useAppSelector } from '@/store/hooks';
+import { normalLoginAsync } from '@/store/authSlice';
+
 import Image from 'next/image';
+import './LoginModal.css';
 
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
-
 export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const dispatch = useAppDispatch();
-  const { loading, error } = useAppSelector((state) => state.login);
-
+  // const { isLoggedIn } = useAppSelector((state) => state.auth);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [saveId, setSaveId] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
-      const storedUsername = localStorage.getItem('savedUsername');
-      if (storedUsername) {
-        setUsername(storedUsername);
+      const saved = localStorage.getItem('savedUsername');
+      if (saved) {
+        setUsername(saved);
         setSaveId(true);
       }
     }
@@ -31,29 +31,58 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
   if (!isOpen) return null;
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // 일반 로그인
+  const handleNormalLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    const resultAction = await dispatch(loginAsync({ username, password }));
-    if (loginAsync.fulfilled.match(resultAction)) {
+    const result = await dispatch(normalLoginAsync({ username, password }));
+    if (normalLoginAsync.fulfilled.match(result)) {
       if (saveId) {
         localStorage.setItem('savedUsername', username);
       } else {
         localStorage.removeItem('savedUsername');
       }
-    onClose();
+      //console.log('일반 로그인 성공, token=', result.payload);
+      onClose();
     }
   };
 
+  //auth/google 로 이동
   const handleGoogleLogin = () => {
-    // 구글 로그인 로직
-    alert('구글 로그인 시도');
+    window.location.href = 'http://localhost:3000/auth/google';
   };
 
+  /*
+  const handleGoogleCallback = async () => {
+    const result = await dispatch(googleCallbackAsync());
+    if (googleCallbackAsync.fulfilled.match(result)) {
+      alert('구글 로그인 성공');
+      console.log('구글 OAuth 토큰 =', result.payload);
+      onClose();
+    }
+  };
+
+  // 토큰 재발급
+  const handleRefresh = async () => {
+    if (!refreshToken) {
+      alert('No refresh token');
+      return;
+    }
+    const result = await dispatch(refreshTokenAsync(refreshToken));
+    if (refreshTokenAsync.fulfilled.match(result)) {
+      alert('Token 재발급 성공');
+      console.log('refresh new tokens =', result.payload);
+    }
+  };
+
+  // 로그아웃
+  const handleLogout = () => {
+    dispatch(logout());
+    alert('로그아웃 되었습니다.');
+  };
+  */
   return (
     <div className="login-modal-backdrop">
       <div className="login-modal-container">
-        {/* 닫기 버튼 */}
         <button className="login-modal-close-btn" onClick={onClose}>
           ✕
         </button>
@@ -66,7 +95,6 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
           />
         </div>
         <div className="login-modal-right">
-          {/* 로고 (우측 상단) */}
           <div className="modal-logo">
             <Image 
               src="/logo.png"
@@ -77,7 +105,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
           </div>
 
           <h2 className="welcome-text">Welcome!</h2>
-          <form onSubmit={handleSubmit} className="login-form">
+          <form onSubmit={handleNormalLogin} className="login-form">
             <input
               type="text"
               placeholder="아이디"

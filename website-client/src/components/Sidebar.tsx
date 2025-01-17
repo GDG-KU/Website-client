@@ -65,7 +65,7 @@ const menuData: MainItem[] = [
 
 const Sidebar: React.FC = () => {
   // Redux로부터 로그인 여부
-  const { isLoggedIn } = useAppSelector((state) => state.login);
+  const { isLoggedIn } = useAppSelector((state) => state.auth);
   // 로그인 모달 열림 여부
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
