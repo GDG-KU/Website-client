@@ -1,5 +1,6 @@
 'use client';
 import React, {useState} from 'react';
+import Image from 'next/image';
 import Link from "next/link"
 import './ActivityModal.css';
 
@@ -48,9 +49,13 @@ const ActivityModal: React.FC<ActivityModalProps> = ({ activity, onClose }) => {
           ×
         </button>
         <h2>{activity.title}</h2>
-        <div className="modal-body"><img className="modal-icon" src="/time.svg"></img><div>{CreateDayandTime(activity.start)} ~ {CreateDayandTime(activity.end)}</div></div>
-        <div className="modal-body"><img className="modal-icon" src="/location.svg"></img>{activity.location}</div>
-        <Link className="modal-body" href={activity.link}><img className="modal-icon" src="/link.svg"></img>{activity.link}</Link>
+        <div className="modal-body">
+          <Image className="modal-icon" src="/time.svg" alt = "time"/>
+          <div>{CreateDayandTime(activity.start)} ~ {CreateDayandTime(activity.end)}</div>
+        </div>
+        <div className="modal-body">
+          <Image className="modal-icon" src="/location.svg" alt = 'location'/>{activity.location}</div>
+        <Link className="modal-body" href={activity.link}><Image className="modal-icon" src="/link.svg" alt = "link" />{activity.link}</Link>
         <div className="attendance-button-container">
           <button className={`attendance-button ${attendance ? 'complete' : 'incomplete'}`} onClick={AttendanceCheck}>출석</button>
         </div>

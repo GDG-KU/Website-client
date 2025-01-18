@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import './ModalEditMember.css';
 import { MemberData } from '@/app/admin/management/page';
 import Image from 'next/image';
@@ -44,11 +44,11 @@ export default function ModalEditMember({
     };
     onSave(updatedMember);
   };
-
+  /*
   const handleProfileUrlChange = (e: ChangeEvent<HTMLInputElement>) => {
     setEditProfileUrl(e.target.value);
   };
-
+  */
   return (
     <div className="modal-edit-member-backdrop">
       <div className="modal-edit-member-content">

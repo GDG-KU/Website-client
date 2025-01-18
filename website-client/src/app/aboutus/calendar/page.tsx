@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import 'react-calendar/dist/Calendar.css';
 import './calendar.css';
@@ -24,13 +24,13 @@ interface TagResponse {
 interface backendResponse {
   id: number;
   title: string;
-  start_date: Date;
-  end_date: Date;
+  start_date: Date | null;
+  end_date: Date | null;
   location: string;
   url: string;
   tag: TagResponse;
 }
-
+/*
 // 이벤트 양식 샘플
 const mockEvents = [
   { title: 'Event 1', start_date: '2025-01-15', end_date: '2025-01-17', location: "우정정보관", url: "www.naver.com", participants: ['userB'] },
@@ -38,7 +38,7 @@ const mockEvents = [
   { title: 'Event 2', start: '2025-01-18', allDay: true, description: "Lecture", participants: ['userA, userB'] },
   { title: 'Event 3', start: '2025-01-19T10:30:00', end: '2025-01-19T12:30:00', participants: [] },
 ];
-
+*/
 // 백엔드 응답 샘플
 const mockBackendResponse: backendResponse[] = [
   { 
@@ -81,13 +81,13 @@ const mockBackendResponse: backendResponse[] = [
 
 const Calendar: React.FC = () => {
 
-  const currentUser = 'userB'
+  // const currentUser = 'userB'
 
   // My Activities 스위치
   const [showMyActivities, setShowMyActivities] = useState(false);
   // 일정 필터링 
   // TODO - 백엔드에서 response에 participants 필드 추가해주면 mockEvents를 backendResponseToEvent(mockbackendResponse)로 완전히 대체
-  const filteredActivities = useMemo(() => {
+  /*const filteredActivities = useMemo(() => {
     if (showMyActivities) {
       return mockEvents.filter((e) =>
         e.participants?.includes(currentUser),
@@ -95,7 +95,7 @@ const Calendar: React.FC = () => {
     }
     return mockEvents;
   }, [showMyActivities, currentUser]);
-
+  */
 
   const [modalOpen, setModalOpen] = useState(false)
   const [modalItems, setModalItems] = useState({
@@ -108,7 +108,7 @@ const Calendar: React.FC = () => {
   const closeModal = () => {
     setModalOpen(false);
   };
-
+  
   // 이벤트(activity) 클릭 시
   const eventClickHandler = (info:EventClickArg) => {
     info.jsEvent.preventDefault(); // event가 url 속성을 가지고 있을 경우 클릭 시 자동으로 url을 방문하는 기본 동작 방지 - 참고 https://fullcalendar.io/docs/eventClick
@@ -116,8 +116,8 @@ const Calendar: React.FC = () => {
     setModalOpen((prev) => !prev)
     setModalItems({
         title: info.event.title,
-        start: info.event.start,
-        end: info.event.end,
+        start: info.event.start!,
+        end: info.event.end!,
         location: info.event.extendedProps.location,
         link: info.event.url
     })
@@ -127,8 +127,8 @@ const Calendar: React.FC = () => {
   const backendResponseToEvent = (backendRes: backendResponse[]) => {
     const events = backendRes.map((bR) => ({
       title: bR.title,
-      start: bR.start_date,
-      end: bR.end_date,
+      start: bR.start_date!,
+      end: bR.end_date!,
       location: bR.location, // 사용자 정의 필드이므로 .extendedProps.location으로 접근해야함
       url: bR.url,
       classNames: bR.tag.tag.tag_property.tag_property
