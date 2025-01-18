@@ -9,6 +9,7 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import { EventClickArg } from '@fullcalendar/core/index.js';
 
 import ActivityModal from '@/components/ActivityModal';
+import ActivityAddModal from '@/components/ActivityAddModal';
 
 interface TagResponse {
   "tag": {
@@ -82,6 +83,7 @@ const mockBackendResponse: backendResponse[] = [
 const Calendar: React.FC = () => {
 
   const currentUser = 'userB'
+  const isCurrentUserManager = false
 
   // My Activities 스위치
   const [showMyActivities, setShowMyActivities] = useState(false);
@@ -161,6 +163,7 @@ const Calendar: React.FC = () => {
           <FullCalendar
             plugins={[dayGridPlugin]}
             initialView="dayGridMonth"
+            aspectRatio={1.75}
             headerToolbar={{
               left: 'prev',
               center: 'title',
@@ -182,6 +185,7 @@ const Calendar: React.FC = () => {
         )}
 
         {/* 하단 CTA 카드들 */}
+        {isCurrentUserManager==false&&
         <div className="cta-cards-container">
           <h2>My Activities</h2>
           <div className="cta-cards-row">
@@ -224,6 +228,15 @@ const Calendar: React.FC = () => {
             </div>
           </div>
         </div>
+        }
+
+        {true && (
+          <ActivityAddModal
+            // ActivityModal용으로 형식 맞추기
+            onClose={closeModal}
+          />
+        )}
+
       </main>
     </div>
   )

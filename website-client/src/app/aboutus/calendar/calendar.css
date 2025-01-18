@@ -98,7 +98,10 @@
     background-color: #fff;
     border-radius: 16px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    padding: 2rem;
+    /* padding-right: 2rem;
+    padding-left: 2rem;
+    padding-bottom: 2rem; */
+    padding-top: 1rem;
     color: #000;
   }
   
@@ -153,33 +156,72 @@
   .has-activities {
     background-color: #f9fcff;
   }
+
+  /*full calendar 커스텀*/
+
+  :root {
+    --fc-button-bg-color: white; /* 텍스트 색상을 파란색으로 변경 */
+    --fc-button-text-color: black;
+    --fc-button-border-color: white;
+    --fc-button-hover-bg-color: white;
+    --fc-button-hover-border-color: white;
+    --fc-button-hover-text-color: grey;
+    --fc-button-active-border-color: white;
+    --fc-button-active-bg-color: white;
+  }
+
+  .fc-daygrid-day-number {
+    font-size: 13px;
+    color: #AAAAAA
+  }
+
+  .fc-col-header-cell-cushion{
+    font-size: 13px;
+    color: #AAAAAA
+  }
+
+  .fc-day-sat, .fc-day-sun {
+    background-color: #FCFCFC; 
+  }
+
+  .fc-day-sun .fc-daygrid-day-number {
+    color: #EA4336;
+  }
   
+  .fc-daygrid-event {
+    border-radius: 10px;
+  }
+
+  .fc-event-time {
+    margin-left: 1px;
+  }
+
   /* 카테고리별 색상 */
   .branch {
-    background-color: #FFF9E6;
-    color: #B58500;
-    
+    background-color: #FFEFC3;
+    color: #C18016;
   }
   .fetch {
-    background-color: #eaf5ff;
-    color: #0066b2;
+    background-color: #CADEFF;
+    color: #3C75D3;
   }
   .demo {
-    background-color: #ddd;
-    color: #333;
-  }
-  .exam {
-    background-color: #ffe6e6;
-    color: #b20000;
+    background-color: #5F6367;
+    color: #FFFFFF;
   }
   .solution {
-    background-color: #fdeef3;
-    color: #b20057;
+    background-color: #FFC5C0;
+    color: #D32F22;
   }
-  .more-count {
-    background-color: #ccc;
-    color: #444;
+  .worktree {
+    background-color: #B2E4C0;
+    color: #34A853;
   }
+  .etc {
+    background-color: #F1F3F4;
+    color: #101010;
+  }
+  
   
   /* 하단 CTA 카드 */
   .cta-cards-container {
