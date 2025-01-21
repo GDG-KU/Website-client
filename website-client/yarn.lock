@@ -124,6 +124,11 @@
   resolved "https://registry.npmjs.org/@fullcalendar/daygrid/-/daygrid-6.1.15.tgz"
   integrity sha512-j8tL0HhfiVsdtOCLfzK2J0RtSkiad3BYYemwQKq512cx6btz6ZZ2RNc/hVnIxluuWFyvx5sXZwoeTJsFSFTEFA==
 
+"@fullcalendar/interaction@^6.1.15":
+  version "6.1.15"
+  resolved "https://registry.npmjs.org/@fullcalendar/interaction/-/interaction-6.1.15.tgz"
+  integrity sha512-DOTSkofizM7QItjgu7W68TvKKvN9PSEEvDJceyMbQDvlXHa7pm/WAVtAc6xSDZ9xmB1QramYoWGLHkCYbTW1rQ==
+
 "@fullcalendar/react@^6.1.15":
   version "6.1.15"
   resolved "https://registry.npmjs.org/@fullcalendar/react/-/react-6.1.15.tgz"

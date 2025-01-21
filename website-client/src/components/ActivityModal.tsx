@@ -5,6 +5,7 @@ import Link from "next/link"
 import './ActivityModal.css';
 
 export interface ActivityItem {
+  id: string;
   title: string;
   start: Date;
   end: Date;
@@ -64,6 +65,7 @@ const ActivityModal: React.FC<ActivityModalProps> = ({ activity, onClose }) => {
     }
     else if (diffInMs>lateMargin) { 
       setAttendance(AttendanceStatus.Late)
+      // 지각일 경우 fetch할 데이터의 양식이 없음(서버 단의 수정 필요)
     }
     else if (diffInMs<startMargin) {
       alert(`아직 출석 시간이 아닙니다. 출석은 시작 시간 ${timeMarginInMin}분 전부터 가능합니다.`)

@@ -64,8 +64,8 @@ const mockBackendResponse: backendResponse[] = [
   { 
     id: 2,
     title: "worktree",
-    start_date: new Date("2025-01-18T18:00:00"),
-    end_date: new Date("2025-01-19T20:00:00"),
+    start_date: new Date("2025-01-21T23:40:00"),
+    end_date: new Date("2025-01-22T20:00:00"),
     location: "우정정보관 201호",
     url: "http://localhost:3002/localevents/worktree",
     tag: {
@@ -95,6 +95,7 @@ const Calendar: React.FC = () => {
 
   const [modalOpen, setModalOpen] = useState(false)
   const [modalItems, setModalItems] = useState<ActivityItem>({
+    id: "1",
     title: "branch",
     start: new Date("2025-01-15T18:00:00"),
     end: new Date("2025-01-17T18:00:00"),
@@ -111,6 +112,7 @@ const Calendar: React.FC = () => {
 
     setModalOpen(true)
     setModalItems({
+        id: info.event.id,
         title: info.event.title,
         start: info.event.start!,
         end: info.event.end!,
@@ -128,6 +130,7 @@ const Calendar: React.FC = () => {
   // 백엔드 응답을 fullcalendar의 event prop 양식으로 변환
   const backendResponseToEvent = (backendRes: backendResponse[]) => {
     const events = backendRes.map((bR) => ({
+      id: bR.id.toString(),
       title: bR.title,
       start: bR.start_date!,
       end: bR.end_date!,

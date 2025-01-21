@@ -1,6 +1,5 @@
 'use client';
 import React, { useState } from 'react';
-import Image from 'next/image';
 import 'react-calendar/dist/Calendar.css';
 import './calendar.css';
 
@@ -104,7 +103,7 @@ const Calendar: React.FC = () => {
     info.jsEvent.preventDefault(); // event가 url 속성을 가지고 있을 경우 클릭 시 자동으로 url을 방문하는 기본 동작 방지 - 참고 https://fullcalendar.io/docs/eventClick
 
     setModalItems({
-        id: info.event.extendedProps.eventID,
+        id: info.event.id,
         tag_id: info.event.extendedProps.tag_id,
         tag: info.event.extendedProps.tag,
         title: info.event.title,
@@ -124,7 +123,7 @@ const Calendar: React.FC = () => {
   // 백엔드 응답을 fullcalendar의 event prop 양식으로 변환
   const backendResponseToEvent = (backendRes: backendResponse[]) => {
     const events = backendRes.map((bR) => ({
-      eventID: bR.id,
+      id: bR.id.toString(),
       tag_id: bR.tag.tag.id,
       tag: bR.tag.tag.tag_property.tag_property,
       title: bR.title,
