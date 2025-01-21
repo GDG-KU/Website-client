@@ -4,7 +4,7 @@ import Link from "next/link"
 import './ActivityModal.css';
 
 
-interface ActivityItem {
+export interface ActivityItem {
   title: string;
   start: Date;
   end: Date;
@@ -13,7 +13,7 @@ interface ActivityItem {
 }
 
 interface ActivityModalProps {
-  activity: ActivityItem; 
+  activity: ActivityItem|null; 
   onClose: () => void;
 }
 
@@ -25,7 +25,7 @@ const ActivityModal: React.FC<ActivityModalProps> = ({ activity, onClose }) => {
   const [timePrint, setTimePrint] = useState("")
   
   useEffect(() => {
-    const startDay = CreateDay(activity.start);
+    const startDay = CreateDay(activity?.start);
     const startTime = CreateTime(activity.start);
     const endDay = CreateDay(activity.end);
     const endTime = CreateTime(activity.end);

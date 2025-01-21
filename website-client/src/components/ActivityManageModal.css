@@ -1,4 +1,4 @@
-/* ActivityModal.css */
+/* ActivityMangageModal.css */
 .modal-overlay {
     position: fixed;
     top: 0; 
@@ -80,8 +80,8 @@
     /* overflow: ; */
   }
 
-  .datepicker {
-    z-index: 1000;
+  .react-datepicker-popper {
+    z-index: 2000 !important;
   }
 
   .modal-icon {

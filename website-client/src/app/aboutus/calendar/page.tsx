@@ -9,7 +9,9 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import { EventClickArg } from '@fullcalendar/core/index.js';
 
 import ActivityModal from '@/components/ActivityModal';
-import ActivityAddModal from '@/components/ActivityAddModal';
+import ActivityManageModal from '@/components/ActivityManageModal';
+import { ActivityItem } from '@/components/ActivityModal';
+
 
 interface TagResponse {
   "tag": {
@@ -100,7 +102,7 @@ const Calendar: React.FC = () => {
 
 
   const [modalOpen, setModalOpen] = useState(false)
-  const [modalItems, setModalItems] = useState({
+  const [modalItems, setModalItems] = useState<ActivityItem|null>({
     title: "branch",
     start: new Date("2025-01-15T18:00:00"),
     end: new Date("2025-01-17T18:00:00"),
@@ -108,6 +110,7 @@ const Calendar: React.FC = () => {
     link: "www.naver.com"
   })
   const closeModal = () => {
+    setModalItems(null)
     setModalOpen(false);
   };
 
@@ -230,9 +233,9 @@ const Calendar: React.FC = () => {
         </div>
         }
 
-        {true && (
-          <ActivityAddModal
-            // ActivityModal용으로 형식 맞추기
+        {modalOpen && (
+          <ActivityManageModal
+            activity={modalItems}
             onClose={closeModal}
           />
         )}

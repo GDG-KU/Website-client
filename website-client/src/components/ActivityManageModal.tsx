@@ -3,13 +3,22 @@ import React, {useState, useEffect} from 'react';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css"
 
-import './ActivityAddModal.css'
+import './ActivityManageModal.css'
 
-interface ActivityAddModalProps {
+interface ActivityItem {
+    title: string;
+    start: Date;
+    end: Date;
+    location: string;
+    link: string;
+  }
+  
+  interface ActivityManageModalProps {
+    activity: ActivityItem|null; 
     onClose: () => void;
   }
 
-const ActivityAddModal: React.FC<ActivityAddModalProps> = ({onClose}) => {
+const ActivityManageModal: React.FC<ActivityManageModalProps> = ({activity, onClose}) => {
     const [tag, setTag] = useState<string>("")
     const [eventName, setEventName] = useState<string>("");
     const [location, setLocation] = useState<string>("");
@@ -82,7 +91,7 @@ const ActivityAddModal: React.FC<ActivityAddModalProps> = ({onClose}) => {
                             onChange={handleStartDateChange}
                             showTimeSelect
                             timeFormat="HH:mm"
-                            dateFormat=""
+                            dateFormat="yyyy/MM/dd HH:mm"
                             placeholderText='StartDate'
                             portalId="datepicker-portal"
                             popperModifiers={[
@@ -100,13 +109,14 @@ const ActivityAddModal: React.FC<ActivityAddModalProps> = ({onClose}) => {
                                     },
                                     fn: (state) => state
                                 },
-                            ]}                        />
+                            ]}                        
+                        />
                         <DatePicker
                             selected={endDate}
                             onChange={handleEndDateChange}
                             showTimeSelect
                             timeFormat="HH:mm"
-                            dateFormat=""
+                            dateFormat="yyyy:MM:dd HH:mm"
                             placeholderText='StartDate'
                             popperPlacement="bottom-start"
                             portalId="datepicker-portal"
@@ -139,4 +149,4 @@ const ActivityAddModal: React.FC<ActivityAddModalProps> = ({onClose}) => {
     )
 }
 
-export default ActivityAddModal;
+export default ActivityManageModal;
