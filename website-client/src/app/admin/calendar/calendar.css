@@ -1,0 +1,240 @@
+/* calendar.css */
+
+/* 폰트적용 해야함 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  /* body 배경 */
+  body {
+    background-color: #fff;
+  }
+  
+  /* 2) 페이지 레이아웃 */
+  .calendar-page-container {
+    margin-left: 200px; /* 사이드바 있다고 가정 */
+    flex-direction: column;
+  }
+  
+  .calendar-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 2rem;
+    overflow-y: auto;
+  }
+  
+  .calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  .calendar-header h1 {
+    margin: 0;
+    font-size: 1.6rem;
+    color: #000;
+    /* 폰트 중량은 next/font/local 로드 시 CSS 변수로 제어 가능 */
+  }
+  
+  /* 스위치 */
+  .toggle-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 24px;
+  }
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 24px;
+  }
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 18px; width: 18px;
+    left: 3px; top: 3px;
+    background-color: #fff;
+    transition: 0.4s;
+    border-radius: 50%;
+  }
+  input:checked + .slider {
+    background-color: #2196F3;
+  }
+  input:focus + .slider {
+    box-shadow: 0 0 1px #2196F3;
+  }
+  input:checked + .slider:before {
+    transform: translateX(16px);
+  }
+  .slider.round {
+    border-radius: 24px;
+  }
+  .toggle-label {
+    font-size: 0.95rem;
+    color: #333;
+  }
+  
+  /* 달력 래퍼 */
+  .calendar-wrapper {
+    margin: 0 auto;
+    width: 100%;
+    max-width: 1000px;
+    background-color: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    /* padding-right: 2rem;
+    padding-left: 2rem;
+    padding-bottom: 2rem; */
+    padding-top: 1rem;
+    color: #000;
+  }
+  
+  /* 3) React-Calendar 커스텀 */
+  .react-calendar {
+    width: 100%;
+    border: none;
+    color: #000;
+  }
+  .react-calendar__navigation {
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    color: #000;
+  }
+  .react-calendar__navigation button {
+    font-size: 1.2rem;
+    font-weight: 500; 
+    color: #000;
+  }
+  .react-calendar__month-view__weekdays {
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #888;
+    border-bottom: 1px solid #eaeaea;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .react-calendar__tile {
+    height: 70px;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 6px;
+    overflow: hidden;
+  }
+  .react-calendar__tile:hover {
+    background-color: #f5f5f5;
+  }
+  .react-calendar__tile--now {
+    background: #eaf5ff;
+    border: 1px solid #c2e1ff;
+  }
+  .react-calendar__tile--active {
+    background: #337ab7;
+    color: #000;
+    border-radius: 8px;
+  }
+  .has-activities {
+    background-color: #f9fcff;
+  }
+
+  /*full calendar 커스텀*/
+
+  :root {
+    --fc-button-bg-color: white; /* 텍스트 색상을 파란색으로 변경 */
+    --fc-button-text-color: black;
+    --fc-button-border-color: white;
+    --fc-button-hover-bg-color: white;
+    --fc-button-hover-border-color: white;
+    --fc-button-hover-text-color: grey;
+    --fc-button-active-border-color: white;
+    --fc-button-active-bg-color: white;
+  }
+
+  .fc-daygrid-day-number {
+    font-size: 13px;
+    color: #AAAAAA
+  }
+
+  .fc-col-header-cell-cushion{
+    font-size: 13px;
+    color: #AAAAAA
+  }
+
+  .fc-day-sat, .fc-day-sun {
+    background-color: #FCFCFC; 
+  }
+
+  .fc-day-sun .fc-daygrid-day-number {
+    color: #EA4336;
+  }
+  
+  .fc-daygrid-event {
+    border-radius: 10px;
+  }
+
+  .fc-event-time {
+    margin-left: 1px;
+  }
+
+  /* 카테고리별 색상 */
+  .branch {
+    background-color: #FFEFC3;
+    color: #C18016;
+  }
+  .fetch {
+    background-color: #CADEFF;
+    color: #3C75D3;
+  }
+  .demo {
+    background-color: #5F6367;
+    color: #FFFFFF;
+  }
+  .solution {
+    background-color: #FFC5C0;
+    color: #D32F22;
+  }
+  .worktree {
+    background-color: #B2E4C0;
+    color: #34A853;
+  }
+  .etc {
+    background-color: #F1F3F4;
+    color: #101010;
+  }
+
+  /* 이벤트 추가 버튼 */
+  .add-event-button {
+    background-color: #424242;
+    color: white;
+    width: 4rem;
+    border-radius: 1rem;
+    margin-top: 1rem;
+  }
+  
+  
+  /* 하단 CTA 카드 */
+  .cta-cards-container {
+    margin-top: 2rem;
+  }
+
+  

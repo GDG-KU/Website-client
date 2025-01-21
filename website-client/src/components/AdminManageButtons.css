@@ -1,0 +1,15 @@
+.admin-navigation-wrapper {
+    display: flex;
+}
+
+.admin-navigation {
+    border-radius: 0.5rem;
+    border: 1px solid black;
+    margin: 0.5rem;
+    width: 10rem;
+}
+
+.admin-navigation:active {
+    background-color: #424242;
+    color: #FFF;
+}

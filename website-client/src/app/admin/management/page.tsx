@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import './management.css'; 
 import Image from 'next/image';
-import Link from 'next/link';
+// import Link from 'next/link';
 
 import ModalEditMember from '@/components/ModalEditMember';
 import ModalEditPoint from '@/components/ModalEditPoint';

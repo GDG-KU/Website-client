@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   devIndicators: {
     appIsrStatus: false,
   },
+  output: 'standalone',
 };
 
 export default nextConfig;

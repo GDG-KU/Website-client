@@ -1,9 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, ChangeEvent } from 'react';
+import React, { useState, ChangeEvent } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-// CSS (mypage.module.css 파일로 분리 가능)
 import './mypage.css';
 
 interface PointHistoryItem {
@@ -15,23 +14,16 @@ interface PointHistoryItem {
 
 export default function MyPage() {
   // -----------------------------
-  // 1) 사용자 기본 정보 (백엔드에서 불러와야함)
   // -----------------------------
   const [profileImageUrl, setProfileImageUrl] = useState<string>('/profile.svg'); 
-  const [name, setName] = useState<string>('이정재');
-  const [major, setMajor] = useState<string>('수학과 19학번');
-  const [role, setRole] = useState<string>('AI / CORE'); // 예: "AI / CORE"
-  const [joinDate, setJoinDate] = useState<string>('2024. 03. 22');
+  const [name, /*setName*/] = useState<string>('이정재');
+  const [major, /*setMajor*/] = useState<string>('수학과 19학번');
+  const [role, /*setRole*/] = useState<string>('AI / CORE'); // 예: "AI / CORE"
+  const [joinDate, /*setJoinDate*/] = useState<string>('2024. 03. 22');
   
-  // CORE(관리자) 여부 판단
   const isCore = role.includes('CORE'); 
-  // 예: 실제론 백엔드에서 "권한" 필드를 받아서 isAdmin = user.role === 'CORE' 등으로 처리
-
-  // -----------------------------
-  // 2) 포인트 & 로그 정보
-  // -----------------------------
-  const [totalPoint, setTotalPoint] = useState<number>(115); 
-  const [pointHistory, setPointHistory] = useState<PointHistoryItem[]>([
+  const [totalPoint, /*setTotalPoint*/] = useState<number>(115); 
+  const [pointHistory, /*setPointHistory*/] = useState<PointHistoryItem[]>([
     { date: '2024. 12. 05', change: -20, total: 240, event: 'worktree 분할' },
     { date: '2024. 11. 27', change: -20, total: 260, event: 'merge 참석' },
     { date: '2024. 11. 04', change: -3, total: 280, event: 'fetch 발표' },
@@ -48,9 +40,6 @@ export default function MyPage() {
     { date: '2024. 05. 30', change: -3, total: 280, event: 'fetch 발표' },
   ]);
 
-  // -----------------------------
-  // 3) 프로필 이미지 업로드
-  // -----------------------------
   const handleProfileImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
     const file = e.target.files[0];

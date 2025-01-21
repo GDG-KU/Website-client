@@ -1,5 +1,6 @@
 'use client';
-
+export default function GoogleCallbackPage(){ return <h1>GoogleCallback</h1>}
+/*
 import React, { useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useAppDispatch } from '@/store/hooks';
@@ -39,3 +40,4 @@ export default function GoogleCallbackPage() {
     </div>
   );
 }
+*/

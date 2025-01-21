@@ -65,7 +65,9 @@ export const googleCallbackStoreAsync = createAsyncThunk(
       { accessToken, refreshToken }: { accessToken: string; refreshToken: string },
       thunkAPI
     ) => {
-      // 그대로 반환 → extraReducers에서 저장
+        const state = thunkAPI.getState();
+        console.log('현재 Redux 상태:', state);
+        
       return { accessToken, refreshToken };
     }
   );
