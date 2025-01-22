@@ -114,7 +114,7 @@ const Sidebar: React.FC = () => {
   };
 
   // 사용자 프로필 이미지
-  const userProfileImage = '/profile.svg';
+  const userProfileImage = '/sidebar-profile.svg';
 
   return (
     <>
