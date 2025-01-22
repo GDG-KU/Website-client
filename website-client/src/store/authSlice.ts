@@ -19,6 +19,8 @@ const initialState: AuthState = {
   error: null,
 };
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 /** 
  * (A) 일반 로그인 
  * POST /api/login
@@ -32,7 +34,7 @@ export const normalLoginAsync = createAsyncThunk(
     thunkAPI
   ) => {
     try {
-      const res = await fetch('/api/login', {
+      const res = await fetch(`${API_BASE_URL}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
@@ -82,7 +84,7 @@ export const refreshTokenAsync = createAsyncThunk(
     'auth/refreshTokenAsync',
     async (refreshToken: string, thunkAPI) => {
       try {
-        const res = await fetch('http://localhost:3000/auth/refresh', {
+        const res = await fetch(`${API_BASE_URL}/auth/refresh`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ refresh_token: refreshToken }),

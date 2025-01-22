@@ -2,11 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAppDispatch } from '@/store/hooks';
-// import { useAppSelector } from '@/store/hooks';
 import { normalLoginAsync } from '@/store/authSlice';
 
 import Image from 'next/image';
 import './LoginModal.css';
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -48,10 +49,10 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
   //auth/google 로 이동
   const handleGoogleLogin = () => {
-    window.location.href = 'http://localhost:3000/auth/google';
+    window.location.href = `${API_BASE_URL}/auth/google`;
   };
 
-  /*
+  /* `${API_BASE_URL}/auth/google`
   const handleGoogleCallback = async () => {
     const result = await dispatch(googleCallbackAsync());
     if (googleCallbackAsync.fulfilled.match(result)) {
