@@ -50,9 +50,23 @@
     cursor: pointer;
   }
   
-  .attendance-button.complete{
-    background-color: #C7C7C7;
+  .attendance-button.결석 {
+    background-color: #E94335;
+    pointer-events: none;
   }
+
+  .attendance-buttons.출석 .attendance-button.오류 {
+    background-color: #4385F5;
+  }
+
+  .attendance-button.지각 {
+    background-color: #FCBC05;
+  }
+
+  .attendance-button.출석완료{
+    background-color: #0F9E59;
+  }
+
 
   h2 {
     margin-top: 0;

@@ -1,6 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
-import Image from 'next/image';
+import React, { useState } from 'react';
 import 'react-calendar/dist/Calendar.css';
 import './calendar.css';
 
@@ -8,8 +7,9 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import { EventClickArg } from '@fullcalendar/core/index.js';
 
-import ActivityModal from '@/components/ActivityModal';
-import { ActivityItem } from '@/components/ActivityModal';
+import ActivityManageModal from '@/components/ActivityManageModal';
+import { ActivityManageItem } from '@/components/ActivityManageModal';
+import AdminManageButtons from '@/components/AdminManageButtons';
 
 
 interface TagResponse {
@@ -47,7 +47,7 @@ const mockBackendResponse: backendResponse[] = [
     id: 1,
     title: "branch1/week2",
     start_date: new Date("2025-01-15T18:00:00"),
-    end_date: new Date("2025-01-22T20:00:00"),
+    end_date: new Date("2025-01-15T20:00:00"),
     location: "우정정보관 201호",
     url: "http://localhost:3002/localevents/branch",
     tag: {
@@ -64,8 +64,8 @@ const mockBackendResponse: backendResponse[] = [
   { 
     id: 2,
     title: "worktree",
-    start_date: new Date("2025-01-21T23:40:00"),
-    end_date: new Date("2025-01-22T20:00:00"),
+    start_date: new Date("2025-01-18T18:00:00"),
+    end_date: new Date("2025-01-19T20:00:00"),
     location: "우정정보관 201호",
     url: "http://localhost:3002/localevents/worktree",
     tag: {
@@ -83,19 +83,11 @@ const mockBackendResponse: backendResponse[] = [
 
 const Calendar: React.FC = () => {
 
-  const currentUser = 'userB'
-
-  // My Activities 스위치
-  const [showMyActivities, setShowMyActivities] = useState<boolean>(false);
-  const [viewStartDate, setViewStartDate] = useState<Date>(new Date())
-  const [viewEndDate, setViewEndDate] = useState<Date>(new Date())
-  const [backendRes, setBackendRes] = useState<backendResponse[]>(mockBackendResponse)
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string|null>(null);
-
   const [modalOpen, setModalOpen] = useState(false)
-  const [modalItems, setModalItems] = useState<ActivityItem>({
+  const [modalItems, setModalItems] = useState<ActivityManageItem|null>({
     id: "1",
+    tag_id: "1",
+    tag: "branch",
     title: "branch",
     start: new Date("2025-01-15T18:00:00"),
     end: new Date("2025-01-17T18:00:00"),
@@ -110,27 +102,30 @@ const Calendar: React.FC = () => {
   const eventClickHandler = (info:EventClickArg) => {
     info.jsEvent.preventDefault(); // event가 url 속성을 가지고 있을 경우 클릭 시 자동으로 url을 방문하는 기본 동작 방지 - 참고 https://fullcalendar.io/docs/eventClick
 
-    setModalOpen(true)
     setModalItems({
         id: info.event.id,
+        tag_id: info.event.extendedProps.tag_id,
+        tag: info.event.extendedProps.tag,
         title: info.event.title,
         start: info.event.start!,
         end: info.event.end!,
         location: info.event.extendedProps.location,
         link: info.event.url
     })
+    setModalOpen(true)
   }
 
-  // 달력에 표시되는 달(month)를 바꿀 경우
-  const handleDatesSet = (info: any) => {
-    setViewStartDate(info.start);
-    setViewEndDate(info.end);
-  } 
+  const addEvent = () => {
+    setModalItems(null)
+    setModalOpen(true)
+  }
 
   // 백엔드 응답을 fullcalendar의 event prop 양식으로 변환
   const backendResponseToEvent = (backendRes: backendResponse[]) => {
     const events = backendRes.map((bR) => ({
       id: bR.id.toString(),
+      tag_id: bR.tag.tag.id,
+      tag: bR.tag.tag.tag_property.tag_property,
       title: bR.title,
       start: bR.start_date!,
       end: bR.end_date!,
@@ -141,67 +136,12 @@ const Calendar: React.FC = () => {
     return events
   }
 
-  // event 받아오기
-  useEffect(() => {
-    const url = 
-    "http://localhost:3000/event/bydate?" +
-    new URLSearchParams({
-      start_date: viewStartDate.toISOString(),
-      end_date: viewEndDate.toISOString(),
-      is_my_activity: showMyActivities.toString()
-    });
-    
-    fetch(url, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-    })
-      .then((response) => {
-        if(!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
-        return response.json();
-      })
-      .then((data: backendResponse[]) => {
-        setBackendRes(data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        setError(error);
-        setLoading(false);
-      });
-  }, [showMyActivities, currentUser, viewStartDate, viewEndDate])
-
-  // 로딩 화면
-  if (loading) {
-    return (<div>Loading...</div>)
-  }
-
-  // 에러 화면
-  if (error) {
-    // return (<div>Error</div>)
-  }
-
-  // 정상 화면
   return (
     <div className="calendar-page-container">
       <main className="calendar-main">
         {/* 상단 헤더 */}
         <div className="calendar-header">
           <h1>Calendar</h1>
-
-          <div className="toggle-container">
-            <label className="switch">
-              <input
-                type="checkbox"
-                checked={showMyActivities}
-                onChange={() => setShowMyActivities(!showMyActivities)}
-              />
-              <span className="slider round"></span>
-            </label>
-            <span className="toggle-label">My Activities</span>
-          </div>
         </div>
 
         {/* 달력 영역 */}
@@ -215,65 +155,25 @@ const Calendar: React.FC = () => {
               center: 'title',
               right: 'next'
             }}
-            events = {backendResponseToEvent(backendRes)} 
+            events = {backendResponseToEvent(mockBackendResponse)} // json을 받아올 url을 넣어도 됨 (참고)-> https://fullcalendar.io/docs/events-json-feed 
             dayMaxEventRows = {true} // grid를 넘치는 이벤트는 줄여서 표기, 표시할 이벤트 개수를 작성해도 됨
             eventClick={eventClickHandler}
-            datesSet={handleDatesSet}
           />
         </div>
-          
-        {/* 모달 (ActivityModal을 직접 쓰거나, 여기서 구현도 가능) */}
+
+        <button className="add-event-button" onClick={addEvent}>추가</button>
+        
         {modalOpen && (
-          <ActivityModal
-            // ActivityModal용으로 형식 맞추기
+            <ActivityManageModal
             activity={modalItems}
             onClose={closeModal}
-          />
+            />
         )}
 
-        {/* 하단 CTA 카드들 */}
         <div className="cta-cards-container">
-          <h2>My Activities</h2>
-          <div className="cta-cards-row">
-            {/* <img> 대신 <Image> 로 교체하여 ESLint 경고 제거 */}
-            <div className="cta-card">
-              <Image
-                src="/fetch.png"
-                alt="fetch"
-                width={50}
-                height={50}
-              />
-              <span>fetch</span>
-            </div>
-            <div className="cta-card">
-              <Image
-                src="/branch.png"
-                alt="branch"
-                width={50}
-                height={50}
-              />
-              <span>branch</span>
-            </div>
-            <div className="cta-card">
-              <Image
-                src="/worktree.png"
-                alt="worktree"
-                width={50}
-                height={50}
-              />
-              <span>worktree</span>
-            </div>
-            <div className="cta-card">
-              <Image
-                src="/solution.png"
-                alt="Solution Challenge"
-                width={50}
-                height={50}
-              />
-              <span>Solution Challenge</span>
-            </div>
-          </div>
+          <AdminManageButtons></AdminManageButtons>
         </div>
+
       </main>
     </div>
   )
