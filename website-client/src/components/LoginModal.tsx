@@ -14,7 +14,6 @@ interface LoginModalProps {
 export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   if (!isOpen) return null;
 
-  // Google 로그인 이동
   const handleGoogleLogin = () => {
     window.location.href = `${API_BASE_URL}/auth/google`;
   };
@@ -40,10 +39,10 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
         <div className="login-modal-right">
           <div className="modal-logo">
             <Image 
-              src="/logo.png"
+              src="/gdglogo.svg"
               alt="GDG on Campus Korea University 로고"
-              width={120}
-              height={40}
+              width={156}
+              height={28}
             />
           </div>
           <div className="button-group">
