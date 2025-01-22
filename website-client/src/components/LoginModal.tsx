@@ -31,7 +31,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
         </button>
         <div className="login-modal-left">
           <Image
-            src="/representative.jpg"
+            src="/representative.svg"
             alt="대표 이미지"
             fill
             style={{ objectFit: 'cover' }}
