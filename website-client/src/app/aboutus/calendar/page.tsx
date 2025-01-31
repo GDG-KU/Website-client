@@ -6,11 +6,12 @@ import './calendar.css';
 
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
-import { EventClickArg } from '@fullcalendar/core/index.js';
+import { DatesSetArg, EventClickArg } from '@fullcalendar/core/index.js';
 
 import ActivityModal from '@/components/ActivityModal';
 import { ActivityItem } from '@/components/ActivityModal';
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 interface TagResponse {
   "tag": {
@@ -46,10 +47,10 @@ const mockBackendResponse: backendResponse[] = [
   { 
     id: 1,
     title: "branch1/week2",
-    start_date: new Date("2025-01-15T18:00:00"),
-    end_date: new Date("2025-01-22T20:00:00"),
+    start_date: new Date("2025-01-27T16:00:00"),
+    end_date: new Date("2025-01-27T20:00:00"),
     location: "우정정보관 201호",
-    url: "http://localhost:3002/localevents/branch",
+    url: `${API_BASE_URL}/localevents/branch`,
     tag: {
       "tag": {
         "id": 1,
@@ -64,10 +65,10 @@ const mockBackendResponse: backendResponse[] = [
   { 
     id: 2,
     title: "worktree",
-    start_date: new Date("2025-01-21T23:40:00"),
-    end_date: new Date("2025-01-22T20:00:00"),
+    start_date: new Date("2025-01-27T23:40:00"),
+    end_date: new Date("2025-01-28T20:00:00"),
     location: "우정정보관 201호",
-    url: "http://localhost:3002/localevents/worktree",
+    url: `${API_BASE_URL}/localevents/worktree/너무길어서말줄임표해야해요`,
     tag: {
       "tag": {
         "id": 2,
@@ -82,11 +83,10 @@ const mockBackendResponse: backendResponse[] = [
 ];
 
 const Calendar: React.FC = () => {
-
   const currentUser = 'userB'
 
   // My Activities 스위치
-  const [showMyActivities, setShowMyActivities] = useState<boolean>(false);
+  const [showMyActivities, setShowMyActivities] = useState<boolean>(true);
   const [viewStartDate, setViewStartDate] = useState<Date>(new Date())
   const [viewEndDate, setViewEndDate] = useState<Date>(new Date())
   const [backendRes, setBackendRes] = useState<backendResponse[]>(mockBackendResponse)
@@ -100,7 +100,7 @@ const Calendar: React.FC = () => {
     start: new Date("2025-01-15T18:00:00"),
     end: new Date("2025-01-17T18:00:00"),
     location: "우정정보관",
-    link: "www.naver.com"
+    link: `${API_BASE_URL}/`
   })
   const closeModal = () => {
     setModalOpen(false);
@@ -119,10 +119,23 @@ const Calendar: React.FC = () => {
         location: info.event.extendedProps.location,
         link: info.event.url
     })
+
+    const popover = document.querySelector(".fc-popover");
+    if (popover) {
+      popover.remove();
+
+      setTimeout(() => {
+        const newPopover = document.querySelector(".fc-popover");
+        if (newPopover) {
+          newPopover.remove();
+        }
+      }, 10);
+      console.log("popover 제거 성공")
+    }
   }
 
-  // 달력에 표시되는 달(month)를 바꿀 경우
-  const handleDatesSet = (info: any) => {
+  // 달력에 표시되는 달(month)을 바꿀 경우
+  const handleDatesSet = (info: DatesSetArg) => {
     setViewStartDate(info.start);
     setViewEndDate(info.end);
   } 
@@ -142,14 +155,16 @@ const Calendar: React.FC = () => {
   }
 
   // event 받아오기
-  useEffect(() => {
+  useEffect(() => {    
     const url = 
-    "http://localhost:3000/event/bydate?" +
+    `${API_BASE_URL}/event/bydate?` +
     new URLSearchParams({
       start_date: viewStartDate.toISOString(),
       end_date: viewEndDate.toISOString(),
       is_my_activity: showMyActivities.toString()
-    });
+    }).toString();
+
+    // const url = "https://koreauniv.gdgoc.kr/event/all"
     
     fetch(url, {
       method: "GET",
@@ -159,6 +174,7 @@ const Calendar: React.FC = () => {
     })
       .then((response) => {
         if(!response.ok) {
+          console.log(response.status)
           throw new Error(`HTTP error! status: ${response.status}`)
         }
         return response.json();
@@ -235,7 +251,6 @@ const Calendar: React.FC = () => {
         <div className="cta-cards-container">
           <h2>My Activities</h2>
           <div className="cta-cards-row">
-            {/* <img> 대신 <Image> 로 교체하여 ESLint 경고 제거 */}
             <div className="cta-card">
               <Image
                 src="/fetch.png"

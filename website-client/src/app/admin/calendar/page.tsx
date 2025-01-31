@@ -1,16 +1,18 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import 'react-calendar/dist/Calendar.css';
 import './calendar.css';
 
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
-import { EventClickArg } from '@fullcalendar/core/index.js';
+import { DatesSetArg, EventClickArg } from '@fullcalendar/core/index.js';
 
 import ActivityManageModal from '@/components/ActivityManageModal';
 import { ActivityManageItem } from '@/components/ActivityManageModal';
 import AdminManageButtons from '@/components/AdminManageButtons';
+import { fetchWithAuth } from '@/utils/fetchWrapper';
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 interface TagResponse {
   "tag": {
@@ -49,7 +51,7 @@ const mockBackendResponse: backendResponse[] = [
     start_date: new Date("2025-01-15T18:00:00"),
     end_date: new Date("2025-01-15T20:00:00"),
     location: "우정정보관 201호",
-    url: "http://localhost:3002/localevents/branch",
+    url: `${API_BASE_URL}/localevents/branch`,
     tag: {
       "tag": {
         "id": 1,
@@ -67,7 +69,7 @@ const mockBackendResponse: backendResponse[] = [
     start_date: new Date("2025-01-18T18:00:00"),
     end_date: new Date("2025-01-19T20:00:00"),
     location: "우정정보관 201호",
-    url: "http://localhost:3002/localevents/worktree",
+    url: `${API_BASE_URL}/localevents/worktree`,
     tag: {
       "tag": {
         "id": 2,
@@ -83,10 +85,14 @@ const mockBackendResponse: backendResponse[] = [
 
 const Calendar: React.FC = () => {
 
+  const [loading, setLoading] = useState<boolean>(false);
+  const [viewStartDate, setViewStartDate] = useState<Date>(new Date())
+  const [viewEndDate, setViewEndDate] = useState<Date>(new Date())
+  const [backendRes, setBackendRes] = useState<backendResponse[]>(mockBackendResponse)
   const [modalOpen, setModalOpen] = useState(false)
   const [modalItems, setModalItems] = useState<ActivityManageItem|null>({
     id: "1",
-    tag_id: "1",
+    tag_id: 1,
     tag: "branch",
     title: "branch",
     start: new Date("2025-01-15T18:00:00"),
@@ -115,6 +121,12 @@ const Calendar: React.FC = () => {
     setModalOpen(true)
   }
 
+  // 달력에 표시되는 달(month)를 바꿀 경우
+  const handleDatesSet = (info: DatesSetArg) => {
+    setViewStartDate(info.start);
+    setViewEndDate(info.end);
+  } 
+
   const addEvent = () => {
     setModalItems(null)
     setModalOpen(true)
@@ -136,6 +148,48 @@ const Calendar: React.FC = () => {
     return events
   }
 
+  // event 받아오기
+  useEffect(() => {
+    const url = 
+    `${API_BASE_URL}/event/bydate?` +
+    new URLSearchParams({
+      start_date: viewStartDate.toISOString(),
+      end_date: viewEndDate.toISOString(),
+      is_my_activity: "false"
+    }).toString();
+
+    // const url = `${API_BASE_URL}/event/all`
+    
+    const fetchEvents = async() => {
+      try{
+        const res = await fetchWithAuth(url, {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+          },
+        })
+        if(!res.ok) {
+          console.log(res.status)
+          throw new Error(`HTTP error! status: ${res.status}`)
+        }
+        const data:backendResponse[] = await res.json();
+
+        setBackendRes(data);
+      }
+      catch (error) {
+          setLoading(false);
+          console.log("이벤트 조회 실패", error)
+      };
+    }
+
+    fetchEvents()
+  }, [viewStartDate, viewEndDate, modalOpen])
+
+  // 로딩 화면
+  if (loading) {
+    return (<div>Loading...</div>)
+  }
+
   return (
     <div className="calendar-page-container">
       <main className="calendar-main">
@@ -155,13 +209,17 @@ const Calendar: React.FC = () => {
               center: 'title',
               right: 'next'
             }}
-            events = {backendResponseToEvent(mockBackendResponse)} // json을 받아올 url을 넣어도 됨 (참고)-> https://fullcalendar.io/docs/events-json-feed 
+            events = {backendResponseToEvent(backendRes)} 
             dayMaxEventRows = {true} // grid를 넘치는 이벤트는 줄여서 표기, 표시할 이벤트 개수를 작성해도 됨
             eventClick={eventClickHandler}
+            datesSet={handleDatesSet}
           />
         </div>
-
-        <button className="add-event-button" onClick={addEvent}>추가</button>
+          
+        <div className="add-event-button-container">
+          <button className="add-event-button" onClick={addEvent}>추가</button>
+        </div>
+        
         
         {modalOpen && (
             <ActivityManageModal
@@ -170,7 +228,7 @@ const Calendar: React.FC = () => {
             />
         )}
 
-        <div className="cta-cards-container">
+        <div className="admin-manage-buttons-container">
           <AdminManageButtons></AdminManageButtons>
         </div>
 

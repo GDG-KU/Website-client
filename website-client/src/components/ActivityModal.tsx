@@ -2,7 +2,11 @@
 import React, {useState, useEffect} from 'react';
 import Image from 'next/image';
 import Link from "next/link"
+import { fetchWithAuth } from '@/utils/fetchWrapper';
+
 import './ActivityModal.css';
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export interface ActivityItem {
   id: string;
@@ -29,78 +33,126 @@ enum AttendanceStatus {
 const ActivityModal: React.FC<ActivityModalProps> = ({ activity, onClose }) => {
   // 이거 Attendance Status 받아오는 로직 필요(서버 단의 api 추가 필요)
   const [attendance, setAttendance] = useState<AttendanceStatus>(AttendanceStatus.Incomplete)
-  const [timePrint, setTimePrint] = useState("")
+  const [startDayPrint, setStartDayPrint] = useState<string>("")
+  const [endDayPrint, setEndDayPrint] = useState<string>("")
+  const [startTimePrint, setStartTimePrint] = useState<string>("")
+  const [endTimePrint, setEndTimePrint] = useState<string>("")
 
   useEffect(() => {
-    const currentTime = new Date().getTime();
-    if (currentTime>activity.end.getTime()){
-      setAttendance(AttendanceStatus.Absent);
-    }
-  }, [])
-  
-  useEffect(() => {
-    const startDay = CreateDay(activity.start);
-    const startTime = CreateTime(activity.start);
-    const endDay = CreateDay(activity.end);
-    const endTime = CreateTime(activity.end);
-
-    if (isSameDate(activity.start, activity.end)) {
-      setTimePrint(`${startDay}${startTime} -> ${endTime}`);
-    } else {
-      setTimePrint(`${startDay} ${startTime}-> ${endDay} ${endTime}`);
-    }
-  }, [activity]);
-
-
-  const AttendanceCheck = async(start:Date, end:Date) => {
-    const timeMarginInMin = 5
-    const lateMargin = 1000*60*(timeMarginInMin+1)
-    const startMargin = 1000*60*timeMarginInMin*-1
-    const currentTime = new Date();
-    const diffInMs = currentTime.getTime() - start.getTime()
-
-    if (currentTime.getTime()>end.getTime()){
-      alert(`해당 이벤트는 이미 종료되어 출석이 불가능합니다.`)
-      setAttendance(AttendanceStatus.Absent)
-    }
-    else if (diffInMs>lateMargin) { 
-      setAttendance(AttendanceStatus.Late)
-      // 지각일 경우 fetch할 데이터의 양식이 없음(서버 단의 수정 필요)
-    }
-    else if (diffInMs<startMargin) {
-      alert(`아직 출석 시간이 아닙니다. 출석은 시작 시간 ${timeMarginInMin}분 전부터 가능합니다.`)
-    }
-    else {
-      const url = `http://localhost:3000/event/${activity.id}/attendance`
-
+    const fetchAttendance = async() => {
       try{
-          const response = await fetch(url, {
-          method: 'POST',
+        const res = await fetchWithAuth(`${API_BASE_URL}/attendance/${activity.id}`,{
+          method: 'GET',
           headers: {
-            accept: "*/*",
-          },
-          body: '',
+            accept: 'application/json'
+          }
         })
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
-        
-        const data = response.json();
-        console.log(`Attendance Success at ${currentTime}`)
-        setAttendance(AttendanceStatus.Present)
-      } catch(error) {
-        console.error('Error: ', error)
-        setAttendance(AttendanceStatus.Error)
-        alert("오류 발생")
+        if (!res.ok) console.log(`Fetch attendance failed ${res.status}`)
+        const data = await res.json()
+
+        if (data.is_attend)
+          setAttendance(AttendanceStatus.Present)
+        else if (data.is_attend)
+          setAttendance(AttendanceStatus.Absent)
+      } catch(error){
+        console.log(error)
       }
     }
-  }
-  
-  const isSameDate = (date1: Date, date2: Date) => {
-    const formatDate = (date: Date) => date.toISOString().split('T')[0];
-    return formatDate(date1)===formatDate(date2);
-  }
+    fetchAttendance()
+  }, [activity.id])
+
+  useEffect(() => {
+    // const currentTime = new Date().getTime(); //출석 체크 알고리즘에 필요한 코드
+    setStartDayPrint(CreateDay(activity.start));
+    setStartTimePrint(CreateTime(activity.start));
+    setEndDayPrint(CreateDay(activity.end));
+    setEndTimePrint(CreateTime(activity.end));
+
+    // 멤버의 출석 현황을 가져옴
+    const attendanceFetch = async() => {
+      try{
+        const res = await fetchWithAuth(`${API_BASE_URL}/attendance/${activity.id}`,{
+          method: 'POST',
+          headers: {
+            accept: "application/json"
+          },
+        })
+        if (!res.ok){
+          throw new Error("Attendance Fetch Failed")
+        }
+        const data = await res.json();
+
+        if (data.is_attend) setAttendance(AttendanceStatus.Present)
+        else setAttendance(AttendanceStatus.Absent)
+      } catch(error) {
+        console.log(error)
+        setAttendance(AttendanceStatus.Error)
+      }
+    }
+
+    attendanceFetch()
+  }, [activity]);
+
+  // 출석 체크 알고리즘 - 필요 없어짐
+
+  // const AttendanceCheck = async(start:Date, end:Date) => {
+  //   const timeMarginInMin = 5
+  //   const lateMargin = 1000*60*(timeMarginInMin+1)
+  //   const startMargin = 1000*60*timeMarginInMin*-1
+  //   const currentTime = new Date();
+  //   const diffInMs = currentTime.getTime() - start.getTime()
+
+  //   const base_url = `${API_BASE_URL}/attendance/${activity.id}/`
+
+  //   if (currentTime.getTime()>end.getTime()){
+  //     alert(`해당 이벤트는 이미 종료되어 출석이 불가능합니다.`)
+  //     setAttendance(AttendanceStatus.Absent)
+
+  //     const res = await fetchWithAuth(base_url, {
+  //       method: 'PATCH',
+  //       headers: {
+  //         accept: '*/*'
+  //       },
+  //       body: '',
+  //     })
+  //     if (!res.ok) throw Error("Failed to fetch attendance");
+  //     const data = await res.json();
+  //   }
+
+  //   else if (diffInMs>lateMargin) { 
+  //     setAttendance(AttendanceStatus.Late)
+
+  //     const params = new URLSearchParams({
+  //       event_id: activity.id, 
+  //       reason: "too late", 
+  //       is_attend: "false"
+  //     });
+
+  //     const res = await fetchWithAuth(`${base_url}?${params.toString()}`, {
+  //       method: 'PATCH',
+  //       headers: {
+  //         accept: '*/*'
+  //       }
+  //     })
+  //     if (!res.ok) throw Error("Failed to fetch attendance");
+  //     const data = await res.json();
+  //   }
+
+  //   else if (diffInMs<startMargin) {
+  //     alert(`아직 출석 시간이 아닙니다. 출석은 시작 시간 ${timeMarginInMin}분 전부터 가능합니다.`)
+  //   }
+  //   else {
+  //     const res = await fetchWithAuth(base_url, {
+  //       method: 'POST',
+  //       headers: {
+  //         accept: "*/*",
+  //       },
+  //       body: '',
+  //     })
+  //     if (!res.ok) throw Error("Failed to fetch attendance");
+  //     const data = await res.json();
+  //   }
+  // }
 
   const CreateDay = (date:Date) => {
     const months = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
@@ -124,18 +176,45 @@ const ActivityModal: React.FC<ActivityModalProps> = ({ activity, onClose }) => {
         <button className="close-button" onClick={onClose}>
           ×
         </button>
-        <h2>{activity.title}</h2>
+        <div className="modal-title">{activity.title}</div>
+        <div className="modal-body event-time-container">
+          <Image className="modal-icon time-icon" src="/time.svg" alt="time" width={20} height={20}/>
+          {(startDayPrint===endDayPrint) ?
+          <div className="event-time-text-container">
+            <div className="modal-body-day">{startDayPrint}</div>
+            <div className="event-time-wrapper">
+              <div className="modal-body-time">{startTimePrint} </div>
+              <Image className="time-arrow" src="/time-arrow.png" alt="time-arrow" width={10} height={10}></Image>
+              <div className="modal-body-time"> {endTimePrint}</div>
+            </div>
+          </div>
+          :
+          <div className="event-time-text-container">
+            <div className="event-time-wrapper">
+              <div className="modal-body-day">{startDayPrint}</div>
+              <div className="modal-body-time left-margin">{startTimePrint}</div>
+            </div>
+            <div className="event-end-time-container">
+              <div className="event-time-wrapper">
+                <Image className="time-arrow" src="/time-arrow.png" alt="time-arrow" width={10} height={5}></Image>
+                <div className="modal-body-day">{endDayPrint}</div>
+                <div className="modal-body-time left-margin">{endTimePrint}</div>
+              </div>
+            </div>
+          </div>
+          }
+        </div>
         <div className="modal-body">
-          <Image className="modal-icon" src="/time.svg" alt="time" width={20} height={20}/>
-            <div style={{whiteSpace: "pre-line"}}>{timePrint}</div></div>
+          <Image className="modal-icon" src="/location.svg" alt="location" width={20} height={20}/>
+          <div className="modal-body-text">{activity.location}</div>
+        </div>
         <div className="modal-body">
-          <Image className="modal-icon" src="/location.svg" alt="location" width={20} height={20}/>{activity.location}</div>
-        <Link className="modal-body" href={activity.link}>
-          <Image className="modal-icon" src="/link.svg" alt="link" width={20} height={20}/>
-          {activity.link}
-        </Link>
-        <div className="attendance-button-container">
-          <button className={`attendance-button ${attendance}`} onClick={()=>AttendanceCheck(activity.start, activity.end)}>{attendance}</button>
+          {/* figma에서 가져온 링크 아이콘 자체가 아래에만 여백이 있어서 글자와 baseline이 안 맞아 보임 */}
+          <Image className="modal-icon link-icon" src="/link.svg" alt="link" width={20} height={20}/>
+          <Link className="link modal-body-text" href={activity.link}>{activity.link}</Link>
+        </div>
+        <div className="attendance-badge-container">
+          <div className={`attendance-badge ${attendance}`}>{attendance}</div>
         </div>
       </div>
     </div>

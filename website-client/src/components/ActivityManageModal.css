@@ -33,26 +33,14 @@
     cursor: pointer;
   }
 
-  .save-button { 
-    position: absolute;
-    bottom: 1rem;
-    right: 1.5rem;
-    background-color: #3C75D3;
-    color: white;
-    width: 3rem;
-    height: 1.5rem;
-    border-radius: 1rem;
-    font-family: Pretendard;
-  }
-
   .activity-manager-buttons-wrapper {
-    margin-top: 3rem;
+    margin-top: 4rem;
     display: block;
-    position: absolute;
+    position: relative;
     width: 100%;
   }
 
-  .delete-button {
+  .event-save-button { 
     position: absolute;
     bottom: 1rem;
     right: 1.5rem;
@@ -62,9 +50,25 @@
     height: 1.5rem;
     border-radius: 1rem;
     font-family: Pretendard;
+    font-size: 1rem;
+    font-weight: 600;
   }
 
-  .modify-button {
+  .event-delete-button {
+    position: absolute;
+    bottom: 1rem;
+    right: 1.5rem;
+    background-color: #5F6367;
+    color: white;
+    width: 3rem;
+    height: 1.5rem;
+    border-radius: 1rem;
+    font-family: Pretendard;
+    font-size: 0.9rem;
+    font-weight: 600
+  }
+
+  .event-modify-button {
     position: absolute;
     bottom: 1rem;
     right: 5rem;
@@ -74,46 +78,92 @@
     height: 1.5rem;
     border-radius: 1rem;
     font-family: Pretendard;
+    font-size: 0.95rem;
+    font-weight: 600
+  }
+
+  .event-modify-button:active, .event-delete-button:active, .event-save-button:active {
+    background-color: #D9D9D9;
   }
 
   .tag-select-wrapper {
     display: flex;
     margin-bottom: 1rem;
   }
-
-  .tag-show {
-    width: 5rem;
-    height: 1.3rem;
-    border-radius: 10px;
-    background-color: white;
-  }
-
-  .tag-branch {
-    background-color: #3C75D3;
-    color: white;
-  }
-
-  .tag-fetch {
-    background-color: red;
-  }
   
+  .tag-select-options {
+    margin-top: 0.5rem;
+    margin-left: 0.4rem;
+  }
+
+  .dropdown-arrow {
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .dropdown-arrow.options-open {
+    transform: rotate(180deg)
+  }
+
+  .options-wrapper {
+    position: absolute;
+    margin-top: 0.4rem;
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+
+  }
+
+  .tag-option {
+    border: 1px solid #CBCBCB;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #5F6367;
+    background-color: white;
+    padding: 0.1rem 0.3rem 0.1rem 0.3rem;
+    cursor: pointer;
+  }
+
+  .tag-option:hover {
+    background-color: #CBCBCB;
+  }
+
+
   .inputField-wrapper {
     display: flex;
+    margin-top: 1rem;
   }
 
   .inputField {
-    border-bottom: 1px solid lightgray;
-    margin-top: 1rem;
-    width: 15rem;
+    border-bottom: 1px solid #EDEDED;
+    width: 18rem;
+    transition: border-color 0.3s ease;
+    text-overflow: ellipsis;
+  }
+
+  .inputField:focus {
+    outline: none;
+    border-color: #5F6367;
+  }
+
+  .event-name-inputField {
+    font-weight: 600;
+    width: 21rem;
   }
 
   .time-select-wrapper {
-    margin-top: 1rem;
+    margin-top: 1.5rem;
     display: flex;
   }
 
   .datepicker {
-    width: 10rem;
+    width: 9rem;
+    outline: none;
+  }
+
+  .datepicker:focus {
+    cursor: pointer;
+    border-bottom: red;
   }
 
   .react-datepicker-popper {

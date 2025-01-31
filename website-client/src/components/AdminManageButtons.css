@@ -1,15 +1,22 @@
 .admin-navigation-wrapper {
     display: flex;
+    justify-content: center;
 }
 
 .admin-navigation {
-    border-radius: 0.5rem;
-    border: 1px solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 3rem;
+    border: 1.6px solid black;
     margin: 0.5rem;
     width: 10rem;
+    height: 2rem;
+    font-weight: 600;
 }
 
-.admin-navigation:active {
+.admin-navigation.active {
     background-color: #424242;
     color: #FFF;
+    pointer-events: none;
 }
