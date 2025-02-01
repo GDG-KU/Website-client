@@ -6,40 +6,26 @@ import { refreshTokenAsync, logout } from '@/store/authSlice';
 let isRefreshing = false;
 
 /**
- * 인증이 필요한 API 호출을 할 때 사용:
- * - AccessToken, RefreshToken을 체크하여 헤더 추가
- * - 401 응답 시 RefreshToken 이용 재발급 시도
+ * 인증이 필요한 API 호출 함수
+ * - Redux 상태에서 access token을 읽어 Authorization 헤더에 추가
+ * - 401 응답 시 /auth/refresh 호출 (credentials: 'include'로 httpOnly 쿠키 전송)
+ * - 재발급 성공 시 토큰 갱신 후 재시도
  */
-export async function fetchWithAuth(
-  url: RequestInfo,
-  options?: RequestInit
-): Promise<Response> {
-  // 1) Redux에서 토큰 읽기
+export async function fetchWithAuth(url: RequestInfo, options?: RequestInit): Promise<Response> {
   const state = store.getState().auth;
-  const accessToken = state.accessToken || state.token; // 일반 로그인 or 구글 OAuth
+  const accessToken = state.accessToken || state.token;
 
-  // 2) 헤더 구성
   const headers = new Headers(options?.headers || {});
-
-  // FormData가 아닌 경우, Content-Type을 json으로 설정
   if (!(options?.body instanceof FormData)) {
     if (!headers.has('Content-Type')) {
       headers.set('Content-Type', 'application/json');
     }
   }
-
-  // Authorization
   if (accessToken) {
     headers.set('Authorization', `Bearer ${accessToken}`);
   }
+  const fetchOptions: RequestInit = { ...options, headers, credentials: 'include' };
 
-  // 요청 옵션 재구성
-  const fetchOptions: RequestInit = {
-    ...options,
-    headers,
-  };
-
-  // 3) 첫 요청
   let response: Response;
   try {
     response = await fetch(url, fetchOptions);
@@ -48,50 +34,39 @@ export async function fetchWithAuth(
     throw err;
   }
 
-  // 4) 401 → 토큰 만료 가정 → refresh 시도
+  // 401 발생 시 access token 만료로 간주하고 refresh 시도
   if (response.status === 401) {
-    const refreshT = state.refreshToken;
-    if (refreshT) {
-      if (!isRefreshing) {
-        isRefreshing = true;
-        console.log('[fetchWithAuth] 401 detected. Trying refresh...');
-        const resultAction = await store.dispatch(refreshTokenAsync(refreshT));
-        isRefreshing = false;
+    if (!isRefreshing) {
+      isRefreshing = true;
+      console.log('[fetchWithAuth] 401 detected. Trying refresh...');
+      const resultAction = await store.dispatch(refreshTokenAsync());
+      isRefreshing = false;
 
-        if (refreshTokenAsync.fulfilled.match(resultAction)) {
-          // 재시도
-          const newState = store.getState().auth;
-          const newAccessToken = newState.accessToken || newState.token;
-          const retriedHeaders = new Headers(options?.headers || {});
-
-          if (!(options?.body instanceof FormData)) {
-            if (!retriedHeaders.has('Content-Type')) {
-              retriedHeaders.set('Content-Type', 'application/json');
-            }
+      if (refreshTokenAsync.fulfilled.match(resultAction)) {
+        // 갱신된 토큰으로 재요청
+        const newState = store.getState().auth;
+        const newAccessToken = newState.accessToken || newState.token;
+        const retriedHeaders = new Headers(options?.headers || {});
+        if (!(options?.body instanceof FormData)) {
+          if (!retriedHeaders.has('Content-Type')) {
+            retriedHeaders.set('Content-Type', 'application/json');
           }
-
-          if (newAccessToken) {
-            retriedHeaders.set('Authorization', `Bearer ${newAccessToken}`);
-          }
-
-          try {
-            response = await fetch(url, { ...options, headers: retriedHeaders });
-          } catch (err) {
-            console.error('[fetchWithAuth] retry fetch error:', err);
-            throw err;
-          }
-        } else {
-          console.warn('[fetchWithAuth] refresh token failed. Logging out...');
-          store.dispatch(logout());
+        }
+        if (newAccessToken) {
+          retriedHeaders.set('Authorization', `Bearer ${newAccessToken}`);
+        }
+        try {
+          response = await fetch(url, { ...options, headers: retriedHeaders, credentials: 'include' });
+        } catch (err) {
+          console.error('[fetchWithAuth] retry fetch error:', err);
+          throw err;
         }
       } else {
-        // 이미 refresh 진행중이면 -> 대기 로직을 구현하거나
-        console.log('[fetchWithAuth] refresh in progress. Possibly queue or wait...');
+        console.warn('[fetchWithAuth] Refresh token failed. Logging out...');
+        store.dispatch(logout());
       }
     } else {
-      // refreshToken이 없으면 session 만료 처리
-      console.warn('[fetchWithAuth] no refreshToken => session expired. Logging out.');
-      store.dispatch(logout());
+      console.log('[fetchWithAuth] Refresh in progress. Please wait...');
     }
   }
 

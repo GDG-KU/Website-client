@@ -52,34 +52,34 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
             />
           </div>
           <div className="button-group">
-            <button
-              type="button"
-              className="google-btn"
-              onClick={handleGoogleLogin}
-            >
+            <button 
+                type="button" 
+                className="google-btn" 
+                onClick={handleGoogleLogin}
+                >
               <div className="google-logo">
                 <Image
-                  src="/googlelogo.svg"
-                  alt="Google Logo"
-                  width={17}
+                  src="/googlelogo.svg" 
+                  alt="Google Logo" 
+                  width={17} 
                   height={17}
-                />
+                  />
               </div>
               <span className="google-text">Google 로그인</span>
             </button>
 
-            <button
-              type="button"
-              className="guest-btn"
+            <button 
+              type="button" 
+              className="guest-btn" 
               onClick={handleGuestLogin}
-            >
+              >
               <div className="guest-logo">
-                <Image
-                  src="/guestlogo.svg"
-                  alt="Guest Logo"
-                  width={17}
+                <Image 
+                  src="/guestlogo.svg" 
+                  alt="Guest Logo" 
+                  width={17} 
                   height={17}
-                />
+                  />
               </div>
               <span className="guest-text">게스트로 접속하기</span>
             </button>

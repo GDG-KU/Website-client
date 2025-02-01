@@ -11,29 +11,18 @@ export default function GoogleCallbackPage() {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    // 백엔드에서 /auth/google/callback으로 진입 후
-    // 최종적으로 프론트엔드에 ?access_token=...&refresh_token=...
+    // URL 예시: ?access_token=... (refresh token은 httpOnly 쿠키에 저장됨)
     const access_token = searchParams.get('access_token');
-    const refresh_token = searchParams.get('refresh_token');
 
-    if (access_token && refresh_token) {
-      console.log('[GoogleCallbackPage] 토큰 확인:', {
-        access_token,
-        refresh_token,
-      });
-
-      // Redux에 저장
-      dispatch(
-        googleCallbackStoreAsync({
-          accessToken: access_token,
-          refreshToken: refresh_token,
-        })
-      );
+    if (access_token) {
+      console.log('[GoogleCallbackPage] Access token:', access_token);
+      // Redux에 access token 저장 (refresh token은 저장하지 않음)
+      dispatch(googleCallbackStoreAsync({ accessToken: access_token }));
     } else {
-      console.warn('[GoogleCallbackPage] 쿼리에 토큰이 없습니다.');
+      console.warn('[GoogleCallbackPage] 쿼리에 access token이 없습니다.');
     }
 
-    // 이후 메인 페이지 또는 다른 페이지로 리다이렉트
+    // 토큰 저장 후 메인 페이지로 리다이렉트 (URL에서 토큰 정보를 제거)
     router.replace('/');
   }, [searchParams, router, dispatch]);
 
