@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import './LoginModal.css';
+import './LoginModal.css'; 
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -15,10 +15,16 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   if (!isOpen) return null;
 
   const handleGoogleLogin = () => {
+    if (!API_BASE_URL) {
+      console.error('API_BASE_URL가 설정되어 있지 않습니다.');
+      return;
+    }
+    console.log('[LoginModal] Google 로그인 버튼 클릭');
     window.location.href = `${API_BASE_URL}/auth/google`;
   };
 
   const handleGuestLogin = () => {
+    console.log('[LoginModal] 게스트로 접속하기');
     onClose();
   };
 
@@ -38,7 +44,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
         </div>
         <div className="login-modal-right">
           <div className="modal-logo">
-            <Image 
+            <Image
               src="/gdglogo.svg"
               alt="GDG on Campus Korea University 로고"
               width={156}
@@ -68,13 +74,13 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
               onClick={handleGuestLogin}
             >
               <div className="guest-logo">
-            <Image
-              src="/guestlogo.svg"
-              alt="Guest Logo"
-              width={17}
-              height={17}
-            />
-            </div>
+                <Image
+                  src="/guestlogo.svg"
+                  alt="Guest Logo"
+                  width={17}
+                  height={17}
+                />
+              </div>
               <span className="guest-text">게스트로 접속하기</span>
             </button>
           </div>
