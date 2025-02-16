@@ -16,7 +16,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${wantedSans.variable} ${wantedSansVariable.variable}`}>
+    <html
+      lang="en"
+      className={`${wantedSans.variable} ${wantedSansVariable.variable}`}
+    >
       <body style={{ display: 'flex' }}>
         <Suspense fallback={<p>Loading...</p>}>
           <Providers>
