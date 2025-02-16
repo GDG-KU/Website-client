@@ -4,7 +4,7 @@ import React, { useState, useEffect, ChangeEvent } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-import { fetchWithAuth } from '@/utils/fetchWrapper'; // 위에서 작성한 fetchWrapper
+import { fetchWithAuth } from '@/utils/fetchWrapper';
 import './mypage.css';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
