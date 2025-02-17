@@ -5,7 +5,7 @@ import Image from 'next/image';
 import './Sidebar.css';
 import LoginModal from '@/components/LoginModal';
 import { useAppSelector } from '@/store/hooks';
-import { fetchWithAuth } from '@/utils/fetchWrapper';
+import { fetchWithAuth } from '@/utils/fetchWithAuth';
 
 interface SubItem {
   label: string;

@@ -1,14 +1,14 @@
-// src/utils/fetchWithAuth.ts
 'use client';
 
 import { store } from '@/store/store';
 import { logout, setAccessToken } from '@/store/authSlice';
 
-async function refreshTokens() {
+async function refreshTokens(): Promise<string> {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/refresh`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
     });
     if (!res.ok) {
       throw new Error('Refresh token request failed');
@@ -24,7 +24,7 @@ async function refreshTokens() {
 }
 
 let isRefreshing = false;
-let refreshPromise: Promise<string | null> | null = null;
+let refreshPromise: Promise<string> | null = null;
 
 export async function fetchWithAuth(
   url: RequestInfo,
@@ -61,7 +61,7 @@ export async function fetchWithAuth(
     if (!isRefreshing) {
       isRefreshing = true;
       refreshPromise = refreshTokens()
-        .catch(() => null)
+        .catch(() => '')
         .finally(() => {
           isRefreshing = false;
           refreshPromise = null;
@@ -70,7 +70,7 @@ export async function fetchWithAuth(
 
     const newAccessToken = await refreshPromise;
     if (!newAccessToken) {
-      return response; 
+      return response;
     }
 
     const retryHeaders = new Headers(fetchOptions.headers);

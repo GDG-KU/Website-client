@@ -21,12 +21,12 @@ export default function RootLayout({
       className={`${wantedSans.variable} ${wantedSansVariable.variable}`}
     >
       <body style={{ display: 'flex' }}>
-          <Providers>
-            <Sidebar />
-            <main style={{ flex: 1 }}>
-              {children}
+        <Providers>
+          <Sidebar />
+          <main style={{ flex: 1 }}>
+            {children}
             </main>
-          </Providers>
+        </Providers>
       </body>
     </html>
   );

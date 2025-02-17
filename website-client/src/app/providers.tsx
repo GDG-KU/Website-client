@@ -5,7 +5,7 @@ import { Provider } from 'react-redux';
 import { store } from '@/store/store';
 import { useAppDispatch } from '@/store/hooks';
 import { setIsLoggedIn } from '@/store/authSlice';
-import { fetchWithAuth } from '@/utils/fetchWrapper';
+import { fetchWithAuth } from '@/utils/fetchWithAuth';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 

@@ -2,7 +2,7 @@
 import React, {useState, useEffect} from 'react';
 import Image from 'next/image';
 import Link from "next/link"
-import { fetchWithAuth } from '@/utils/fetchWrapper';
+import { fetchWithAuth } from '@/utils/fetchWithAuth';
 
 import './ActivityModal.css';
 

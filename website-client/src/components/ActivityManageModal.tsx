@@ -5,7 +5,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css"
 
 import './ActivityManageModal.css'
-import { fetchWithAuth } from '@/utils/fetchWrapper';
+import { fetchWithAuth } from '@/utils/fetchWithAuth';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
