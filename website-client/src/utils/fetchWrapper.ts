@@ -1,25 +1,52 @@
-// src/utils/fetchWrapper.ts
+// src/utils/fetchWithAuth.ts
 'use client';
 
 import { store } from '@/store/store';
-import { logout } from '@/store/authSlice';
+import { logout, setAccessToken } from '@/store/authSlice';
+
+async function refreshTokens() {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/refresh`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    if (!res.ok) {
+      throw new Error('Refresh token request failed');
+    }
+    const data = await res.json();
+    store.dispatch(setAccessToken(data.access_token));
+    return data.access_token;
+  } catch (err) {
+    console.error('[refreshTokens] error:', err);
+    store.dispatch(logout());
+    throw err;
+  }
+}
 
 let isRefreshing = false;
+let refreshPromise: Promise<string | null> | null = null;
 
 export async function fetchWithAuth(
   url: RequestInfo,
-  options?: RequestInit
+  options: RequestInit = {}
 ): Promise<Response> {
-  const headers = new Headers(options?.headers || {});
-  if (!(options?.body instanceof FormData)) {
+  const { accessToken } = store.getState().auth;
+  const headers = new Headers(options.headers || {});
+
+  if (accessToken) {
+    headers.set('Authorization', `Bearer ${accessToken}`);
+  }
+
+  if (!(options.body instanceof FormData)) {
     if (!headers.has('Content-Type')) {
       headers.set('Content-Type', 'application/json');
     }
   }
+
   const fetchOptions: RequestInit = {
     ...options,
     headers,
-    credentials: 'include',
+    credentials: 'omit',
   };
 
   let response: Response;
@@ -33,35 +60,32 @@ export async function fetchWithAuth(
   if (response.status === 401) {
     if (!isRefreshing) {
       isRefreshing = true;
-      console.log('[fetchWithAuth] 401 detected. Trying /auth/refresh...');
-      try {
-        const refreshRes = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/refresh`,
-          {
-            method: 'POST',
-            credentials: 'include',
-          }
-        );
-        isRefreshing = false;
+      refreshPromise = refreshTokens()
+        .catch(() => null)
+        .finally(() => {
+          isRefreshing = false;
+          refreshPromise = null;
+        });
+    }
 
-        if (refreshRes.ok) {
-          console.log('[fetchWithAuth] Refresh success. Retrying original request...');
-          try {
-            response = await fetch(url, fetchOptions);
-          } catch (retryErr) {
-            console.error('[fetchWithAuth] retry fetch error:', retryErr);
-            throw retryErr;
-          }
-        } else {
-          console.warn('[fetchWithAuth] Refresh token failed. Logging out...');
-          store.dispatch(logout());
-        }
-      } catch (refreshErr) {
-        console.error('[fetchWithAuth] refresh request error:', refreshErr);
-        store.dispatch(logout());
-      }
-    } else {
-      console.log('[fetchWithAuth] Refresh in progress. Please wait...');
+    const newAccessToken = await refreshPromise;
+    if (!newAccessToken) {
+      return response; 
+    }
+
+    const retryHeaders = new Headers(fetchOptions.headers);
+    retryHeaders.set('Authorization', `Bearer ${newAccessToken}`);
+
+    const retryOptions: RequestInit = {
+      ...fetchOptions,
+      headers: retryHeaders,
+    };
+
+    try {
+      response = await fetch(url, retryOptions);
+    } catch (err) {
+      console.error('[fetchWithAuth] retry fetch error:', err);
+      throw err;
     }
   }
 
