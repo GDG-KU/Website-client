@@ -1,5 +1,3 @@
-'use client';
-
 import { store } from '@/store/store';
 import { logout, setAccessToken } from '@/store/authSlice';
 
@@ -46,7 +44,7 @@ export async function fetchWithAuth(
   const fetchOptions: RequestInit = {
     ...options,
     headers,
-    credentials: 'omit',
+    credentials: 'include',
   };
 
   let response: Response;
