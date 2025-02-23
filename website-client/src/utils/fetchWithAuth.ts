@@ -44,7 +44,10 @@ export async function fetchWithAuth(
     headers.set('Authorization', `Bearer ${accessToken}`);
   }
 
-  if (!(options.body instanceof FormData)) {
+  const method = options.method ? options.method.toUpperCase() : 'GET';
+  if (method === 'GET') {
+    headers.set('Accept', 'application/json');
+  } else if (!(options.body instanceof FormData)) {
     if (!headers.has('Content-Type')) {
       headers.set('Content-Type', 'application/json');
     }
