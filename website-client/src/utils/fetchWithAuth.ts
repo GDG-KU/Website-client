@@ -11,9 +11,9 @@ async function refreshTokens(): Promise<string> {
     if (!res.ok) {
       throw new Error('Refresh token request failed');
     }
-    const data = await res.json();
-    store.dispatch(setAccessToken(data.access_token));
-    return data.access_token;
+    const token = await res.text();
+    store.dispatch(setAccessToken(token));
+    return token;
   } catch (err) {
     console.error('[refreshTokens] error:', err);
     store.dispatch(logout());
