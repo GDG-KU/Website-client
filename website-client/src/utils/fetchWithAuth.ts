@@ -28,7 +28,16 @@ export async function fetchWithAuth(
   url: RequestInfo,
   options: RequestInit = {}
 ): Promise<Response> {
-  const { accessToken } = store.getState().auth;
+  let { accessToken } = store.getState().auth;
+  
+  if (!accessToken) {
+    try {
+      accessToken = await refreshTokens();
+    } catch (err) {
+      console.error('[fetchWithAuth] token refresh failed:', err);
+    }
+  }
+
   const headers = new Headers(options.headers || {});
 
   if (accessToken) {

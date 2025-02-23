@@ -175,7 +175,7 @@ export default function MyPage() {
     };
 
     try {
-      const res = await fetchWithAuth('/mypage/profile', {
+      const res = await fetchWithAuth(`${API_BASE_URL}/mypage/profile`, {
         method: 'PUT',
         body: JSON.stringify(body),
       });
