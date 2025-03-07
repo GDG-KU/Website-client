@@ -9,7 +9,6 @@ import { DatesSetArg, EventClickArg } from '@fullcalendar/core/index.js';
 
 import ActivityManageModal from '@/components/ActivityManageModal';
 import { ActivityManageItem } from '@/components/ActivityManageModal';
-import AdminManageButtons from '@/components/AdminManageButtons';
 import { fetchWithAuth } from '@/utils/fetchWithAuth';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -227,11 +226,6 @@ const Calendar: React.FC = () => {
             onClose={closeModal}
             />
         )}
-
-        <div className="admin-manage-buttons-container">
-          <AdminManageButtons></AdminManageButtons>
-        </div>
-
       </main>
     </div>
   )

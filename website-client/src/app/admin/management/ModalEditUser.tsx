@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { UserData } from './page';
-import './ModalEditMember.css'; // 기존 css 재활용
+import './ModalEditMember.css';
 
 interface ModalEditUserProps {
   isOpen: boolean;
@@ -20,7 +20,6 @@ export default function ModalEditUser({
 }: ModalEditUserProps) {
   const [editNickname, setEditNickname] = useState(user.nickname);
   const [editProfileUrl, setEditProfileUrl] = useState(user.profileImageUrl || '');
-  // 예시: 첫 번째 role만 수정 가능하게 처리 (복수 역할이면 확장)
   const [editRole, setEditRole] = useState(user.roles[0]?.role || '');
 
   useEffect(() => {

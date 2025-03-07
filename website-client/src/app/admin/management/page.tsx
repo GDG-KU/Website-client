@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
-import Link from 'next/link';
 import Image from 'next/image';
 import ModalEditUser from './ModalEditUser';
 import ModalEditPoint from './ModalEditPoint';
@@ -359,22 +358,6 @@ export default function ManagementPage() {
             </div>
           </div>
         )}
-      </div>
-
-      {/* 하단(푸터) 네비게이션 버튼들 */}
-      <div className="admin-bottom-buttons">
-        <Link href="/admin/management">
-          <button className="admin-point-btn">멤버 포인트/활동 관리</button>
-        </Link>
-        <Link href="/admin/calendar">
-          <button className="admin-calendar-btn">캘린더 관리</button>
-        </Link>
-        <Link href="/admin/faq">
-          <button className="admin-faq-btn">FAQ 관리</button>
-        </Link>
-        <Link href="/admin/role">
-          <button className="admin-role-btn">Role/Authority 관리</button>
-        </Link>
       </div>
 
       {/* (A) 회원정보 수정 모달 */}

@@ -1,0 +1,27 @@
+.footerNav {
+    margin-top: auto;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    padding: 2rem;
+  }
+  
+  .navButton {
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 20px;
+    background-color: #ddd;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+  }
+  
+  .navButton:hover {
+    background-color: #bbb;
+  }
+  
+  .active {
+    background-color: #333;
+    color: #fff;
+  }
+  

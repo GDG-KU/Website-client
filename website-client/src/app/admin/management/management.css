@@ -211,19 +211,3 @@
   border-radius: 20px;
   font-size: 0.8rem;
 }
-
-/* (C) 하단 버튼 (페이지 전체 하단) */
-.admin-bottom-buttons {
-  margin-top: 2rem; /* 위와 간격 */
-  display: flex;
-  gap: 1rem;
-}
-.admin-point-btn,
-.admin-calendar-btn {
-  border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 20px;
-  background-color: #ddd;
-  cursor: pointer;
-  font-size: 0.9rem;
-}

@@ -1,0 +1,10 @@
+.admin-container {
+    margin-left: 240px;
+    padding: 2rem;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    color: #000;
+    position: relative;
+  }
+  
