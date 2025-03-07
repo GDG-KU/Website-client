@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { UserData } from './page';
-import './ModalEditPoint.css';
+import styles from './ModalEditPoint.module.css';
 
 interface ModalEditPointProps {
   isOpen: boolean;
@@ -36,7 +36,7 @@ export default function ModalEditPoint({
       return;
     }
 
-    // 간단히: 첫 번째 role의 point에 diff 반영
+    // 첫 번째 role의 point에 diff 반영 (간단 예시)
     const newRoles = [...user.roles];
     if (newRoles.length > 0) {
       newRoles[0].point = newRoles[0].point + diff;
@@ -58,33 +58,38 @@ export default function ModalEditPoint({
       logs: updatedLogs,
     };
 
-    // 실제 API가 있다면 호출
+    // 실제 API가 있다면 /point POST or PATCH 등 호출
     /*
-    fetch('/user/role', {
-      method: 'PATCH',
-      body: JSON.stringify({ ... }),
-    }) ...
+    await fetch('/point', {
+      method: 'POST',
+      body: JSON.stringify({ userId: user.id, role: newRoles[0].role, point: diff }),
+      ...
+    });
     */
 
     onSave(updatedUser);
   };
 
   return (
-    <div className="modal-edit-point-backdrop">
-      <div className="modal-edit-point-content">
-        <button className="modal-close-button" onClick={onClose}>
+    <div className={styles['modal-edit-point-backdrop']} onClick={onClose}>
+      <div
+        className={styles['modal-edit-point-content']}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button className={styles['modal-close-button']} onClick={onClose}>
           ✕
         </button>
-        <div className="modal-body">
-          <div className="modal-right">
-            <div className="current-point">
+        <div className={styles['modal-body']}>
+          {/* 왼쪽 영역이 필요하다면 styles['modal-left'] 사용 */}
+          <div className={styles['modal-right']}>
+            <div className={styles['current-point']}>
               현재 포인트{' '}
               <strong>
                 {user.roles.reduce((sum, r) => sum + r.point, 0)}
               </strong> P
             </div>
 
-            <div className="point-edit-row">
+            <div className={styles['point-edit-row']}>
               <label>포인트 수정</label>
               <input
                 type="text"
@@ -94,7 +99,7 @@ export default function ModalEditPoint({
               />
             </div>
 
-            <div className="reason-row">
+            <div className={styles['reason-row']}>
               <label>사유</label>
               <input
                 type="text"
@@ -104,7 +109,7 @@ export default function ModalEditPoint({
               />
             </div>
 
-            <button className="save-button" onClick={handleSave}>
+            <button className={styles['save-button']} onClick={handleSave}>
               저장하기
             </button>
           </div>

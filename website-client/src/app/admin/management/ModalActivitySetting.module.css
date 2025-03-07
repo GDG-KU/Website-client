@@ -1,0 +1,107 @@
+.modal-activity-setting-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-activity-setting-content {
+  background: #fff;
+  width: 500px;
+  padding: 1.5rem;
+  border-radius: 8px;
+  position: relative;
+}
+
+/* 닫기 버튼 */
+.close-btn {
+  position: absolute;
+  top: 0.7rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.modal-activity-setting-content h2 {
+  margin-top: 0;
+  text-align: center;
+}
+
+/* 본문 영역 */
+.setting-body {
+  margin-top: 1rem;
+}
+
+/* 기존 항목 목록 */
+.item-list {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 1rem;
+}
+
+.item-list li {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.3rem 0;
+}
+
+.item-list li button {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  color: #999;
+}
+
+.add-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.add-row input {
+  flex: 1;
+  padding: 0.4rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.add-row button {
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  background: #333;
+  color: #fff;
+}
+
+/* 하단 버튼들 */
+.modal-buttons {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.save-btn-setting {
+  background: #333;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cancel-btn {
+  background: #ddd;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}

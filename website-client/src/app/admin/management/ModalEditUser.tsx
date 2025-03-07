@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { UserData } from './page';
-import './ModalEditMember.css';
+import styles from './ModalEditMember.module.css';
 
 interface ModalEditUserProps {
   isOpen: boolean;
@@ -37,7 +37,7 @@ export default function ModalEditUser({
       // 실제 PATCH /user/role
       const body = {
         user_id: user.id,
-        roles: [editRole], // 여러 개라면 확장
+        roles: [editRole],
       };
       const response = await fetch('/user/role', {
         method: 'PATCH',
@@ -48,7 +48,7 @@ export default function ModalEditUser({
         throw new Error('Failed to update user role');
       }
       const updatedData = await response.json();
-      // updatedData 예: { id, nickname, roles: [{role, point}] }
+      // updatedData 예: { id, nickname, roles: [{ role, point }] }
 
       // 로컬 state 업데이트
       const updatedUser: UserData = {
@@ -65,16 +65,19 @@ export default function ModalEditUser({
   };
 
   return (
-    <div className="modal-edit-member-backdrop">
-      <div className="modal-edit-member-content">
-        <button className="modal-close-button" onClick={onClose}>
+    <div className={styles['modal-edit-member-backdrop']} onClick={onClose}>
+      <div
+        className={styles['modal-edit-member-content']}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button className={styles['modal-close-button']} onClick={onClose}>
           ✕
         </button>
         <h2>멤버 정보 수정</h2>
 
-        <div className="profile-preview-container">
+        <div className={styles['profile-preview-container']}>
           <Image
-            className="profile-preview-img"
+            className={styles['profile-preview-img']}
             src={editProfileUrl.trim() !== '' ? editProfileUrl : '/profile.svg'}
             alt="프로필 미리보기"
             width={120}
@@ -113,11 +116,11 @@ export default function ModalEditUser({
           </select>
         </label>
 
-        <div className="modal-buttons">
-          <button className="save-button-mem" onClick={handleSave}>
+        <div className={styles['modal-buttons']}>
+          <button className={styles['save-button-mem']} onClick={handleSave}>
             저장
           </button>
-          <button className="cancel-button-mem" onClick={onClose}>
+          <button className={styles['cancel-button-mem']} onClick={onClose}>
             취소
           </button>
         </div>

@@ -1,0 +1,111 @@
+.modal-edit-point-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-edit-point-content {
+  background: #fff;
+  width: 700px;
+  height: 400px;
+  padding: 1.5rem;
+  border-radius: 8px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-close-button {
+  position: absolute;
+  top: 0.7rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+/* 좌우 레이아웃 */
+.modal-body {
+  display: flex;
+  flex: 1;
+}
+
+/* 왼쪽 카테고리 목록 */
+.modal-left {
+  width: 35%;
+  border-right: 1px solid #ccc;
+  padding-right: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.left-category-btn {
+  background: #f8f8f8;
+  border: none;
+  padding: 0.5rem;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-bottom: 0.2rem;
+}
+.left-category-btn.active {
+  background: #333;
+  color: #fff;
+  border-radius: 5px;
+}
+
+/* 오른쪽 (포인트 수정 폼) */
+.modal-right {
+  flex: 1;
+  padding-left: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.current-point {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+}
+
+.point-edit-row,
+.reason-row {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.point-edit-row label,
+.reason-row label {
+  font-size: 0.9rem;
+  margin-bottom: 0.3rem;
+}
+
+.point-edit-row input,
+.reason-row input {
+  padding: 0.4rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.95rem;
+}
+
+.save-button {
+  margin-top: 1rem;
+  border: none;
+  background-color: #000;
+  color: #fff;
+  padding: 0.6rem 1.2rem;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}

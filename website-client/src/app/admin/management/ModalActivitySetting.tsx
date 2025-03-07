@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { UserData } from './page';
-import './ModalActivitySetting.css';
+import styles from './ModalActivitySetting.module.css';
 
 interface ModalActivitySettingProps {
   isOpen: boolean;
@@ -45,23 +45,28 @@ export default function ModalActivitySetting({
     setActivityList([...activityList, newItem.trim()]);
     setNewItem('');
   };
+
   const handleRemoveItem = (index: number) => {
     const updated = [...activityList];
     updated.splice(index, 1);
     setActivityList(updated);
   };
+
   const handleSave = () => {
     onSave(activityList);
   };
 
   return (
-    <div className="modal-activity-setting-backdrop">
-      <div className="modal-activity-setting-content">
-        <button className="close-btn" onClick={onClose}>✕</button>
+    <div className={styles['modal-activity-setting-backdrop']} onClick={onClose}>
+      <div
+        className={styles['modal-activity-setting-content']}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button className={styles['close-btn']} onClick={onClose}>✕</button>
         <h2>활동 관리 설정 ({activeTab})</h2>
 
-        <div className="setting-body">
-          <ul className="item-list">
+        <div className={styles['setting-body']}>
+          <ul className={styles['item-list']}>
             {activityList.map((item, idx) => (
               <li key={idx}>
                 <span>{item}</span>
@@ -69,7 +74,7 @@ export default function ModalActivitySetting({
               </li>
             ))}
           </ul>
-          <div className="add-row">
+          <div className={styles['add-row']}>
             <input
               type="text"
               placeholder="새 항목 입력"
@@ -80,11 +85,11 @@ export default function ModalActivitySetting({
           </div>
         </div>
 
-        <div className="modal-buttons">
-          <button className="save-btn-setting" onClick={handleSave}>
+        <div className={styles['modal-buttons']}>
+          <button className={styles['save-btn-setting']} onClick={handleSave}>
             저장
           </button>
-          <button className="cancel-btn" onClick={onClose}>
+          <button className={styles['cancel-btn']} onClick={onClose}>
             취소
           </button>
         </div>
