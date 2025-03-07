@@ -30,7 +30,6 @@ interface ProfileResponse {
   department: string;
   student_number: string;
   position_names: string[];
-  profile_image: string;
   join_date: string; // "YYYY-MM-DD"
 }
 
@@ -49,9 +48,7 @@ export default function MyPage() {
   const [joinDate, setJoinDate] = useState<string>('');
   const [isCore, setIsCore] = useState<boolean>(false);
   const [userId, setUserId] = useState<number | null>(null);
-
   const [totalPoint, setTotalPoint] = useState<number>(0);
-
   const [pointHistory, setPointHistory] = useState<PointHistoryItem[]>([]);
 
   const formatDate = (dateString: string) => {
@@ -59,6 +56,19 @@ export default function MyPage() {
     const [year, month, day] = dateString.split('-');
     return `${year}. ${month}. ${day}`;
   };
+
+  const fetchProfileImage = useCallback(async () => {
+    try {
+      const res = await fetchWithAuth(`${API_BASE_URL}/mypage/profile/image`, {
+        method: 'GET',
+      });
+      if (!res.ok) throw new Error('프로필 이미지 URL 조회 실패');
+      const imageUrl: string = await res.json();
+      setProfileImageUrl(imageUrl || '/profile.svg');
+    } catch (error) {
+      console.error('프로필 이미지 URL 조회 실패:', error);
+    }
+  }, []);
 
   const fetchProfile = useCallback(async () => {
     try {
@@ -68,28 +78,27 @@ export default function MyPage() {
       if (!res.ok) throw new Error('Failed to fetch profile');
       const data: ProfileResponse = await res.json();
 
-      setProfileImageUrl(data.profile_image || '/profile.svg');
       setName(data.nickname);
       setMajor(`${data.department} ${data.student_number}학번`);
 
       const positionsJoined = data.position_names.join(' / ');
-      const combinedRole = positionsJoined
-        ? `${data.role} / ${positionsJoined}`
-        : data.role;
+      const combinedRole = positionsJoined ? `${data.role} / ${positionsJoined}` : data.role;
       setRole(combinedRole);
 
       setJoinDate(formatDate(data.join_date));
       setIsCore(
         combinedRole.includes('Organizer') ||
-        combinedRole.includes('CORE') ||
-        combinedRole.includes('Core') ||
-        combinedRole.includes('Admin')
+          combinedRole.includes('CORE') ||
+          combinedRole.includes('Core') ||
+          combinedRole.includes('Admin')
       );
       setUserId(data.id);
+
+      fetchProfileImage();
     } catch (error) {
       console.error('프로필 조회 실패:', error);
     }
-  }, []);
+  }, [fetchProfileImage]);
 
   const fetchPoints = useCallback(async () => {
     try {
@@ -133,6 +142,7 @@ export default function MyPage() {
     fetchProfile();
     fetchPoints();
   }, [fetchProfile, fetchPoints]);
+
   useEffect(() => {
     if (userId !== null) {
       fetchPointHistory(userId);
@@ -147,21 +157,19 @@ export default function MyPage() {
     setProfileImageUrl(localUrl);
 
     const formData = new FormData();
-    formData.append('profile_image', file);
+    formData.append('file', file);
 
     try {
-      const res = await fetchWithAuth(`${API_BASE_URL}/mypage/profile-image`, {
-        method: 'POST',
+      const res = await fetchWithAuth(`${API_BASE_URL}/mypage/profile/image`, {
+        method: 'PATCH',
         body: formData,
       });
       if (!res.ok) {
         console.error('프로필 이미지 업로드 실패');
         return;
       }
-      const data = await res.json();
-      if (data?.imageUrl) {
-        setProfileImageUrl(data.imageUrl);
-      }
+      const newImageUrl: string = await res.json();
+      setProfileImageUrl(newImageUrl);
     } catch (err) {
       console.error('프로필 이미지 업로드 에러:', err);
     }

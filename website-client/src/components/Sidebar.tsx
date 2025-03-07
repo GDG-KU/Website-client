@@ -67,47 +67,38 @@ const menuData: MainItem[] = [
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const Sidebar: React.FC = () => {
-  // Redux로부터 로그인 여부
   const { isLoggedIn } = useAppSelector((state) => state.auth);
 
-  // 로그인 모달 열림 여부
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
-  // 사이드바/서브사이드바 관련 상태
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const [isSidebarHovered, setIsSidebarHovered] = useState<boolean>(false);
 
-  // **사용자 프로필 이미지**
   const [userProfileImage, setUserProfileImage] = useState('/sidebar-profile.svg');
 
-  /** 사이드바 마운트 시 or 로그인 여부가 변경될 때, 프로필 이미지 가져오기 */
   useEffect(() => {
-    // 로그인된 상태라면 프로필 이미지 조회
-    if (isLoggedIn) {
-      fetchWithAuth(`${API_BASE_URL}/mypage/profile/image`, { method: 'GET' })
-        .then((res) => {
-          if (!res.ok) throw new Error('Failed to fetch profile image');
-          return res.json(); // 서버가 "string" 형식으로 반환한다고 가정
-        })
-        .then((imageUrl: string) => {
-          // 백엔드가 정상적으로 이미지 URL을 주면 state에 저장
-          if (imageUrl) {
-            setUserProfileImage(imageUrl);
-          }
-        })
-        .catch((err) => {
-          console.error('[Sidebar] 프로필 이미지 조회 실패:', err);
-          // 실패하면 기본 이미지로 남김
-          setUserProfileImage('/sidebar-profile.svg');
+    const fetchProfileImage = async () => {
+      try {
+        const res = await fetchWithAuth(`${API_BASE_URL}/mypage/profile/image`, {
+          method: 'GET',
         });
+        if (!res.ok) throw new Error('프로필 이미지 조회 실패');
+        const imageUrl: string = await res.json();
+        setUserProfileImage(imageUrl || '/sidebar-profile.svg');
+      } catch (error) {
+        console.error('[Sidebar] 프로필 이미지 조회 실패:', error);
+        setUserProfileImage('/sidebar-profile.svg');
+      }
+    };
+
+    if (isLoggedIn) {
+      fetchProfileImage();
     } else {
-      // 미로그인 상태면 기본 이미지
       setUserProfileImage('/sidebar-profile.svg');
     }
   }, [isLoggedIn]);
 
-  // 사이드바 열림/닫힘 초기화
   useEffect(() => {
     setIsSidebarHovered(false);
     setIsSidebarOpen(false);
@@ -117,7 +108,6 @@ const Sidebar: React.FC = () => {
     setHoveredIndex(index);
   };
   const handleMainMenuMouseLeave = () => {
-    // 필요하다면 로직 추가
   };
 
   const handleSubSidebarEnter = (index: number) => {
@@ -127,7 +117,6 @@ const Sidebar: React.FC = () => {
     setHoveredIndex(null);
   };
 
-  // 사이드바 전체 영역 호버
   const onSidebarMouseEnter = () => {
     setIsSidebarHovered(true);
     setIsSidebarOpen(true);
@@ -137,20 +126,17 @@ const Sidebar: React.FC = () => {
     setIsSidebarOpen(false);
   };
 
-  // 프로필 클릭
   const handleProfileClick = () => {
     if (isLoggedIn) {
-      // 로그인된 상태 → 마이페이지
       window.location.href = '/mypage';
     } else {
-      // 미로그인 상태 → 로그인 모달
       setIsLoginModalOpen(true);
     }
   };
 
   return (
     <>
-      {/* 오버레이: 사이드바 호버 중 .open 처리 + 로그인 모달이 열려도 어둡게 */}
+      {/* 오버레이 */}
       <div
         className={`sidebar-overlay ${
           isSidebarHovered || isLoginModalOpen ? 'open' : ''
