@@ -12,11 +12,14 @@ export function middleware(request: NextRequest) {
       url.pathname = '/';
       return NextResponse.redirect(url);
     }
+    console.log('token:', token, 'isCore:', isCore);
   }
-
+  console.log('Middleware triggered, path:', request.nextUrl.pathname);
   return NextResponse.next();
 }
 
 export const config = {
     matcher: ['/admin', '/admin/:path*'],
   };
+
+  
