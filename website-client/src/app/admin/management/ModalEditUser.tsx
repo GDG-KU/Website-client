@@ -48,9 +48,7 @@ export default function ModalEditUser({
         throw new Error('Failed to update user role');
       }
       const updatedData = await response.json();
-      // updatedData 예: { id, nickname, roles: [{ role, point }] }
 
-      // 로컬 state 업데이트
       const updatedUser: UserData = {
         ...user,
         nickname: editNickname,
@@ -73,7 +71,8 @@ export default function ModalEditUser({
         <button className={styles['modal-close-button']} onClick={onClose}>
           ✕
         </button>
-        <h2>멤버 정보 수정</h2>
+
+        <h2 className={styles['modal-title']}>멤버 정보 수정</h2>
 
         <div className={styles['profile-preview-container']}>
           <Image
@@ -85,27 +84,33 @@ export default function ModalEditUser({
           />
         </div>
 
-        <label>
-          닉네임
+        {/* 닉네임 */}
+        <div className={styles['formRow']}>
+          <label className={styles['formLabel']}>닉네임</label>
           <input
+            className={styles['formInput']}
             type="text"
             value={editNickname}
             onChange={(e) => setEditNickname(e.target.value)}
           />
-        </label>
+        </div>
 
-        <label>
-          프로필 URL
+        {/* 프로필 URL */}
+        <div className={styles['formRow']}>
+          <label className={styles['formLabel']}>프로필 URL</label>
           <input
+            className={styles['formInput']}
             type="text"
             value={editProfileUrl}
             onChange={(e) => setEditProfileUrl(e.target.value)}
           />
-        </label>
+        </div>
 
-        <label>
-          역할 (role)
+        {/* 역할 */}
+        <div className={styles['formRow']}>
+          <label className={styles['formLabel']}>역할 (role)</label>
           <select
+            className={styles['formInput']}
             value={editRole}
             onChange={(e) => setEditRole(e.target.value)}
           >
@@ -114,7 +119,7 @@ export default function ModalEditUser({
             <option value="Member">Member</option>
             <option value="Junior">Junior</option>
           </select>
-        </label>
+        </div>
 
         <div className={styles['modal-buttons']}>
           <button className={styles['save-button-mem']} onClick={handleSave}>

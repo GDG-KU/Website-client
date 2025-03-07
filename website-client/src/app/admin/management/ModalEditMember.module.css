@@ -30,28 +30,31 @@
   cursor: pointer;
 }
 
-/* 모달 제목 */
-.modal-edit-member-content h2 {
+.modal-title {
   margin-top: 0;
   margin-bottom: 1rem;
   text-align: center;
 }
 
-/* 폼 요소 */
-label {
-  display: block;
+.formRow {
   margin-bottom: 0.8rem;
+  display: flex;
+  flex-direction: column;
 }
 
-label input,
-label select {
+.formLabel {
+  font-weight: bold;
+  margin-bottom: 0.3rem;
+}
+
+.formInput {
   display: block;
   width: 100%;
-  margin-top: 0.3rem;
   padding: 0.4rem;
   font-size: 1rem;
   border: 1px solid #ccc;
   border-radius: 4px;
+  margin-top: 0.3rem;
 }
 
 /* 프로필 미리보기 영역 */
