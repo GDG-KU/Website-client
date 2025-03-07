@@ -1,11 +1,23 @@
 .footerNav {
-    margin-top: auto;
+    width: 100%;
+  
+    /* 높이와 레이아웃 설정 */
+    min-height: 80px;
     display: flex;
-    justify-content: center;
+    align-items: center;  /* 수직 중앙 정렬 */
+    justify-content: center; /* 버튼을 수평 중앙에 배치 */
+    position: relative; /* 아이콘 절대 위치 배치 가능 */
     gap: 1rem;
-    padding: 2rem;
+    padding: 2rem 0;
   }
   
+  /* 네 개 버튼 묶음 */
+  .leftButtons {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  /* 버튼 공통 스타일 */
   .navButton {
     border: none;
     padding: 0.6rem 1.2rem;
@@ -20,8 +32,29 @@
     background-color: #bbb;
   }
   
+  /* 현재 페이지 버튼 활성화 */
   .active {
     background-color: #333;
     color: #fff;
+  }
+  
+  /* 아이콘 링크 (절대 위치) 
+     → 오른쪽 끝에서 5rem 떨어진 위치, 수직 중앙 정렬 */
+  .iconLink {
+    position: absolute;
+    top: 50%;
+    right: 5rem;
+    transform: translateY(-50%);
+  }
+  
+  /* 아이콘 스타일 */
+  .icon {
+    cursor: pointer;
+    transition: filter 0.2s;
+  }
+  
+  /* 아이콘 활성화 (현재 경로가 /admin/qualification일 때) */
+  .iconActive {
+    filter: brightness(0.6);
   }
   

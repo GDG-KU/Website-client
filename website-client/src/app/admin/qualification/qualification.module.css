@@ -1,0 +1,203 @@
+.qualificationContainer {
+    margin-left: 240px; /* 사이드바 가정 */
+    padding: 2rem;
+    color: #000;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  
+  .topBar {
+    margin-bottom: 1rem;
+  }
+  
+  .searchInput {
+    width: 200px;
+    padding: 0.4rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .filterRow {
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 0.3rem;
+  }
+  
+  .filterButton {
+    border: none;
+    padding: 0.5rem 1rem;
+    background-color: #eee;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  
+  .filterButton:hover {
+    background-color: #ddd;
+  }
+  
+  .active {
+    background-color: #333;
+    color: #fff;
+  }
+  
+  .contentWrapper {
+    display: flex;
+    gap: 2rem;
+    flex: 1;
+  }
+  
+  .leftPanel {
+    width: 200px;
+  }
+  
+  .memberList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .memberList li {
+    padding: 0.5rem;
+    border-bottom: 1px solid #ddd;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .memberList li:hover {
+    background-color: #f7f7f7;
+  }
+  
+  .selectedItem {
+    background-color: #f0f8ff;
+  }
+  
+  .smallRole {
+    font-size: 0.8rem;
+    color: #666;
+  }
+  
+  .rightPanel {
+    flex: 1;
+    background-color: #fafafa;
+    padding: 1rem;
+    border-radius: 8px;
+  }
+  
+  .emptyDetail {
+    color: #666;
+    text-align: center;
+    margin-top: 2rem;
+  }
+  
+  .userDetail {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .userHeader {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .userName {
+    font-size: 1.4rem;
+    font-weight: bold;
+  }
+  
+  .userInfo {
+    font-size: 0.95rem;
+    color: #666;
+  }
+  
+  .userPosition {
+    font-size: 1rem;
+    color: #333;
+  }
+  
+  /* 관리자 추가/삭제 버튼 */
+  .adminButtonAdd {
+    width: 120px;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    background-color: #3b82f6; /* 파란색 */
+    border: none;
+    color: #fff;
+    font-size: 0.9rem;
+    cursor: pointer;
+    margin-top: 0.5rem;
+  }
+  
+  .adminButtonRemove {
+    width: 120px;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    background-color: #ef4444; /* 빨간색 */
+    border: none;
+    color: #fff;
+    font-size: 0.9rem;
+    cursor: pointer;
+    margin-top: 0.5rem;
+  }
+  
+  .adminButtonAdd:hover,
+  .adminButtonRemove:hover {
+    opacity: 0.9;
+  }
+  
+  .userBody {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 1rem;
+  }
+  
+  /* 모달 */
+  .modalBackdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+  }
+  
+  .modalContent {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    width: 300px;
+    text-align: center;
+  }
+  
+  .modalButtons {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    justify-content: center;
+  }
+  
+  .confirmButton {
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    background-color: #333;
+    color: #fff;
+    cursor: pointer;
+  }
+  
+  .cancelButton {
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    background-color: #ddd;
+    cursor: pointer;
+  }
+  

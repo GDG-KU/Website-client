@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import styles from './Footer.module.css';
 
@@ -10,41 +11,56 @@ export default function Footer() {
 
   return (
     <footer className={styles.footerNav}>
-      <Link href="/admin/management">
-        <button
-          className={`${styles.navButton} ${
-            path === '/admin/management' ? styles.active : ''
+      {/* 네 개 버튼: 가운데 정렬 */}
+      <div className={styles.leftButtons}>
+        <Link href="/admin/management">
+          <button
+            className={`${styles.navButton} ${
+              path === '/admin/management' ? styles.active : ''
+            }`}
+          >
+            멤버 포인트 관리
+          </button>
+        </Link>
+        <Link href="/admin/management">
+          <button
+            className={`${styles.navButton} ${
+              path === '/admin/management' ? styles.active : ''
+            }`}
+          >
+            멤버 활동 관리
+          </button>
+        </Link>
+        <Link href="/admin/calendar">
+          <button
+            className={`${styles.navButton} ${
+              path === '/admin/calendar' ? styles.active : ''
+            }`}
+          >
+            캘린더 관리
+          </button>
+        </Link>
+        <Link href="/admin/faq">
+          <button
+            className={`${styles.navButton} ${
+              path === '/admin/faq' ? styles.active : ''
+            }`}
+          >
+            FAQ 관리
+          </button>
+        </Link>
+      </div>
+
+      <Link href="/admin/qualification" className={styles.iconLink}>
+        <Image
+          src="/qualification-icon.svg"
+          alt="자격 관리"
+          width={40}
+          height={40}
+          className={`${styles.icon} ${
+            path === '/admin/qualification' ? styles.iconActive : ''
           }`}
-        >
-          멤버 포인트/활동 관리
-        </button>
-      </Link>
-      <Link href="/admin/calendar">
-        <button
-          className={`${styles.navButton} ${
-            path === '/admin/calendar' ? styles.active : ''
-          }`}
-        >
-          캘린더 관리
-        </button>
-      </Link>
-      <Link href="/admin/faq">
-        <button
-          className={`${styles.navButton} ${
-            path === '/admin/faq' ? styles.active : ''
-          }`}
-        >
-          FAQ 관리
-        </button>
-      </Link>
-      <Link href="/admin/role">
-        <button
-          className={`${styles.navButton} ${
-            path === '/admin/role' ? styles.active : ''
-          }`}
-        >
-          Role/Authority 관리
-        </button>
+        />
       </Link>
     </footer>
   );
