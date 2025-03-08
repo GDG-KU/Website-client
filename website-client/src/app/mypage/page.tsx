@@ -16,6 +16,7 @@ interface HistoryResponseItem {
   reason: string;
   accumulated_point: number;
   date: string;
+  is_deleted: boolean;
 }
 
 interface ProfileResponse {
@@ -26,6 +27,7 @@ interface ProfileResponse {
   department: string;
   student_number: string;
   position_names: string[];
+  profile_image: string;
   join_date: string; // "YYYY-MM-DD"
 }
 
@@ -43,6 +45,7 @@ export default function MyPage() {
   const [role, setRole] = useState<string>('');
   const [joinDate, setJoinDate] = useState<string>('');
   const [isCore, setIsCore] = useState<boolean>(false);
+  const [userId, setUserId] = useState<number | null>(null);
   const [totalPoint, setTotalPoint] = useState<number>(0);
   const [pointHistory, setPointHistory] = useState<PointHistoryItem[]>([]);
   const [profilePositions, setProfilePositions] = useState<string[]>([]);
@@ -51,7 +54,7 @@ export default function MyPage() {
   const [modalNickname, setModalNickname] = useState('');
   const [modalDepartment, setModalDepartment] = useState('');
   const [modalStudentNumber, setModalStudentNumber] = useState('');
-  const [modalPositionNames, setModalPositionNames] = useState(''); 
+  const [modalPositionNames, setModalPositionNames] = useState('');
 
   const formatDate = (dateString: string) => {
     if (!dateString) return '';
@@ -95,6 +98,8 @@ export default function MyPage() {
         combinedRole.includes('Core') ||
         combinedRole.includes('Admin')
       );
+      
+      setUserId(data.id);
 
       fetchProfileImage();
     } catch (error) {
@@ -103,8 +108,9 @@ export default function MyPage() {
   }, [fetchProfileImage]);
 
   const fetchPointHistory = useCallback(async () => {
+    if (userId === null) return;
     try {
-      const res = await fetchWithAuth(`${API_BASE_URL}/mypage/history`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/point/history/${userId}?role=${encodeURIComponent(role)}`, {
         method: 'GET',
       });
       if (!res.ok) throw new Error('포인트 히스토리 조회 실패');
@@ -127,12 +133,17 @@ export default function MyPage() {
     } catch (error) {
       console.error('포인트 히스토리 조회 실패:', error);
     }
-  }, []);
+  }, [userId, role]);
 
   useEffect(() => {
     fetchProfile();
-    fetchPointHistory();
-  }, [fetchProfile, fetchPointHistory]);
+  }, [fetchProfile]);
+
+  useEffect(() => {
+    if (userId !== null) {
+      fetchPointHistory();
+    }
+  }, [userId, fetchPointHistory]);
 
   const handleProfileImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
@@ -314,7 +325,7 @@ export default function MyPage() {
                 value={modalStudentNumber}
                 onChange={(e) => setModalStudentNumber(e.target.value)}
               />
-              <label>직책</label>
+              <label>Position</label>
               <input
                 type="text"
                 value={modalPositionNames}
