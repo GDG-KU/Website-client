@@ -5,14 +5,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import { fetchWithAuth } from '@/utils/fetchWithAuth';
-import './mypage.css';
+import styles from './mypage.module.css';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-interface PointResponseItem {
-  role: string;
-  point: number;
-}
 interface HistoryResponseItem {
   id: number;
   point_change: number;
@@ -47,9 +43,15 @@ export default function MyPage() {
   const [role, setRole] = useState<string>('');
   const [joinDate, setJoinDate] = useState<string>('');
   const [isCore, setIsCore] = useState<boolean>(false);
-  const [userId, setUserId] = useState<number | null>(null);
   const [totalPoint, setTotalPoint] = useState<number>(0);
   const [pointHistory, setPointHistory] = useState<PointHistoryItem[]>([]);
+  const [profilePositions, setProfilePositions] = useState<string[]>([]);
+
+  const [showModal, setShowModal] = useState(false);
+  const [modalNickname, setModalNickname] = useState('');
+  const [modalDepartment, setModalDepartment] = useState('');
+  const [modalStudentNumber, setModalStudentNumber] = useState('');
+  const [modalPositionNames, setModalPositionNames] = useState(''); 
 
   const formatDate = (dateString: string) => {
     if (!dateString) return '';
@@ -75,11 +77,12 @@ export default function MyPage() {
       const res = await fetchWithAuth(`${API_BASE_URL}/mypage/profile`, {
         method: 'GET',
       });
-      if (!res.ok) throw new Error('Failed to fetch profile');
+      if (!res.ok) throw new Error('프로필 조회 실패');
       const data: ProfileResponse = await res.json();
 
       setName(data.nickname);
       setMajor(`${data.department} ${data.student_number}학번`);
+      setProfilePositions(data.position_names);
 
       const positionsJoined = data.position_names.join(' / ');
       const combinedRole = positionsJoined ? `${data.role} / ${positionsJoined}` : data.role;
@@ -88,11 +91,10 @@ export default function MyPage() {
       setJoinDate(formatDate(data.join_date));
       setIsCore(
         combinedRole.includes('Organizer') ||
-          combinedRole.includes('CORE') ||
-          combinedRole.includes('Core') ||
-          combinedRole.includes('Admin')
+        combinedRole.includes('CORE') ||
+        combinedRole.includes('Core') ||
+        combinedRole.includes('Admin')
       );
-      setUserId(data.id);
 
       fetchProfileImage();
     } catch (error) {
@@ -100,54 +102,37 @@ export default function MyPage() {
     }
   }, [fetchProfileImage]);
 
-  const fetchPoints = useCallback(async () => {
+  const fetchPointHistory = useCallback(async () => {
     try {
-      const res = await fetchWithAuth(`${API_BASE_URL}/point`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/mypage/history`, {
         method: 'GET',
       });
-      if (!res.ok) throw new Error('Failed to fetch points');
-      const data: PointResponseItem[] = await res.json();
-      const sum = data.reduce((acc, cur) => acc + cur.point, 0);
-      setTotalPoint(sum);
+      if (!res.ok) throw new Error('포인트 히스토리 조회 실패');
+      const data: HistoryResponseItem[] = await res.json();
+
+      if (data.length > 0) {
+        setTotalPoint(data[data.length - 1].accumulated_point);
+      } else {
+        setTotalPoint(0);
+      }
+
+      const mapped = data.map((item) => ({
+        date: formatDate(item.date),
+        change: item.point_change,
+        total: item.accumulated_point,
+        event: item.reason,
+      }));
+
+      setPointHistory(mapped);
     } catch (error) {
-      console.error('포인트 조회 실패:', error);
+      console.error('포인트 히스토리 조회 실패:', error);
     }
   }, []);
 
-  const fetchPointHistory = useCallback(
-    async (uid: number) => {
-      try {
-        const res = await fetchWithAuth(`${API_BASE_URL}/point/history/${uid}`, {
-          method: 'GET',
-        });
-        if (!res.ok) throw new Error('Failed to fetch point history');
-        const data: HistoryResponseItem[] = await res.json();
-
-        const mapped = data.map((item) => ({
-          date: formatDate(item.date),
-          change: item.point_change,
-          total: item.accumulated_point,
-          event: item.reason,
-        }));
-
-        setPointHistory(mapped);
-      } catch (error) {
-        console.error('포인트 히스토리 조회 실패:', error);
-      }
-    },
-    []
-  );
-
   useEffect(() => {
     fetchProfile();
-    fetchPoints();
-  }, [fetchProfile, fetchPoints]);
-
-  useEffect(() => {
-    if (userId !== null) {
-      fetchPointHistory(userId);
-    }
-  }, [userId, fetchPointHistory]);
+    fetchPointHistory();
+  }, [fetchProfile, fetchPointHistory]);
 
   const handleProfileImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
@@ -156,31 +141,64 @@ export default function MyPage() {
     const localUrl = URL.createObjectURL(file);
     setProfileImageUrl(localUrl);
 
-    const formData = new FormData();
-    formData.append('file', file);
-
     try {
-      const res = await fetchWithAuth(`${API_BASE_URL}/mypage/profile/image`, {
-        method: 'PATCH',
-        body: formData,
+      const signedUrlRes = await fetchWithAuth(`${API_BASE_URL}/mypage/signedurl`, {
+        method: 'GET',
       });
-      if (!res.ok) {
-        console.error('프로필 이미지 업로드 실패');
-        return;
-      }
-      const newImageUrl: string = await res.json();
+      if (!signedUrlRes.ok) throw new Error('서명된 URL 생성 실패');
+      const signedUrl: string = await signedUrlRes.json();
+
+      const uploadRes = await fetch(signedUrl, {
+        method: 'PUT',
+        body: file,
+      });
+      if (!uploadRes.ok) throw new Error('파일 업로드 실패');
+
+      const patchRes = await fetchWithAuth(`${API_BASE_URL}/mypage/profile/image`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: signedUrl }),
+      });
+      if (!patchRes.ok) throw new Error('프로필 이미지 업로드 최종 갱신 실패');
+      const newImageUrl: string = await patchRes.json();
       setProfileImageUrl(newImageUrl);
     } catch (err) {
       console.error('프로필 이미지 업로드 에러:', err);
     }
   };
 
-  const handleUpdateProfile = async () => {
+  const handleDeleteProfileImage = async () => {
+    try {
+      const res = await fetchWithAuth(`${API_BASE_URL}/mypage/profile/image`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('프로필 이미지 삭제 실패');
+      setProfileImageUrl('/profile.svg');
+      console.log('프로필 이미지 삭제 성공');
+    } catch (error) {
+      console.error('프로필 이미지 삭제 에러:', error);
+    }
+  };
+
+  const openModal = () => {
+    setModalNickname(name);
+    const majorArr = major.split(' ');
+    setModalDepartment(majorArr[0] || '');
+    setModalStudentNumber(majorArr[1] ? majorArr[1].replace('학번', '') : '');
+    setModalPositionNames(profilePositions.join(', '));
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+  };
+
+  const handleSaveProfile = async () => {
     const body = {
-      nickname: name,
-      department: major.split(' ')[0],
-      student_number: major.split(' ')[1]?.replace('학번', ''),
-      position_names: role.split('/').map((v) => v.trim()),
+      nickname: modalNickname,
+      department: modalDepartment,
+      student_number: modalStudentNumber,
+      position_names: modalPositionNames.split(',').map((v) => v.trim()).filter((v) => v !== ''),
     };
 
     try {
@@ -192,24 +210,29 @@ export default function MyPage() {
         console.error('프로필 정보 수정 실패');
         return;
       }
-      console.log('프로필 수정 성공');
+      console.log('프로필 정보 수정 성공');
+      setName(modalNickname);
+      setMajor(`${modalDepartment} ${modalStudentNumber}학번`);
+      setProfilePositions(body.position_names);
+      setRole(body.position_names.length > 0 ? body.position_names.join(' / ') : '');
+      setShowModal(false);
     } catch (err) {
       console.error('프로필 정보 수정 에러:', err);
     }
   };
 
   return (
-    <div className="mypage-container">
-      <section className="profile-section">
-        <div className="profile-image-wrapper">
+    <div className={styles['mypage-container']}>
+      <section className={styles['profile-section']}>
+        <div className={styles['profile-image-wrapper']}>
           <Image
             src={profileImageUrl}
             alt="프로필 사진"
             width={120}
             height={120}
-            className="profile-image"
+            className={styles['profile-image']}
           />
-          <label htmlFor="profileUpload" className="upload-label">
+          <label htmlFor="profileUpload" className={styles['upload-label']}>
             프로필 사진 변경
           </label>
           <input
@@ -221,35 +244,30 @@ export default function MyPage() {
           />
         </div>
 
-        <h2 className="profile-name">{name}</h2>
-        <div className="profile-major">{major}</div>
-        <div className="profile-role">{role}</div>
-        <div className="profile-join-date">가입일: {joinDate}</div>
+        <h2 className={styles['profile-name']}>{name}</h2>
+        <div className={styles['profile-major']}>{major}</div>
+        <div className={styles['profile-role']}>{role}</div>
+        <div className={styles['profile-join-date']}>가입일: {joinDate}</div>
 
-        <div className="profile-buttons">
-          <button onClick={handleUpdateProfile} className="edit-button">
+        <div className={styles['profile-buttons']}>
+          <button onClick={openModal} className={styles['edit-button']}>
             정보 수정
           </button>
           {isCore && (
-            <>
-              <Link href="/admin">
-                <button className="admin-button">관리자 모드</button>
-              </Link>
-              <Link href="/admin/management">
-                <button className="admin-button">멤버 관리</button>
-              </Link>
-            </>
+            <Link href="/admin">
+              <button className={styles['admin-button']}>관리자 모드</button>
+            </Link>
           )}
         </div>
       </section>
-      <section className="point-section">
-        <h2 className="point-title">My Status</h2>
-        <div className="point-total">
+      <section className={styles['point-section']}>
+        <h2 className={styles['point-title']}>My Status</h2>
+        <div className={styles['point-total']}>
           {totalPoint}
-          <span className="point-unit">P</span>
+          <span className={styles['point-unit']}>P</span>
         </div>
 
-        <div className="point-history-table">
+        <div className={styles['point-history-table']}>
           <table>
             <thead>
               <tr>
@@ -272,6 +290,51 @@ export default function MyPage() {
           </table>
         </div>
       </section>
+
+      {showModal && (
+        <div className={styles['modal-overlay']}>
+          <div className={styles['modal']}>
+            <h2 className={styles['modal-title']}>프로필 정보 수정</h2>
+            <div className={styles['modal-content']}>
+              <label>닉네임</label>
+              <input
+                type="text"
+                value={modalNickname}
+                onChange={(e) => setModalNickname(e.target.value)}
+              />
+              <label>학과</label>
+              <input
+                type="text"
+                value={modalDepartment}
+                onChange={(e) => setModalDepartment(e.target.value)}
+              />
+              <label>학번</label>
+              <input
+                type="text"
+                value={modalStudentNumber}
+                onChange={(e) => setModalStudentNumber(e.target.value)}
+              />
+              <label>직책</label>
+              <input
+                type="text"
+                value={modalPositionNames}
+                onChange={(e) => setModalPositionNames(e.target.value)}
+              />
+            </div>
+            <div className={styles['modal-actions']}>
+              <button onClick={handleDeleteProfileImage} className={styles['delete-button']}>
+                프로필 이미지 삭제
+              </button>
+              <button onClick={handleSaveProfile} className={styles['save-button']}>
+                저장
+              </button>
+              <button onClick={closeModal} className={styles['cancel-button']}>
+                취소
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
