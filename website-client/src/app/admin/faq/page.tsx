@@ -3,6 +3,10 @@
 import React, { useEffect, useState } from 'react';
 import styles from './faqManagement.module.css';
 
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+
 interface FAQItem {
   id: number;
   question: string;
@@ -25,21 +29,18 @@ const fallbackFAQs: FAQItem[] = [
 export default function FAQManagementPage() {
   const [faqs, setFaqs] = useState<FAQItem[]>([]);
 
-  // FAQ 추가 모달 상태
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [newQuestion, setNewQuestion] = useState('');
   const [newAnswer, setNewAnswer] = useState('');
 
-  // FAQ 수정/삭제 모달 상태
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [modalFAQ, setModalFAQ] = useState<FAQItem | null>(null);
   const [modalQuestion, setModalQuestion] = useState('');
   const [modalAnswer, setModalAnswer] = useState('');
 
-  // FAQ 전체 조회
   const fetchAllFAQs = async () => {
     try {
-      const res = await fetch('/faq', { method: 'GET' });
+      const res = await fetch(`${API_BASE_URL}/faq`, { method: 'GET' });
       if (!res.ok) throw new Error('Failed to fetch FAQs');
       const data: FAQItem[] = await res.json();
       setFaqs(data);
@@ -49,7 +50,6 @@ export default function FAQManagementPage() {
     }
   };
 
-  // FAQ 생성
   const createFAQ = async () => {
     if (!newQuestion.trim() || !newAnswer.trim()) {
       alert('질문과 답변을 모두 입력하세요.');
@@ -61,7 +61,7 @@ export default function FAQManagementPage() {
         question: newQuestion,
         answer: newAnswer,
       };
-      const res = await fetch('/faq', {
+      const res = await fetch(`${API_BASE_URL}/faq`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -76,10 +76,9 @@ export default function FAQManagementPage() {
     }
   };
 
-  // FAQ 삭제
   const deleteFAQ = async (id: number) => {
     try {
-      const res = await fetch(`/faq/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_BASE_URL}/faq/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed to delete FAQ');
       await fetchAllFAQs();
     } catch (error) {
@@ -87,7 +86,6 @@ export default function FAQManagementPage() {
     }
   };
 
-  // 수정 모달 열기 (행 클릭 시)
   const openEditModal = (faq: FAQItem) => {
     setModalFAQ(faq);
     setModalQuestion(faq.question);
@@ -95,7 +93,6 @@ export default function FAQManagementPage() {
     setEditModalOpen(true);
   };
 
-  // FAQ 수정 (수정 모달에서 "수정" 클릭)
   const updateFAQ = async () => {
     if (!modalFAQ) return;
     if (!modalQuestion.trim() || !modalAnswer.trim()) {
@@ -107,7 +104,7 @@ export default function FAQManagementPage() {
         question: modalQuestion,
         answer: modalAnswer,
       };
-      const res = await fetch(`/faq/${modalFAQ.id}`, {
+      const res = await fetch(`${API_BASE_URL}/faq/${modalFAQ.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -120,7 +117,6 @@ export default function FAQManagementPage() {
     }
   };
 
-  // 모달 닫기 함수들
   const closeEditModal = () => {
     setEditModalOpen(false);
     setModalFAQ(null);
@@ -142,7 +138,6 @@ export default function FAQManagementPage() {
     <div className={styles.faqContainer}>
       <h1 className={styles.pageTitle}>FAQ 관리</h1>
 
-      {/* FAQ 추가하기 버튼 */}
       <div className={styles.faqTopBar}>
         <button
           className={styles.addFaqButton}
@@ -152,7 +147,6 @@ export default function FAQManagementPage() {
         </button>
       </div>
 
-      {/* FAQ 목록 테이블 (ID 열 및 액션 열 제거) */}
       <table className={styles.faqTable}>
         <thead>
           <tr>
@@ -176,7 +170,6 @@ export default function FAQManagementPage() {
         </tbody>
       </table>
 
-      {/* FAQ 추가 모달 */}
       {addModalOpen && (
         <div className={styles.modalOverlay} onClick={closeAddModal}>
           <div
@@ -220,7 +213,6 @@ export default function FAQManagementPage() {
         </div>
       )}
 
-      {/* FAQ 수정/삭제 모달 */}
       {editModalOpen && modalFAQ && (
         <div className={styles.modalOverlay} onClick={closeEditModal}>
           <div
