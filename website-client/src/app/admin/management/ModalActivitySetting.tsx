@@ -3,6 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import { UserData } from './page';
 import styles from './ModalActivitySetting.module.css';
+import { fetchWithAuth } from '@/utils/fetchWithAuth';
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 interface ModalActivitySettingProps {
   isOpen: boolean;
@@ -52,8 +55,30 @@ export default function ModalActivitySetting({
     setActivityList(updated);
   };
 
-  const handleSave = () => {
-    onSave(activityList);
+  const handleSave = async () => {
+    try {
+      // 예시: PATCH /user/activities 엔드포인트를 호출하여 활동(activity) 정보를 업데이트
+      const res = await fetchWithAuth(`${API_BASE_URL}/user/activities`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: user.id,
+          // activeTab에 해당하는 활동 목록만 업데이트합니다.
+          activities: { [activeTab]: activityList },
+        }),
+      });
+      if (!res.ok) {
+        throw new Error('활동 정보 업데이트에 실패했습니다.');
+      }
+      // 서버에서 업데이트된 데이터를 받아오거나, 성공했다는 가정하에 onSave 호출
+      onSave(activityList);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        alert(err.message);
+      } else {
+        alert(String(err));
+      }
+    }
   };
 
   return (

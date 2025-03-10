@@ -4,6 +4,9 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { UserData } from './page';
 import styles from './ModalEditMember.module.css';
+import { fetchWithAuth } from '@/utils/fetchWithAuth';
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 interface ModalEditUserProps {
   isOpen: boolean;
@@ -34,24 +37,27 @@ export default function ModalEditUser({
 
   const handleSave = async () => {
     try {
-      // 실제 PATCH /user/role
+      // PATCH /user/role 엔드포인트를 호출하여 유저 역할 변경
       const body = {
         user_id: user.id,
         roles: [editRole],
       };
-      const response = await fetch('/user/role', {
+      const response = await fetchWithAuth(`${API_BASE_URL}/user/role`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
       if (!response.ok) {
-        throw new Error('Failed to update user role');
+        throw new Error('유저 역할 변경에 실패하였습니다.');
       }
       const updatedData = await response.json();
-
+      
+      // API 명세에서는 PATCH /user/role 응답으로
+      // { "id": 1, "nickname": "User nickname", "roles": [ { "role": "Role name", "point": 0 } ] } 형태로 리턴됨
+      // 따라서 nickname은 서버의 응답을 따르되, 프로필 URL은 기존 값을 그대로 사용합니다.
       const updatedUser: UserData = {
         ...user,
-        nickname: editNickname,
+        nickname: editNickname, // 혹은 updatedData.nickname을 사용할 수 있음
         profileImageUrl: editProfileUrl,
         roles: updatedData.roles,
       };

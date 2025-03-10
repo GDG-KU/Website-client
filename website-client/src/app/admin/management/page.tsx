@@ -6,23 +6,22 @@ import styles from './management.module.css';
 import ModalEditUser from './ModalEditUser';
 import ModalEditPoint from './ModalEditPoint';
 import ModalActivitySetting from './ModalActivitySetting';
+import { fetchWithAuth } from '@/utils/fetchWithAuth';
 
-/* -----------------------------
-   로컬에서 사용할 인터페이스
------------------------------ */
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 interface UserRole {
   role: string;
   point: number;
 }
 interface LogData {
-  // 로컬에서 사용하는 로그 형식
   id?: number;
   date: string;
   name: string;
   role: string;
-  pointChange: number;        // point_change → pointChange
+  pointChange: number;        
   reason: string;
-  accumulated_point?: number; // 선택적
+  accumulated_point?: number; 
 }
 interface Activities {
   fetch: string[];
@@ -39,9 +38,6 @@ export interface UserData {
   activities?: Activities;
 }
 
-/* -------------------------------------
-   백엔드 응답 형태(서버 전용) 인터페이스
--------------------------------------- */
 interface ServerUser {
   id: number;
   nickname: string;
@@ -54,7 +50,7 @@ interface ServerUser {
 
 interface ServerLogData {
   id: number;
-  point_change: number;       // 백엔드가 사용하는 필드명
+  point_change: number;
   role: string;
   reason: string;
   accumulated_point: number;
@@ -64,41 +60,33 @@ interface ServerLogData {
 const activityTabs = ['fetch', 'worktree', 'branch', 'solution challenge'];
 
 export default function ManagementPage() {
-  // (1) 전체 사용자 목록
   const [users, setUsers] = useState<UserData[]>([]);
 
-  // (2) 검색, 필터, 페이지네이션
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] =
     useState<'ALL' | 'DevRel' | 'Core' | 'Member' | 'Junior'>('ALL');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  // (3) 선택된 사용자 상세
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
   const [activeTab, setActiveTab] = useState<string>('fetch');
 
-  // (4) 모달 상태
   const [isModalOpen, setIsModalOpen] = useState(false);         // 회원정보 수정 모달
   const [isPointModalOpen, setIsPointModalOpen] = useState(false); // 포인트 수정 모달
   const [isSettingModalOpen, setIsSettingModalOpen] = useState(false); // 활동관리 모달
 
-  // (A) 전체 유저 목록 가져오기
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const roleQuery = filterRole === 'ALL' ? '' : filterRole;
-        const res = await fetch(`/user?page=1&role=${roleQuery}`, {
+        const res = await fetchWithAuth(`${API_BASE_URL}/user?page=1`, {
           method: 'GET',
         });
         if (!res.ok) {
           throw new Error('Failed to fetch user list');
         }
         const responseData = await res.json();
-        // 예: [{ data: [...] }]
         if (Array.isArray(responseData) && responseData.length > 0) {
           const { data: userList } = responseData[0];
-          // userList를 ServerUser[]로 가정
           const enrichedList: UserData[] = (userList as ServerUser[]).map((u) => ({
             id: u.id,
             nickname: u.nickname,
@@ -121,7 +109,6 @@ export default function ManagementPage() {
     fetchUsers();
   }, [filterRole]);
 
-  // (B) 검색 필터
   const filteredData = useMemo(() => {
     let data = users;
     if (searchTerm.trim() !== '') {
@@ -132,26 +119,25 @@ export default function ManagementPage() {
     return data;
   }, [users, searchTerm]);
 
-  // (C) 페이지네이션
   const totalItems = filteredData.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentPageData = filteredData.slice(startIndex, startIndex + itemsPerPage);
 
-  // (D) 사용자 클릭 시 상세 조회
   const handleUserClick = async (user: UserData) => {
     setSelectedUser(null);
     try {
-      // 예시: GET /point/{userId}
-      const pointRes = await fetch(`/point/${user.id}`, { method: 'GET' });
+      const pointRes = await fetchWithAuth(`${API_BASE_URL}/point/${user.id}`, {
+        method: 'GET',
+      });
       let userPoints: UserRole[] | null = null;
       if (pointRes.ok) {
-        // 백엔드가 [{ role, point }, ...] 형태 반환
         userPoints = await pointRes.json();
       }
 
-      // 예시: GET /point/history/{userId}
-      const historyRes = await fetch(`/point/history/${user.id}`, { method: 'GET' });
+      const historyRes = await fetchWithAuth(`${API_BASE_URL}/point/history/${user.id}`, {
+        method: 'GET',
+      });
       let historyData: ServerLogData[] = [];
       if (historyRes.ok) {
         historyData = await historyRes.json();
@@ -160,26 +146,25 @@ export default function ManagementPage() {
       // logs 변환
       const logs = historyData.map<LogData>((item) => ({
         date: item.date,
-        name: user.nickname, // 서버에 따라 다를 수 있음
+        name: user.nickname,
         role: item.role,
-        pointChange: item.point_change, // 여기서 point_change → pointChange
+        pointChange: item.point_change,
         reason: item.reason,
         accumulated_point: item.accumulated_point,
       }));
 
       const updatedUser: UserData = {
         ...user,
-        roles: userPoints || user.roles, // 백엔드에서 받은 포인트 정보
+        roles: userPoints || user.roles,
         logs: logs,
       };
       setSelectedUser(updatedUser);
     } catch (error) {
       console.error('사용자 상세 조회 실패:', error);
-      setSelectedUser(user); // 실패 시라도 기본 정보는 표시
+      setSelectedUser(user);
     }
   };
 
-  // (E) 회원정보 수정 모달 열기
   const handleEditIconClick = () => {
     if (!selectedUser) return;
     setIsModalOpen(true);
@@ -191,7 +176,6 @@ export default function ManagementPage() {
     setIsModalOpen(false);
   };
 
-  // (F) 포인트 수정 모달
   const handleOpenPointModal = () => {
     if (!selectedUser) return;
     setIsPointModalOpen(true);
@@ -203,7 +187,6 @@ export default function ManagementPage() {
     setIsPointModalOpen(false);
   };
 
-  // (G) 활동 관리 (세팅) 모달
   const handleOpenSettingModal = () => {
     if (!selectedUser) return;
     setIsSettingModalOpen(true);
@@ -235,9 +218,7 @@ export default function ManagementPage() {
   return (
     <div className={styles.adminContainer}>
       <div className={styles.adminContentWrapper}>
-        {/* --- 왼쪽 영역 (검색 + 필터 + 테이블 + 페이지네이션) --- */}
         <div className={styles.leftSide}>
-          {/* 검색창 */}
           <div className={styles.searchSection}>
             <input
               className={styles.searchInput}
@@ -246,8 +227,6 @@ export default function ManagementPage() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-
-          {/* 필터 버튼 */}
           <div className={styles.filterSection}>
             {['ALL', 'DevRel', 'Core', 'Member', 'Junior'].map((roleValue) => (
               <button
@@ -265,7 +244,6 @@ export default function ManagementPage() {
             ))}
           </div>
 
-          {/* 유저 테이블 */}
           <table className={styles.memberTable}>
             <thead>
               <tr>
@@ -295,7 +273,6 @@ export default function ManagementPage() {
             </tbody>
           </table>
 
-          {/* 페이지네이션 */}
           <div className={styles.paginationRow}>
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
               <button
@@ -309,7 +286,6 @@ export default function ManagementPage() {
           </div>
         </div>
 
-        {/* --- 오른쪽 영역 (선택된 유저 상세) --- */}
         {selectedUser && (
           <div className={styles.memberDetailSection}>
             <div className={styles.detailHeader}>
@@ -344,7 +320,6 @@ export default function ManagementPage() {
               </div>
             </div>
 
-            {/* 점수 수정 히스토리 */}
             <div className={styles.scoreHistory}>
               <h3>점수 수정 히스토리</h3>
               <div className={styles.scoreHistoryTable}>
@@ -383,7 +358,6 @@ export default function ManagementPage() {
               </div>
             </div>
 
-            {/* 활동 관리 */}
             <div className={styles.activityManage}>
               <h3>활동 관리</h3>
               <div className={styles.tabs}>
@@ -396,7 +370,6 @@ export default function ManagementPage() {
                     {tab}
                   </button>
                 ))}
-                {/* 설정 아이콘 */}
                 <button className={styles.tabSettingBtn} onClick={handleOpenSettingModal}>
                   <Image src="/settingicon.svg" alt="설정" width={24} height={24} />
                 </button>
@@ -436,7 +409,6 @@ export default function ManagementPage() {
         )}
       </div>
 
-      {/* (A) 회원정보 수정 모달 */}
       {selectedUser && (
         <ModalEditUser
           isOpen={isModalOpen}
@@ -445,7 +417,6 @@ export default function ManagementPage() {
           onSave={handleSaveUserChanges}
         />
       )}
-      {/* (B) 포인트 수정 모달 */}
       {selectedUser && (
         <ModalEditPoint
           isOpen={isPointModalOpen}
@@ -454,7 +425,6 @@ export default function ManagementPage() {
           onSave={handleSavePointChanges}
         />
       )}
-      {/* (C) 활동 관리 (세팅) 모달 */}
       {selectedUser && (
         <ModalActivitySetting
           isOpen={isSettingModalOpen}
