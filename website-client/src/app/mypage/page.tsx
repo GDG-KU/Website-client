@@ -94,7 +94,6 @@ export default function MyPage() {
       setJoinDate(formatDate(data.join_date));
       setIsCore(
         combinedRole.includes('Organizer') ||
-        combinedRole.includes('CORE') ||
         combinedRole.includes('Core') ||
         combinedRole.includes('Admin')
       );
@@ -110,9 +109,11 @@ export default function MyPage() {
   const fetchPointHistory = useCallback(async () => {
     if (userId === null) return;
     try {
-      const res = await fetchWithAuth(`${API_BASE_URL}/point/history/${userId}?role=${encodeURIComponent(role)}`, {
-        method: 'GET',
-      });
+      const queryRole = role.includes(' / ') ? role.split(' / ')[0].trim() : role;
+      const res = await fetchWithAuth(
+        `${API_BASE_URL}/point/history/${userId}?role=${encodeURIComponent(queryRole)}`,
+        { method: 'GET' }
+      );
       if (!res.ok) throw new Error('포인트 히스토리 조회 실패');
       const data: HistoryResponseItem[] = await res.json();
 
