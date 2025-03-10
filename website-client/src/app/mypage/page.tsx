@@ -96,7 +96,6 @@ export default function MyPage() {
         combinedRole.includes('Core') ||
         combinedRole.includes('Admin')
       );
-      
       setUserId(data.id);
 
       fetchProfileImage();
@@ -163,9 +162,9 @@ export default function MyPage() {
         method: 'GET',
       });
       if (!signedUrlRes.ok) throw new Error('서명된 URL 생성 실패');
-      const signedUrl: string = await signedUrlRes.json();
+      const { signedurl } = await signedUrlRes.json();
 
-      const uploadRes = await fetch(signedUrl, {
+      const uploadRes = await fetch(signedurl, {
         method: 'PUT',
         body: file,
       });
@@ -174,10 +173,11 @@ export default function MyPage() {
       const patchRes = await fetchWithAuth(`${API_BASE_URL}/mypage/profile/image`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: signedUrl }),
+        body: JSON.stringify({ url: signedurl }),
       });
       if (!patchRes.ok) throw new Error('프로필 이미지 업로드 최종 갱신 실패');
-      const newImageUrl: string = await patchRes.json();
+
+      const { url: newImageUrl } = await patchRes.json();
       setProfileImageUrl(newImageUrl);
     } catch (err) {
       console.error('프로필 이미지 업로드 에러:', err);
@@ -215,7 +215,10 @@ export default function MyPage() {
       nickname: modalNickname,
       department: modalDepartment,
       student_number: modalStudentNumber,
-      position_names: modalPositionNames.split(',').map((v) => v.trim()).filter((v) => v !== ''),
+      position_names: modalPositionNames
+        .split(',')
+        .map((v) => v.trim())
+        .filter((v) => v !== ''),
     };
 
     try {
@@ -276,7 +279,7 @@ export default function MyPage() {
             </Link>
           )}
         </div>
-      </section>   
+      </section>
       <section className={styles['point-section']}>
         <h2 className={styles['point-title']}>My Status</h2>
         <div className={styles['point-total']}>
