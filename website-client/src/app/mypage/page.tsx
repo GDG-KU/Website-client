@@ -169,7 +169,6 @@ export default function MyPage() {
   
       const uploadRes = await fetch(uploadUrl, {
         method: 'PUT',
-        mode: 'no-cors',
         headers: {
           'Content-Type': file.type,
         },
