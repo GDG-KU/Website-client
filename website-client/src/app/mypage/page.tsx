@@ -153,30 +153,36 @@ export default function MyPage() {
   const handleProfileImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
     const file = e.target.files[0];
-
+  
     const localUrl = URL.createObjectURL(file);
     setProfileImageUrl(localUrl);
-
+  
     try {
       const signedUrlRes = await fetchWithAuth(`${API_BASE_URL}/mypage/signedurl`, {
         method: 'GET',
       });
       if (!signedUrlRes.ok) throw new Error('서명된 URL 생성 실패');
-      const { signedurl } = await signedUrlRes.json();
-
-      const uploadRes = await fetch(signedurl, {
+      
+      const signedUrlData = await signedUrlRes.json();
+      console.log("signedUrlData", signedUrlData);
+      const uploadUrl = signedUrlData.signedurl;
+  
+      const uploadRes = await fetch(uploadUrl, {
         method: 'PUT',
+        headers: {
+          'Content-Type': file.type,
+        },
         body: file,
       });
       if (!uploadRes.ok) throw new Error('파일 업로드 실패');
-
+  
       const patchRes = await fetchWithAuth(`${API_BASE_URL}/mypage/profile/image`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: signedurl }),
+        body: JSON.stringify({ url: uploadUrl }),
       });
       if (!patchRes.ok) throw new Error('프로필 이미지 업로드 최종 갱신 실패');
-
+  
       const { url: newImageUrl } = await patchRes.json();
       setProfileImageUrl(newImageUrl);
     } catch (err) {
