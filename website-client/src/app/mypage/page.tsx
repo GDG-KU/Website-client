@@ -14,7 +14,6 @@ interface HistoryResponseItem {
   point_change: number;
   role: string;
   reason: string;
-  accumulated_point: number;
   date: string;
   is_deleted: boolean;
 }
@@ -117,20 +116,26 @@ export default function MyPage() {
       if (!res.ok) throw new Error('포인트 히스토리 조회 실패');
       const data: HistoryResponseItem[] = await res.json();
 
-      if (data.length > 0) {
-        setTotalPoint(data[data.length - 1].accumulated_point);
-      } else {
-        setTotalPoint(0);
-      }
+      const sortedData = data.sort(
+        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      );
 
-      const mapped = data.map((item) => ({
-        date: formatDate(item.date),
-        change: item.point_change,
-        total: item.accumulated_point,
-        event: item.reason,
-      }));
+      let runningTotal = 0;
+      const mappedAsc = sortedData.map((item) => {
+        runningTotal += item.point_change;
+        return {
+          date: formatDate(item.date),
+          change: item.point_change,
+          total: runningTotal,
+          event: item.reason,
+        };
+      });
 
-      setPointHistory(mapped);
+      setTotalPoint(runningTotal);
+
+      const mappedDesc = [...mappedAsc].reverse();
+
+      setPointHistory(mappedDesc);
     } catch (error) {
       console.error('포인트 히스토리 조회 실패:', error);
     }
@@ -271,7 +276,7 @@ export default function MyPage() {
             </Link>
           )}
         </div>
-      </section>
+      </section>   
       <section className={styles['point-section']}>
         <h2 className={styles['point-title']}>My Status</h2>
         <div className={styles['point-total']}>
