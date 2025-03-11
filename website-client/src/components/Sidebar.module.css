@@ -147,7 +147,3 @@
     max-width: 160px;
   }
 }
-
-:global(body) {
-  font-family: var(--wanted-sans), sans-serif;
-}
