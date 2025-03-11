@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import './LoginModal.css'; 
+import styles from './LoginModal.module.css';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -29,12 +29,12 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   };
 
   return (
-    <div className="login-modal-backdrop">
-      <div className="login-modal-container">
-        <button className="login-modal-close-btn" onClick={onClose}>
+    <div className={styles.loginModalBackdrop}>
+      <div className={styles.loginModalContainer}>
+        <button className={styles.loginModalCloseBtn} onClick={onClose}>
           ✕
         </button>
-        <div className="login-modal-left">
+        <div className={styles.loginModalLeft}>
           <Image
             src="/representative.svg"
             alt="대표 이미지"
@@ -42,8 +42,8 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
             style={{ objectFit: 'cover' }}
           />
         </div>
-        <div className="login-modal-right">
-          <div className="modal-logo">
+        <div className={styles.loginModalRight}>
+          <div className={styles.modalLogo}>
             <Image
               src="/gdglogo.svg"
               alt="GDG on Campus Korea University 로고"
@@ -51,37 +51,34 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
               height={28}
             />
           </div>
-          <div className="button-group">
+          <div className={styles.buttonGroup}>
             <button 
-                type="button" 
-                className="google-btn" 
-                onClick={handleGoogleLogin}
-                >
-              <div className="google-logo">
+              type="button" 
+              className={styles.googleBtn} 
+              onClick={handleGoogleLogin}>
+              <div className={styles.googleLogo}>
                 <Image
                   src="/googlelogo.svg" 
                   alt="Google Logo" 
                   width={17} 
                   height={17}
-                  />
+                />
               </div>
-              <span className="google-text">Google 로그인</span>
+              <span className={styles.googleText}>Google 로그인</span>
             </button>
-
             <button 
               type="button" 
-              className="guest-btn" 
-              onClick={handleGuestLogin}
-              >
-              <div className="guest-logo">
+              className={styles.guestBtn} 
+              onClick={handleGuestLogin}>
+              <div className={styles.guestLogo}>
                 <Image 
                   src="/guestlogo.svg" 
                   alt="Guest Logo" 
                   width={17} 
                   height={17}
-                  />
+                />
               </div>
-              <span className="guest-text">게스트로 접속하기</span>
+              <span className={styles.guestText}>게스트로 접속하기</span>
             </button>
           </div>
         </div>

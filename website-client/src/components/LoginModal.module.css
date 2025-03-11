@@ -1,4 +1,4 @@
-.login-modal-backdrop {
+.loginModalBackdrop {
   position: fixed;
   top: 0;
   left: 0;
@@ -11,17 +11,19 @@
   align-items: center;
 }
 
-.login-modal-container {
+.loginModalContainer {
   position: relative;
-  width: 800px;
+  width: 90%;
+  max-width: 800px;
   height: 500px;
   background: #fff;
   border-radius: 8px;
   overflow: hidden;
-  display: flex; /* 왼쪽 이미지 + 오른쪽 버튼 영역 두 분할 */
+  display: flex;
+  flex-direction: row;
 }
 
-.login-modal-close-btn {
+.loginModalCloseBtn {
   position: absolute;
   top: 1rem;
   right: 1rem;
@@ -32,14 +34,14 @@
   z-index: 10;
 }
 
-.login-modal-left {
+.loginModalLeft {
   position: relative;
   width: 50%;
   height: 100%;
-  background-color: #eee; /* 이미지 못 불러올 경우 대비 */
+  background-color: #eee;
 }
 
-.login-modal-right {
+.loginModalRight {
   position: relative;
   width: 50%;
   padding: 2rem;
@@ -49,20 +51,21 @@
   align-items: center;
 }
 
-.modal-logo {
+.modalLogo {
   position: absolute;
   top: 1.5rem;
   left: 1.5rem;
 }
 
-.button-group {
+.buttonGroup {
   display: flex;
   flex-direction: column;
   gap: 1rem;
   width: 100%;
+  margin-top: 3rem;
 }
 
-.google-btn {
+.googleBtn {
   position: relative;
   display: flex;
   align-items: center;
@@ -77,18 +80,18 @@
   font-size: 0.95rem;
 }
 
-.google-logo {
+.googleLogo {
   position: absolute;
   left: 12px;
   top: 50%;
   transform: translateY(-50%);
 }
 
-.google-text {
+.googleText {
   pointer-events: none;
 }
 
-.guest-btn {
+.guestBtn {
   position: relative;
   display: flex;
   align-items: center;
@@ -103,25 +106,37 @@
   font-size: 0.95rem;
 }
 
-.guest-logo {
+.guestLogo {
   position: absolute;
   left: 12px;
   top: 50%;
   transform: translateY(-50%);
 }
-.guest-text {
+
+.guestText {
   pointer-events: none;
 }
-/*
+
+@media (max-width: 768px) {
+  .loginModalContainer {
+    flex-direction: column;
+    height: auto;
+  }
+  .loginModalLeft,
+  .loginModalRight {
+    width: 100%;
+    height: auto;
+  }
+  .loginModalLeft {
+    height: 200px;
+  }
+  .loginModalRight {
+    padding: 1rem;
+  }
+  .modalLogo {
+    position: relative;
+    top: 0;
+    left: 0;
+    margin-bottom: 1rem;
+  }
 }
-.guest-btn {
-  width: 100%;
-  padding: 0.7rem;
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.95rem;
-}
-*/
