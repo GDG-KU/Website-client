@@ -88,27 +88,32 @@ export default function ManagementPage() {
         }
         const responseData = await res.json();
         console.log('fetchUsers: 응답 데이터:', responseData);
+        
+        let userList: ServerUser[] = [];
         if (Array.isArray(responseData) && responseData.length > 0) {
-          const { data: userList } = responseData[0];
-          console.log('fetchUsers: userList:', userList);
-          const enrichedList: UserData[] = (userList as ServerUser[]).map((u) => ({
-            id: u.id,
-            nickname: u.nickname,
-            roles: u.roles || [],
-            profileImageUrl: u.profileImageUrl || '',
-            logs: [],
-            activities: {
-              fetch: [],
-              worktree: [],
-              branch: [],
-              solutionChallenge: [],
-            },
-          }));
-          console.log('fetchUsers: enrichedList:', enrichedList);
-          setUsers(enrichedList);
+          userList = responseData[0].data;
+        }
+        else if (responseData && typeof responseData === 'object' && 'data' in responseData) {
+          userList = responseData.data;
         } else {
           console.warn('fetchUsers: 응답 데이터가 예상한 형식이 아님:', responseData);
         }
+        
+        const enrichedList: UserData[] = userList.map((u) => ({
+          id: u.id,
+          nickname: u.nickname,
+          roles: u.roles || [],
+          profileImageUrl: u.profileImageUrl || '',
+          logs: [],
+          activities: {
+            fetch: [],
+            worktree: [],
+            branch: [],
+            solutionChallenge: [],
+          },
+        }));
+        console.log('fetchUsers: enrichedList:', enrichedList);
+        setUsers(enrichedList);
       } catch (err) {
         console.error('fetchUsers: 사용자 목록 가져오기 실패:', err);
       }
