@@ -8,8 +8,8 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import { DatesSetArg, EventClickArg } from '@fullcalendar/core/index.js';
 
-import ActivityModal from '@/components/ActivityModal';
-import { ActivityItem } from '@/components/ActivityModal';
+import ActivityModal from '@/app/aboutus/calendar/ActivityModal';
+import { ActivityItem } from '@/app/aboutus/calendar/ActivityModal';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import './Sidebar.css';
+import styles from './Sidebar.module.css';
 import LoginModal from '@/components/LoginModal';
 import { useAppSelector } from '@/store/hooks';
 import { fetchWithAuth } from '@/utils/fetchWithAuth';
@@ -68,13 +68,10 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const Sidebar: React.FC = () => {
   const { isLoggedIn } = useAppSelector((state) => state.auth);
-
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const [isSidebarHovered, setIsSidebarHovered] = useState<boolean>(false);
-
   const [userProfileImage, setUserProfileImage] = useState('/sidebar-profile.svg');
 
   useEffect(() => {
@@ -92,7 +89,7 @@ const Sidebar: React.FC = () => {
         setUserProfileImage('/sidebar-profile.svg');
       }
     };
-  
+
     if (isLoggedIn) {
       fetchProfileImage();
     } else {
@@ -137,35 +134,32 @@ const Sidebar: React.FC = () => {
 
   return (
     <>
-      {/* 오버레이 */}
       <div
-        className={`sidebar-overlay ${
-          isSidebarHovered || isLoginModalOpen ? 'open' : ''
+        className={`${styles.sidebarOverlay} ${
+          isSidebarHovered || isLoginModalOpen ? styles.overlayOpen : ''
         }`}
       />
 
       <aside
-        className={`main-sidebar ${isSidebarOpen ? 'open' : ''}`}
+        className={`${styles.mainSidebar} ${isSidebarOpen ? styles.sidebarOpen : ''}`}
         aria-label="주요 사이드바 내비게이션"
         onMouseEnter={onSidebarMouseEnter}
         onMouseLeave={onSidebarMouseLeave}
       >
-        {/* 로고 영역 */}
-        <div className="logo-area">
+        <div className={styles.logoArea}>
           <Link href="/aboutus/calendar">
             <picture>
               <source srcSet="/logo.webp" type="image/webp" />
-              <img src="/logo.png" alt="GDG KU 로고" className="logo-image" />
+              <img src="/logo.png" alt="GDG KU 로고" className={styles.logoImage} />
             </picture>
           </Link>
         </div>
 
-        {/* 메인 메뉴 */}
-        <nav className="main-menu" aria-label="주요 메뉴">
+        <nav className={styles.mainMenu} aria-label="주요 메뉴">
           {menuData.map((item, index) => (
             <div
               key={item.label}
-              className="main-menu-item"
+              className={styles.mainMenuItem}
               onMouseEnter={() => handleMainMenuMouseEnter(index)}
               onMouseLeave={handleMainMenuMouseLeave}
               tabIndex={0}
@@ -178,29 +172,27 @@ const Sidebar: React.FC = () => {
           ))}
         </nav>
 
-        {/* 프로필 아이콘 (로그인 상태면 사용자 프로필, 아니면 기본 이미지) */}
-        <div className="user-area">
+        <div className={styles.userArea}>
           <Image
             src={userProfileImage}
             alt="사용자 프로필"
             width={50}
             height={50}
-            className="user-profile-image"
+            className={styles.userProfileImage}
             onClick={handleProfileClick}
           />
         </div>
 
-        {/* 서브 사이드바 */}
         {hoveredIndex !== null && menuData[hoveredIndex].subItems && (
           <div
-            className={`sub-sidebar ${hoveredIndex !== null ? 'open' : ''}`}
+            className={`${styles.subSidebar} ${hoveredIndex !== null ? styles.subSidebarOpen : ''}`}
             onMouseEnter={() => handleSubSidebarEnter(hoveredIndex)}
             onMouseLeave={handleSubSidebarLeave}
             aria-label={`${menuData[hoveredIndex].label} 서브 메뉴`}
           >
-            <div className="sub-menu-items">
+            <div className={styles.subMenuItems}>
               {menuData[hoveredIndex].subItems!.map((sub) => (
-                <Link key={sub.label} href={sub.path} className="sub-menu-link">
+                <Link key={sub.label} href={sub.path} className={styles.subMenuLink}>
                   {sub.label}
                 </Link>
               ))}
@@ -209,11 +201,7 @@ const Sidebar: React.FC = () => {
         )}
       </aside>
 
-      {/* 로그인 모달 */}
-      <LoginModal
-        isOpen={isLoginModalOpen}
-        onClose={() => setIsLoginModalOpen(false)}
-      />
+      <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
     </>
   );
 };

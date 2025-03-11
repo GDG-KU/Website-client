@@ -1,0 +1,153 @@
+.sidebarOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 998;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+
+.overlayOpen {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.mainSidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  max-width: 220px;
+  height: 100vh;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+  background: linear-gradient(to right, #000, #111);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 0;
+  transform: translateX(0);
+  transition: transform 0.3s ease;
+  z-index: 999;
+}
+
+.sidebarOpen {
+  transform: translateX(0);
+}
+
+.subSidebar {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  width: 100%;
+  max-width: 200px;
+  height: 100%;
+  background: linear-gradient(to right, #111, #222);
+  transform: scaleX(0);
+  transform-origin: left;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+  transition: transform 0.5s ease-out 0.1s, opacity 0.5s ease-out 0.1s;
+  display: flex;
+  flex-direction: column;
+  padding: 9rem 0 0;
+}
+
+.subSidebarOpen {
+  transform: scaleX(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.logoArea {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 60px;
+  margin-bottom: 2rem;
+}
+
+.logoImage {
+  height: auto;
+  max-width: 100%;
+  cursor: pointer;
+  display: block;
+  margin: 0;
+  padding: 0;
+  transform: scale(0.3);
+  transform-origin: center;
+}
+
+.mainMenu {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-top: 1rem;
+  flex: 1;
+}
+
+.mainMenuItem {
+  color: #aaa;
+  text-align: center;
+  cursor: pointer;
+  transition: color 0.3s;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.mainMenuItem:hover,
+.mainMenuItem:focus {
+  color: #fff;
+}
+
+.userArea {
+  margin-bottom: 5rem;
+}
+
+.userProfileImage {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.subMenuItems {
+  padding-left: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.subMenuLink {
+  padding-left: 0.5rem;
+  color: #aaa;
+  text-decoration: none;
+  transition: color 0.3s;
+  font-weight: 400;
+  font-size: 0.9rem;
+}
+
+.subMenuLink:hover,
+.subMenuLink:focus {
+  color: #fff;
+}
+
+@media (max-width: 768px) {
+  .mainSidebar {
+    max-width: 180px;
+  }
+  .subSidebar {
+    left: 100%;
+    max-width: 160px;
+  }
+}
+
+:global(body) {
+  font-family: var(--wanted-sans), sans-serif;
+}
