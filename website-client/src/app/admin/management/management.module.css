@@ -156,7 +156,11 @@
   border-bottom: 1px solid #ddd;
   font-size: 0.85rem;
 }
-
+.scoreHistoryLong {
+  margin-top: 1rem;
+  max-height: 400px; /* 원하는 높이로 조절 가능 */
+  overflow-y: auto;
+}
 /* 활동 관리 */
 .activityManage {
   margin-top: 1rem;

@@ -11,7 +11,6 @@ export default function Footer() {
 
   return (
     <footer className={styles.footerNav}>
-      {/* 네 개 버튼: 가운데 정렬 */}
       <div className={styles.leftButtons}>
         <Link href="/admin/management">
           <button
@@ -22,10 +21,10 @@ export default function Footer() {
             멤버 포인트 관리
           </button>
         </Link>
-        <Link href="/admin/management">
+        <Link href="/admin/activity">
           <button
             className={`${styles.navButton} ${
-              path === '/admin/management' ? styles.active : ''
+              path === '/admin/activity' ? styles.active : ''
             }`}
           >
             멤버 활동 관리

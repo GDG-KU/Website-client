@@ -1,0 +1,157 @@
+/* 전체 페이지 컨테이너 */
+.container {
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+    margin-left: 240px; /* 사이드바 폭 */
+    color: #000;
+  }
+  
+  /* 좌우 레이아웃 */
+  .contentWrapper {
+    display: flex;
+    gap: 2rem;
+  }
+  
+  /* 왼쪽 영역 (사용자 목록) */
+  .leftSide {
+    width: 400px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* 검색 영역 */
+  .searchSection {
+    margin-bottom: 1rem;
+  }
+  .searchInput {
+    width: 250px;
+    padding: 0.4rem;
+    font-size: 1rem;
+    color: #000;
+    border: 1px solid #000;
+    border-radius: 4px;
+  }
+  
+  /* 필터 영역 */
+  .filterSection {
+    display: flex;
+    gap: 0.3rem;
+    margin-bottom: 1rem;
+  }
+  .filterBtn {
+    border: none;
+    padding: 0.5rem 1rem;
+    background-color: #eee;
+    cursor: pointer;
+    border-radius: 20px;
+    color: #000;
+    font-size: 0.8rem;
+    margin-left: 0.2rem;
+  }
+  .filterBtn.active {
+    background-color: #333;
+    color: #fff;
+  }
+  
+  /* 사용자 테이블 */
+  .userTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+  }
+  .userTable th,
+  .userTable td {
+    text-align: left;
+    padding: 0.4rem;
+    border-bottom: 1px solid #ddd;
+    cursor: pointer;
+  }
+  .selectedRow {
+    background-color: #f0f8ff;
+  }
+  
+  /* 페이지네이션 */
+  .paginationRow {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .pageBtn {
+    border: none;
+    padding: 0.3rem 0.5rem;
+    background-color: #eee;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 1rem;
+  }
+  .pageBtn.active {
+    background-color: #333;
+    color: #fff;
+  }
+  
+  /* 오른쪽 영역 (활동관리) */
+  .activitySection {
+    flex: 1;
+    background-color: #fafafa;
+    padding: 1rem;
+    border-radius: 8px;
+  }
+  
+  /* 사용자 헤더 */
+  .userHeader {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  .profileImage {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #ccc;
+  }
+  .userHeader h2 {
+    margin: 0;
+    font-size: 1.3rem;
+    margin-left: 1rem;
+  }
+  
+  /* 활동관리 영역 */
+  .activityManage {
+    margin-top: 1rem;
+  }
+  .tabs {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin: 0.5rem 0;
+  }
+  .tabBtn {
+    border: none;
+    background-color: #eee;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+  .tabBtn.active {
+    background-color: #333;
+    color: #fff;
+  }
+  .tabSettingBtn {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+  }
+  .tabContent {
+    background-color: #fff;
+    padding: 1rem;
+    border-radius: 8px;
+  }
+  .activityPanel p {
+    margin: 0.3rem 0;
+  }
+  
