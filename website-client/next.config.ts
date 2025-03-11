@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
     appIsrStatus: false,
   },
   output: 'standalone',
+  images: {
+    domains: ['storage.googleapis.com'],
+  },
 };
 
 export default nextConfig;

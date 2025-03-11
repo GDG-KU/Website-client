@@ -84,14 +84,15 @@ const Sidebar: React.FC = () => {
           method: 'GET',
         });
         if (!res.ok) throw new Error('프로필 이미지 조회 실패');
-        const imageUrl: string = await res.json();
-        setUserProfileImage(imageUrl || '/sidebar-profile.svg');
+        const data = await res.json();
+        const imageUrl = data.url || '/sidebar-profile.svg';
+        setUserProfileImage(imageUrl);
       } catch (error) {
         console.error('[Sidebar] 프로필 이미지 조회 실패:', error);
         setUserProfileImage('/sidebar-profile.svg');
       }
     };
-
+  
     if (isLoggedIn) {
       fetchProfileImage();
     } else {
