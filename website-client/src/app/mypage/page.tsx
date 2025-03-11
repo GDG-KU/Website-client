@@ -67,8 +67,9 @@ export default function MyPage() {
         method: 'GET',
       });
       if (!res.ok) throw new Error('프로필 이미지 URL 조회 실패');
-      const imageUrl: string = await res.json();
-      setProfileImageUrl(imageUrl || '/profile.svg');
+      const data = await res.json();
+      const imageUrl = data.url || '/profile.svg';
+      setProfileImageUrl(imageUrl);
     } catch (error) {
       console.error('프로필 이미지 URL 조회 실패:', error);
     }
@@ -183,8 +184,8 @@ export default function MyPage() {
       });
       if (!patchRes.ok) throw new Error('프로필 이미지 업로드 최종 갱신 실패');
   
-      const newImageUrl = await patchRes.json();
-      setProfileImageUrl(newImageUrl);
+      const patchData = await patchRes.json();
+      setProfileImageUrl(patchData.url);
     } catch (err) {
       console.error('프로필 이미지 업로드 에러:', err);
     }
