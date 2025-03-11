@@ -61,32 +61,36 @@ const activityTabs = ['fetch', 'worktree', 'branch', 'solution challenge'];
 
 export default function ManagementPage() {
   const [users, setUsers] = useState<UserData[]>([]);
-
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] =
     useState<'ALL' | 'DevRel' | 'Core' | 'Member' | 'Junior'>('ALL');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
   const [activeTab, setActiveTab] = useState<string>('fetch');
-
   const [isModalOpen, setIsModalOpen] = useState(false);         // 회원정보 수정 모달
   const [isPointModalOpen, setIsPointModalOpen] = useState(false); // 포인트 수정 모달
   const [isSettingModalOpen, setIsSettingModalOpen] = useState(false); // 활동관리 모달
 
   useEffect(() => {
+    console.log('ManagementPage: useEffect 호출, filterRole:', filterRole);
     const fetchUsers = async () => {
+      const url = `${API_BASE_URL}/user?page=1`;
+      console.log('fetchUsers: 요청 URL:', url);
       try {
-        const res = await fetchWithAuth(`${API_BASE_URL}/user?page=1`, {
+        const res = await fetchWithAuth(url, {
           method: 'GET',
         });
+        console.log('fetchUsers: 응답 상태 코드:', res.status);
         if (!res.ok) {
+          console.error('fetchUsers: 응답이 OK가 아님, 상태 코드:', res.status);
           throw new Error('Failed to fetch user list');
         }
         const responseData = await res.json();
+        console.log('fetchUsers: 응답 데이터:', responseData);
         if (Array.isArray(responseData) && responseData.length > 0) {
           const { data: userList } = responseData[0];
+          console.log('fetchUsers: userList:', userList);
           const enrichedList: UserData[] = (userList as ServerUser[]).map((u) => ({
             id: u.id,
             nickname: u.nickname,
@@ -100,10 +104,13 @@ export default function ManagementPage() {
               solutionChallenge: [],
             },
           }));
+          console.log('fetchUsers: enrichedList:', enrichedList);
           setUsers(enrichedList);
+        } else {
+          console.warn('fetchUsers: 응답 데이터가 예상한 형식이 아님:', responseData);
         }
       } catch (err) {
-        console.error(err);
+        console.error('fetchUsers: 사용자 목록 가져오기 실패:', err);
       }
     };
     fetchUsers();
@@ -125,22 +132,33 @@ export default function ManagementPage() {
   const currentPageData = filteredData.slice(startIndex, startIndex + itemsPerPage);
 
   const handleUserClick = async (user: UserData) => {
+    console.log('handleUserClick: 사용자 클릭:', user);
     setSelectedUser(null);
     try {
-      const pointRes = await fetchWithAuth(`${API_BASE_URL}/point/${user.id}`, {
+      const pointUrl = `${API_BASE_URL}/point/${user.id}`;
+      console.log('handleUserClick: 포인트 조회 URL:', pointUrl);
+      const pointRes = await fetchWithAuth(pointUrl, {
         method: 'GET',
       });
       let userPoints: UserRole[] | null = null;
       if (pointRes.ok) {
         userPoints = await pointRes.json();
+        console.log('handleUserClick: 포인트 데이터:', userPoints);
+      } else {
+        console.error('handleUserClick: 포인트 조회 실패, 상태 코드:', pointRes.status);
       }
 
-      const historyRes = await fetchWithAuth(`${API_BASE_URL}/point/history/${user.id}`, {
+      const historyUrl = `${API_BASE_URL}/point/history/${user.id}`;
+      console.log('handleUserClick: 히스토리 조회 URL:', historyUrl);
+      const historyRes = await fetchWithAuth(historyUrl, {
         method: 'GET',
       });
       let historyData: ServerLogData[] = [];
       if (historyRes.ok) {
         historyData = await historyRes.json();
+        console.log('handleUserClick: 히스토리 데이터:', historyData);
+      } else {
+        console.error('handleUserClick: 히스토리 조회 실패, 상태 코드:', historyRes.status);
       }
 
       // logs 변환
@@ -158,9 +176,10 @@ export default function ManagementPage() {
         roles: userPoints || user.roles,
         logs: logs,
       };
+      console.log('handleUserClick: 업데이트된 사용자 데이터:', updatedUser);
       setSelectedUser(updatedUser);
     } catch (error) {
-      console.error('사용자 상세 조회 실패:', error);
+      console.error('handleUserClick: 사용자 상세 조회 실패:', error);
       setSelectedUser(user);
     }
   };
