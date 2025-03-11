@@ -162,9 +162,7 @@ export default function MyPage() {
         method: 'GET',
       });
       if (!signedUrlRes.ok) throw new Error('서명된 URL 생성 실패');
-      
       const signedUrlData = await signedUrlRes.json();
-      console.log("signedUrlData", signedUrlData);
       const uploadUrl = signedUrlData.signedurl;
   
       const uploadRes = await fetch(uploadUrl, {
@@ -176,14 +174,16 @@ export default function MyPage() {
       });
       if (!uploadRes.ok) throw new Error('파일 업로드 실패');
   
+      const imageUrl = uploadUrl.split('?')[0];
+  
       const patchRes = await fetchWithAuth(`${API_BASE_URL}/mypage/profile/image`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: uploadUrl }),
+        body: JSON.stringify({ url: imageUrl }),
       });
       if (!patchRes.ok) throw new Error('프로필 이미지 업로드 최종 갱신 실패');
   
-      const { url: newImageUrl } = await patchRes.json();
+      const newImageUrl = await patchRes.json();
       setProfileImageUrl(newImageUrl);
     } catch (err) {
       console.error('프로필 이미지 업로드 에러:', err);
