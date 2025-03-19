@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import styles from './faqManagement.module.css';
+import { fetchWithAuth } from '@/utils/fetchWithAuth';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -9,7 +10,7 @@ interface FAQItem {
   id: number;
   question: string;
   answer: string;
-  }
+}
 
 const fallbackFAQs: FAQItem[] = [
   {
@@ -38,7 +39,7 @@ export default function FAQManagementPage() {
 
   const fetchAllFAQs = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/faq`, { method: 'GET' });
+      const res = await fetchWithAuth(`${API_BASE_URL}/faq`, { method: 'GET' });
       if (!res.ok) throw new Error('Failed to fetch FAQs');
       const data: FAQItem[] = await res.json();
       setFaqs(data);
@@ -58,7 +59,7 @@ export default function FAQManagementPage() {
         question: newQuestion,
         answer: newAnswer,
       };
-      const res = await fetch(`${API_BASE_URL}/faq`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/faq`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -75,7 +76,7 @@ export default function FAQManagementPage() {
 
   const deleteFAQ = async (id: number) => {
     try {
-      const res = await fetch(`${API_BASE_URL}/faq/${id}`, { method: 'DELETE' });
+      const res = await fetchWithAuth(`${API_BASE_URL}/faq/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed to delete FAQ');
       await fetchAllFAQs();
     } catch (error) {
@@ -101,7 +102,7 @@ export default function FAQManagementPage() {
         question: modalQuestion,
         answer: modalAnswer,
       };
-      const res = await fetch(`${API_BASE_URL}/faq/${modalFAQ.id}`, {
+      const res = await fetchWithAuth(`${API_BASE_URL}/faq/${modalFAQ.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -173,10 +174,7 @@ export default function FAQManagementPage() {
             className={styles.modalContent}
             onClick={(e) => e.stopPropagation()}
           >
-            <button
-              className={styles.closeButton}
-              onClick={closeAddModal}
-            >
+            <button className={styles.closeButton} onClick={closeAddModal}>
               ×
             </button>
             <h2>FAQ 추가</h2>
