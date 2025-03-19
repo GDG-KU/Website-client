@@ -98,6 +98,13 @@
   background-color: #0b7dda;
 }
 
+.logout-text {
+  color: #aaa;
+  text-decoration: underline;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
 .point-section {
   width: 400px;
   padding: 2rem;

@@ -5,6 +5,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import { fetchWithAuth } from '@/utils/fetchWithAuth';
+import { useAppDispatch } from '@/store/hooks';
+import { logout } from '@/store/authSlice';
 import styles from './mypage.module.css';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -38,6 +40,8 @@ interface PointHistoryItem {
 }
 
 export default function MyPage() {
+  const dispatch = useAppDispatch();
+
   const [profileImageUrl, setProfileImageUrl] = useState<string>('/profile.svg');
   const [name, setName] = useState<string>('');
   const [major, setMajor] = useState<string>('');
@@ -154,10 +158,10 @@ export default function MyPage() {
   const handleProfileImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
     const file = e.target.files[0];
-  
+
     const localUrl = URL.createObjectURL(file);
     setProfileImageUrl(localUrl);
-  
+
     try {
       const signedUrlRes = await fetchWithAuth(`${API_BASE_URL}/mypage/signedurl`, {
         method: 'GET',
@@ -165,7 +169,7 @@ export default function MyPage() {
       if (!signedUrlRes.ok) throw new Error('서명된 URL 생성 실패');
       const signedUrlData = await signedUrlRes.json();
       const uploadUrl = signedUrlData.signedurl;
-  
+
       const uploadRes = await fetch(uploadUrl, {
         method: 'PUT',
         headers: {
@@ -174,16 +178,16 @@ export default function MyPage() {
         body: file,
       });
       if (!uploadRes.ok) throw new Error('파일 업로드 실패');
-  
+
       const imageUrl = uploadUrl.split('?')[0];
-  
+
       const patchRes = await fetchWithAuth(`${API_BASE_URL}/mypage/profile/image`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url: imageUrl }),
       });
       if (!patchRes.ok) throw new Error('프로필 이미지 업로드 최종 갱신 실패');
-  
+
       const patchData = await patchRes.json();
       setProfileImageUrl(patchData.url);
     } catch (err) {
@@ -202,6 +206,11 @@ export default function MyPage() {
     } catch (error) {
       console.error('프로필 이미지 삭제 에러:', error);
     }
+  };
+
+  const handleLogout = () => {
+    dispatch(logout());
+    window.location.href = '/login';
   };
 
   const openModal = () => {
@@ -285,6 +294,9 @@ export default function MyPage() {
               <button className={styles['admin-button']}>관리자 모드</button>
             </Link>
           )}
+          <p className={styles['logout-text']} onClick={handleLogout}>
+            로그아웃
+          </p>
         </div>
       </section>
       <section className={styles['point-section']}>
