@@ -1,0 +1,87 @@
+.calendarPage {
+  margin-left: 220px;
+  width: calc(100% - 220px);
+
+  height: 100vh;
+  overflow-y: hidden;
+
+  display: flex;
+  flex-direction: column;
+  background: #f9f9f9;
+}
+
+.calendarContainer {
+  flex: 1;
+  padding: 16px;
+  overflow: hidden;
+}
+
+.calendarGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-auto-rows: 100px;
+  gap: 1px;
+  margin-top: 8px;
+}
+
+.dayCell {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  position: relative;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+}
+
+.dayNumber {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.eventsList {
+  font-size: 0.9rem;
+  margin-top: auto;
+  color: #333;
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modalContent {
+  background-color: #fff;
+  padding: 16px;
+  border-radius: 8px;
+  width: 400px;
+}
+
+.cardsContainer {
+  display: flex;
+  overflow-x: auto;
+  gap: 8px;
+  padding: 16px;
+  background-color: #fff;
+  border-top: 1px solid #ddd;
+}
+
+.card {
+  min-width: 120px;
+  height: 80px;
+  background-color: #eee;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-weight: 500;
+}

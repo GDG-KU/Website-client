@@ -1,297 +1,152 @@
 'use client';
-import React, { useEffect, useState } from 'react';
-import Image from 'next/image';
-import 'react-calendar/dist/Calendar.css';
-import './calendar.css';
 
-import FullCalendar from "@fullcalendar/react";
-import dayGridPlugin from "@fullcalendar/daygrid";
-import { DatesSetArg, EventClickArg } from '@fullcalendar/core/index.js';
-
-import ActivityModal from '@/app/aboutus/calendar/ActivityModal';
-import { ActivityItem } from '@/app/aboutus/calendar/ActivityModal';
+import React, { useState, useEffect, useCallback } from 'react';
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import { fetchWithAuth } from '@/utils/fetchWithAuth';
+import styles from './calendar.module.css';
+import { EventClickArg } from '@fullcalendar/core';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-interface TagResponse {
-  "tag": {
-      "id": number;
-      "title": string;
-      "tag_property": {
-        "id": number;
-        "tag_property": string;
-      }
-    }
-}
-
-interface backendResponse {
+interface EventData {
   id: number;
   title: string;
-  start_date: Date | null;
-  end_date: Date | null;
+  start_date: string;
+  end_date: string;
   location: string;
   url: string;
-  tag: TagResponse;
 }
-/*
-// 이벤트 양식 샘플
-const mockEvents = [
-  { title: 'Event 1', start_date: '2025-01-15', end_date: '2025-01-17', location: "우정정보관", url: "www.naver.com", participants: ['userB'] },
-  { title: 'Event 4', start: '2025-01-15', end: '2025-01-17', participants: ['userA'] },
-  { title: 'Event 2', start: '2025-01-18', allDay: true, description: "Lecture", participants: ['userA, userB'] },
-  { title: 'Event 3', start: '2025-01-19T10:30:00', end: '2025-01-19T12:30:00', participants: [] },
-];
-*/
-// 백엔드 응답 샘플
-const mockBackendResponse: backendResponse[] = [
-  { 
-    id: 1,
-    title: "branch1/week2",
-    start_date: new Date("2025-01-27T16:00:00"),
-    end_date: new Date("2025-01-27T20:00:00"),
-    location: "우정정보관 201호",
-    url: `${API_BASE_URL}/localevents/branch`,
-    tag: {
-      "tag": {
-        "id": 1,
-        "title": "Tag title",
-        "tag_property": {
-          "id": 1,
-          "tag_property": "branch"
+
+export default function CalendarPage() {
+  const [events, setEvents] = useState<EventData[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<EventData | null>(null);
+
+  const fetchAllEvents = useCallback(async () => {
+    try {
+      const res = await fetchWithAuth(`${API_BASE_URL}/event/all`);
+      if (!res.ok) throw new Error('이벤트 조회 실패');
+      const data: EventData[] = await res.json();
+      setEvents(data);
+    } catch (error) {
+      console.error('이벤트 조회 실패:', error);
+
+      const mockData: EventData[] = [
+        {
+          id: 1,
+          title: 'Mock Event',
+          start_date: '2025-01-01T00:00:00Z',
+          end_date: '2025-01-02T00:00:00Z',
+          location: 'Mock Location',
+          url: 'http://mock.com'
+        },
+        {
+          id: 2,
+          title: 'Another Mock Event',
+          start_date: '2025-01-05T09:00:00Z',
+          end_date: '2025-01-05T11:00:00Z',
+          location: 'Online',
+          url: 'http://mock2.com'
         }
-      }
+      ];
+      setEvents(mockData);
     }
-  },
-  { 
-    id: 2,
-    title: "worktree",
-    start_date: new Date("2025-01-27T23:40:00"),
-    end_date: new Date("2025-01-28T20:00:00"),
-    location: "우정정보관 201호",
-    url: `${API_BASE_URL}/localevents/worktree/너무길어서말줄임표해야해요`,
-    tag: {
-      "tag": {
-        "id": 2,
-        "title": "Tag title",
-        "tag_property": {
-          "id": 2,
-          "tag_property": "fetch"
-        }
-      }
+  }, []);
+
+  useEffect(() => {
+    fetchAllEvents();
+  }, [fetchAllEvents]);
+
+  const calendarEvents = events.map((evt) => ({
+    id: String(evt.id),
+    title: evt.title,
+    start: evt.start_date,
+    end: evt.end_date,
+    extendedProps: {
+      location: evt.location,
+      url: evt.url
     }
-  }
-];
+  }));
 
-const Calendar: React.FC = () => {
-  const currentUser = 'userB'
-
-  // My Activities 스위치
-  const [showMyActivities, setShowMyActivities] = useState<boolean>(true);
-  const [viewStartDate, setViewStartDate] = useState<Date>(new Date())
-  const [viewEndDate, setViewEndDate] = useState<Date>(new Date())
-  const [backendRes, setBackendRes] = useState<backendResponse[]>(mockBackendResponse)
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string|null>(null);
-
-  const [modalOpen, setModalOpen] = useState(false)
-  const [modalItems, setModalItems] = useState<ActivityItem>({
-    id: "1",
-    title: "branch",
-    start: new Date("2025-01-15T18:00:00"),
-    end: new Date("2025-01-17T18:00:00"),
-    location: "우정정보관",
-    link: `${API_BASE_URL}/`
-  })
-  const closeModal = () => {
-    setModalOpen(false);
+  const handleEventClick = (info: EventClickArg) => {
+    const found = events.find((e) => e.id === Number(info.event.id));
+    if (found) {
+      setSelectedEvent(found);
+      setIsModalOpen(true);
+    }
   };
-  
-  // 이벤트(activity) 클릭 시
-  const eventClickHandler = (info:EventClickArg) => {
-    info.jsEvent.preventDefault(); // event가 url 속성을 가지고 있을 경우 클릭 시 자동으로 url을 방문하는 기본 동작 방지 - 참고 https://fullcalendar.io/docs/eventClick
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedEvent(null);
+  };
 
-    setModalOpen(true)
-    setModalItems({
-        id: info.event.id,
-        title: info.event.title,
-        start: info.event.start!,
-        end: info.event.end!,
-        location: info.event.extendedProps.location,
-        link: info.event.url
-    })
-
-    const popover = document.querySelector(".fc-popover");
-    if (popover) {
-      popover.remove();
-
-      setTimeout(() => {
-        const newPopover = document.querySelector(".fc-popover");
-        if (newPopover) {
-          newPopover.remove();
-        }
-      }, 10);
-      console.log("popover 제거 성공")
-    }
-  }
-
-  // 달력에 표시되는 달(month)을 바꿀 경우
-  const handleDatesSet = (info: DatesSetArg) => {
-    setViewStartDate(info.start);
-    setViewEndDate(info.end);
-  } 
-
-  // 백엔드 응답을 fullcalendar의 event prop 양식으로 변환
-  const backendResponseToEvent = (backendRes: backendResponse[]) => {
-    const events = backendRes.map((bR) => ({
-      id: bR.id.toString(),
-      title: bR.title,
-      start: bR.start_date!,
-      end: bR.end_date!,
-      location: bR.location, // 사용자 정의 필드이므로 .extendedProps.location으로 접근해야함
-      url: bR.url,
-      classNames: bR.tag.tag.tag_property.tag_property
-    }));
-    return events
-  }
-
-  // event 받아오기
-  useEffect(() => {    
-    const url = 
-    `${API_BASE_URL}/event/bydate?` +
-    new URLSearchParams({
-      start_date: viewStartDate.toISOString(),
-      end_date: viewEndDate.toISOString(),
-      is_my_activity: showMyActivities.toString()
-    }).toString();
-
-    // const url = "https://koreauniv.gdgoc.kr/event/all"
-    
-    fetch(url, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-    })
-      .then((response) => {
-        if(!response.ok) {
-          console.log(response.status)
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
-        return response.json();
-      })
-      .then((data: backendResponse[]) => {
-        setBackendRes(data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        setError(error);
-        setLoading(false);
-      });
-  }, [showMyActivities, currentUser, viewStartDate, viewEndDate])
-
-  // 로딩 화면
-  if (loading) {
-    return (<div>Loading...</div>)
-  }
-
-  // 에러 화면
-  if (error) {
-    // return (<div>Error</div>)
-  }
-
-  // 정상 화면
   return (
-    <div className="calendar-page-container">
-      <main className="calendar-main">
-        {/* 상단 헤더 */}
-        <div className="calendar-header">
-          <h1>Calendar</h1>
+    <div className={styles['calendar-container']}>
+      <section className={styles['calendar-section']}>
+        <h2 className={styles['section-title']}>Calendar</h2>
 
-          <div className="toggle-container">
-            <label className="switch">
-              <input
-                type="checkbox"
-                checked={showMyActivities}
-                onChange={() => setShowMyActivities(!showMyActivities)}
-              />
-              <span className="slider round"></span>
-            </label>
-            <span className="toggle-label">My Activities</span>
-          </div>
-        </div>
-
-        {/* 달력 영역 */}
-        <div className="calendar-wrapper">
+        <div className={styles['calendar-wrapper']}>
           <FullCalendar
             plugins={[dayGridPlugin]}
             initialView="dayGridMonth"
-            aspectRatio={1.75}
+            events={calendarEvents}
+            eventClick={handleEventClick}
+            locale="ko"
+            firstDay={0}
             headerToolbar={{
-              left: 'prev',
+              left: 'prev,next today',
               center: 'title',
-              right: 'next'
+              right: 'dayGridMonth,dayGridWeek'
             }}
-            events = {backendResponseToEvent(backendRes)} 
-            dayMaxEventRows = {true} // grid를 넘치는 이벤트는 줄여서 표기, 표시할 이벤트 개수를 작성해도 됨
-            eventClick={eventClickHandler}
-            datesSet={handleDatesSet}
           />
         </div>
-          
-        {/* 모달 (ActivityModal을 직접 쓰거나, 여기서 구현도 가능) */}
-        {modalOpen && (
-          <ActivityModal
-            // ActivityModal용으로 형식 맞추기
-            activity={modalItems}
-            onClose={closeModal}
-          />
-        )}
+      </section>
 
-        {/* 하단 CTA 카드들 */}
-        <div className="cta-cards-container">
-          <h2>My Activities</h2>
-          <div className="cta-cards-row">
-            <div className="cta-card">
-              <Image
-                src="/fetch.png"
-                alt="fetch"
-                width={50}
-                height={50}
-              />
-              <span>fetch</span>
+      <section className={styles['cards-section']}>
+        <h2 className={styles['section-title']}>My Activities</h2>
+        <div className={styles['cards-row']}>
+          <div className={styles['cta-card']}>
+            <div className={styles['cta-card-text']}>fetch</div>
+          </div>
+          <div className={styles['cta-card']}>
+            <div className={styles['cta-card-text']}>branch</div>
+          </div>
+          <div className={styles['cta-card']}>
+            <div className={styles['cta-card-text']}>worktree</div>
+          </div>
+          <div className={styles['cta-card']}>
+            <div className={styles['cta-card-text']}>Solution Challenge</div>
+          </div>
+          <div className={styles['cta-card']}>
+            <div className={styles['cta-card-text']}>Demo Day</div>
+          </div>
+        </div>
+      </section>
+
+      {isModalOpen && selectedEvent && (
+        <div className={styles['modal-overlay']} onClick={closeModal}>
+          <div className={styles['modal']} onClick={(e) => e.stopPropagation()}>
+            <h2 className={styles['modal-title']}>{selectedEvent.title}</h2>
+            <div className={styles['modal-content']}>
+              <p>Location: {selectedEvent.location}</p>
+              <p>Start: {selectedEvent.start_date}</p>
+              <p>End: {selectedEvent.end_date}</p>
+              <p>
+                URL:{' '}
+                <a href={selectedEvent.url} target="_blank" rel="noreferrer">
+                  {selectedEvent.url}
+                </a>
+              </p>
             </div>
-            <div className="cta-card">
-              <Image
-                src="/branch.png"
-                alt="branch"
-                width={50}
-                height={50}
-              />
-              <span>branch</span>
-            </div>
-            <div className="cta-card">
-              <Image
-                src="/worktree.png"
-                alt="worktree"
-                width={50}
-                height={50}
-              />
-              <span>worktree</span>
-            </div>
-            <div className="cta-card">
-              <Image
-                src="/solution.png"
-                alt="Solution Challenge"
-                width={50}
-                height={50}
-              />
-              <span>Solution Challenge</span>
+            <div className={styles['modal-actions']}>
+              <button className={styles['close-button']} onClick={closeModal}>
+                닫기
+              </button>
             </div>
           </div>
         </div>
-      </main>
+      )}
     </div>
-  )
+  );
 }
-
-export default Calendar;
