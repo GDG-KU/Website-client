@@ -3,15 +3,13 @@
 import React, { useEffect, useState } from 'react';
 import styles from './faqManagement.module.css';
 
-
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-
 
 interface FAQItem {
   id: number;
   question: string;
   answer: string;
-}
+  }
 
 const fallbackFAQs: FAQItem[] = [
   {
@@ -57,7 +55,6 @@ export default function FAQManagementPage() {
     }
     try {
       const body = {
-        user_id: 1, // 실제 사용자 ID로 대체
         question: newQuestion,
         answer: newAnswer,
       };
