@@ -22,12 +22,14 @@ export default function ModalEditPoint({
 }: ModalEditPointProps) {
   const [pointChange, setPointChange] = useState('');
   const [reason, setReason] = useState('');
+  const [reasonDate, setReasonDate] = useState('');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setPointChange('');
       setReason('');
+      setReasonDate('');
     }
   }, [isOpen, user]);
 
@@ -51,6 +53,7 @@ export default function ModalEditPoint({
           role: user.roles[0]?.role || '',
           point: diff,
           reason: reason || '(사유 미입력)',
+          reason_date: reasonDate || '(날짜 미입력)',
         }),
       });
       if (!res.ok) {
@@ -129,6 +132,17 @@ export default function ModalEditPoint({
                 placeholder="사유 입력"
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
+                disabled={loading}
+              />
+            </div>
+
+            <div className={styles['reason-date-row']}>
+              <label>날짜</label>
+              <input
+                type="text"
+                placeholder=""
+                value={reasonDate}
+                onChange={(e) => setReasonDate(e.target.value)}
                 disabled={loading}
               />
             </div>
