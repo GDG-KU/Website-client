@@ -136,10 +136,7 @@ export default function MyPage() {
       });
 
       setTotalPoint(runningTotal);
-
-      const mappedDesc = [...mappedAsc].reverse();
-
-      setPointHistory(mappedDesc);
+      setPointHistory([...mappedAsc].reverse());
     } catch (error) {
       console.error('포인트 히스토리 조회 실패:', error);
     }
@@ -208,9 +205,18 @@ export default function MyPage() {
     }
   };
 
-  const handleLogout = () => {
-    dispatch(logout());
-    window.location.href = '/login';
+  const handleLogout = async () => {
+    try {
+      await fetch(`${API_BASE_URL}/auth/logout`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch (error) {
+      console.error('로그아웃 API 호출 실패:', error);
+    } finally {
+      dispatch(logout());
+      window.location.href = '/';
+    }
   };
 
   const openModal = () => {
@@ -250,7 +256,9 @@ export default function MyPage() {
       setName(modalNickname);
       setMajor(`${modalDepartment} ${modalStudentNumber}학번`);
       setProfilePositions(body.position_names);
-      setRole(body.position_names.length > 0 ? body.position_names.join(' / ') : '');
+      setRole(
+        body.position_names.length > 0 ? body.position_names.join(' / ') : ''
+      );
       setShowModal(false);
     } catch (err) {
       console.error('프로필 정보 수정 에러:', err);
@@ -305,7 +313,6 @@ export default function MyPage() {
           {totalPoint}
           <span className={styles['point-unit']}>P</span>
         </div>
-
         <div className={styles['point-history-table']}>
           <table>
             <thead>
