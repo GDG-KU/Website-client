@@ -6,7 +6,6 @@ import { fetchWithAuth } from "@/utils/fetchWithAuth";
 import { useAppDispatch } from "@/store/hooks";
 import { logout } from "@/store/authSlice";
 import styled from "styled-components";
-import styles from "./mypage.module.css";
 
 // components
 import ProfileImage from "./_components/ProfileImage";
