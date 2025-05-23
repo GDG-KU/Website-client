@@ -60,8 +60,8 @@ export async function fetchWithAuth(url: RequestInfo, options: RequestInit = {})
   }
 
   const fetchOptions: RequestInit = {
-    ...options,
     headers,
+    ...options,
     credentials: "include",
   };
 

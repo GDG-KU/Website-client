@@ -6,7 +6,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 
 const PATHS = [
-  { path: "/admin/management", title: "멤버 포인트 관리" },
+  { path: "/admin/point", title: "멤버 포인트 관리" },
   { path: "/admin/activity", title: "멤버 활동 관리" },
   { path: "/admin/calendar", title: "캘린더 관리" },
   { path: "/admin/faq", title: "FAQ 관리" },
@@ -16,34 +16,32 @@ export default function Footer() {
   const pathname = usePathname();
 
   return (
-    <StyledFooter>
-      <div />
+    <div style={{ padding: "2rem" }}>
+      <StyledFooter>
+        <div />
+        <div className="left">
+          {PATHS.map(({ path, title }) => (
+            <StyledLink key={path} href={path} $isActive={pathname.startsWith(path)}>
+              {title}
+            </StyledLink>
+          ))}
+        </div>
 
-      <div className="left">
-        {PATHS.map(({ path, title }) => (
-          <StyledLink key={path} href={path} $isActive={pathname.startsWith(path)}>
-            {title}
-          </StyledLink>
-        ))}
-      </div>
-
-      <StyledLinkIcon href="/admin/qualification" $isActive={pathname.startsWith("/admin/qualification")}>
-        <Image src="/icons/qualification.svg" alt="자격 관리" width={40} height={40} />
-      </StyledLinkIcon>
-    </StyledFooter>
+        <StyledLinkIcon href="/admin/qualification" $isActive={pathname.startsWith("/admin/qualification")}>
+          <Image src="/icons/qualification.svg" alt="자격 관리" width={40} height={40} />
+        </StyledLinkIcon>
+      </StyledFooter>
+    </div>
   );
 }
 
 const StyledFooter = styled.footer`
   width: 100%;
-  min-height: 80px;
+  height: 48px;
 
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
-
-  padding: 2rem 0;
 
   .left {
     display: flex;

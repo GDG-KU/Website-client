@@ -2,11 +2,9 @@
 
 import styled from "styled-components";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useAppSelector } from "@/store/hooks";
-import { fetchWithAuth } from "@/utils/fetchWithAuth";
 
 interface SubItem {
   label: string;
@@ -74,42 +72,16 @@ const menuData: MainItem[] = [
   },
 ];
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-
 interface Props {
   openLoginModal: () => void;
-  handleSidebarHovered: (val: boolean) => void;
 }
 
-const Sidebar = ({ openLoginModal, handleSidebarHovered }: Props) => {
-  const { isLoggedIn } = useAppSelector((state) => state.auth);
-
+const Sidebar = ({ openLoginModal }: Props) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [userProfileImage, setUserProfileImage] = useState("/sidebar-profile.svg");
+  const [userProfileImage] = useState("/sidebar-profile.svg");
 
-  useEffect(() => {
-    const fetchProfileImage = async () => {
-      try {
-        const res = await fetchWithAuth(`${API_BASE_URL}/mypage/profile/image`, {
-          method: "GET",
-        });
-        if (!res.ok) throw new Error("프로필 이미지 조회 실패");
-        const data = await res.json();
-        const imageUrl = data.url || "/sidebar-profile.svg";
-        setUserProfileImage(imageUrl);
-      } catch (error) {
-        console.error("[Sidebar] 프로필 이미지 조회 실패:", error);
-        setUserProfileImage("/sidebar-profile.svg");
-      }
-    };
-
-    if (isLoggedIn) {
-      fetchProfileImage();
-    } else {
-      setUserProfileImage("/sidebar-profile.svg");
-    }
-  }, [isLoggedIn]);
+  const [isHovered, setIsHovered] = useState(false);
 
   const handleMainMenuMouseEnter = (index: number) => setHoveredIndex(index);
 
@@ -117,70 +89,68 @@ const Sidebar = ({ openLoginModal, handleSidebarHovered }: Props) => {
   const handleSubSidebarLeave = () => setHoveredIndex(null);
 
   const onSidebarMouseEnter = () => {
-    handleSidebarHovered(true);
+    setIsHovered(true);
     setIsSidebarOpen(true);
   };
   const onSidebarMouseLeave = () => {
-    handleSidebarHovered(false);
+    setIsHovered(false);
     setIsSidebarOpen(false);
   };
 
   const handleProfileClick = () => {
-    if (isLoggedIn) {
-      window.location.href = "/mypage";
-      return;
-    }
-
     openLoginModal();
   };
 
   return (
-    <StyledContainer
-      className={isSidebarOpen ? "active" : ""}
-      aria-label="주요 사이드바 내비게이션"
-      onMouseEnter={onSidebarMouseEnter}
-      onMouseLeave={onSidebarMouseLeave}>
-      <StyledLogoWrapper>
-        <Link href="/aboutus/calendar">
-          <Image src="/logo.png" alt="GDG KU 로고" width={220} height={60} />
-        </Link>
-      </StyledLogoWrapper>
+    <>
+      {isHovered && <StyledOverlay role="Sidebar-Overlay" />}
+      <StyledContainer
+        className={isSidebarOpen ? "active" : ""}
+        aria-label="주요 사이드바 내비게이션"
+        onMouseEnter={onSidebarMouseEnter}
+        onMouseLeave={onSidebarMouseLeave}>
+        <StyledLogoWrapper>
+          <Link href="/aboutus/calendar">
+            <Image src="/logo.png" alt="GDG KU 로고" width={220} height={60} />
+          </Link>
+        </StyledLogoWrapper>
 
-      <StyledNav aria-label="주요 메뉴">
-        <ul>
-          {menuData.map(({ label }, index) => (
-            <li
-              key={label}
-              onMouseEnter={() => handleMainMenuMouseEnter(index)}
-              tabIndex={0}
-              role="button"
-              onFocus={() => handleMainMenuMouseEnter(index)}>
-              {label}
-            </li>
-          ))}
-        </ul>
-      </StyledNav>
-
-      <StyledUserProfileWrapper>
-        <Image src={userProfileImage} alt="사용자 프로필" width={50} height={50} onClick={handleProfileClick} />
-      </StyledUserProfileWrapper>
-
-      {hoveredIndex !== null && menuData[hoveredIndex].subItems && (
-        <StyledSubNav
-          className={hoveredIndex !== null ? "active" : ""}
-          onMouseEnter={() => handleSubSidebarEnter(hoveredIndex)}
-          onMouseLeave={handleSubSidebarLeave}
-          aria-label={`${menuData[hoveredIndex].label} 서브 메뉴`}>
+        <StyledNav aria-label="주요 메뉴">
           <ul>
-            {menuData[hoveredIndex].subItems?.map(({ label, path }) => (
-              <li key={label}>
-                <Link href={path}>{label}</Link>
+            {menuData.map(({ label }, index) => (
+              <li
+                key={label}
+                onMouseEnter={() => handleMainMenuMouseEnter(index)}
+                tabIndex={0}
+                role="button"
+                onFocus={() => handleMainMenuMouseEnter(index)}>
+                {label}
               </li>
             ))}
           </ul>
-        </StyledSubNav>
-      )}
-    </StyledContainer>
+        </StyledNav>
+
+        <StyledUserProfileWrapper>
+          <Image src={userProfileImage} alt="사용자 프로필" width={50} height={50} onClick={handleProfileClick} />
+        </StyledUserProfileWrapper>
+
+        {hoveredIndex !== null && menuData[hoveredIndex].subItems && (
+          <StyledSubNav
+            className={hoveredIndex !== null ? "active" : ""}
+            onMouseEnter={() => handleSubSidebarEnter(hoveredIndex)}
+            onMouseLeave={handleSubSidebarLeave}
+            aria-label={`${menuData[hoveredIndex].label} 서브 메뉴`}>
+            <ul>
+              {menuData[hoveredIndex].subItems?.map(({ label, path }) => (
+                <li key={label}>
+                  <Link href={path}>{label}</Link>
+                </li>
+              ))}
+            </ul>
+          </StyledSubNav>
+        )}
+      </StyledContainer>
+    </>
   );
 };
 
@@ -205,7 +175,7 @@ const StyledContainer = styled.aside`
   transform: translateX(0);
   transition: transform 0.3s ease;
 
-  z-index: 9999;
+  z-index: 999;
 
   &.active {
     transform: translateX(0);
@@ -321,4 +291,19 @@ const StyledUserProfileWrapper = styled.div`
     border-radius: 50%;
     cursor: pointer;
   }
+`;
+
+const StyledOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  width: 100vw;
+  height: 100vh;
+
+  background-color: rgba(0, 0, 0, 0.5);
+
+  z-index: 10;
+
+  transition: opacity 0.5s ease;
 `;

@@ -1,40 +1,43 @@
 "use client";
 
-import { forwardRef, useState } from "react";
+import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import styled from "styled-components";
 
-interface Props extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange"> {
-  onChange?: (value: string) => void;
-}
+// eslint-disable-next-line
+interface Props extends React.InputHTMLAttributes<HTMLInputElement> {}
 
-// TODO: X 아이콘 추가
 const Input = forwardRef<HTMLInputElement, Props>(({ ...inputProps }, ref) => {
-  const [inputText, setInputText] = useState<string>();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [value, setValue] = useState<string>();
 
-  const { className, style, value, onChange, ...restProps } = inputProps;
+  const { className, style, onChange, ...restProps } = inputProps;
 
-  const handleInputChange = (text: string) => {
-    if (onChange) onChange(text);
-    else setInputText(text);
-  };
+  useImperativeHandle(ref, () => inputRef.current as HTMLInputElement);
 
   return (
     <StyledContainer className={className} style={style}>
       <StyledInput
-        ref={ref}
-        value={value || inputText}
+        ref={inputRef}
+        value={value}
         onChange={(e) => {
-          const text = e.target.value;
-          handleInputChange(text);
+          setValue(e.target.value);
+          if (onChange) onChange(e);
         }}
         {...restProps}
       />
-      {(value || inputText) && (
+      {value && (
         <button
           className="input-clear"
           onClick={(e) => {
             e.preventDefault();
-            handleInputChange("");
+
+            setValue("");
+            if (onChange) {
+              const dummyEvent = { target: { value: "" } } as unknown as React.ChangeEvent<HTMLInputElement>;
+              onChange(dummyEvent);
+            }
+
+            inputRef.current?.focus();
           }}>
           x
         </button>

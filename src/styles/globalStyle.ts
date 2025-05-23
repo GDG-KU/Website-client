@@ -27,4 +27,10 @@ export const GlobalStyle = createGlobalStyle`
   li {
     list-style: none;
   }
+
+  button {
+    border: none;
+    outline: none;
+    cursor: pointer;
+  }
 `;
