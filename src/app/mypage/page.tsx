@@ -1,13 +1,18 @@
 "use client";
 
 import React, { useState, useEffect, ChangeEvent, useCallback } from "react";
-import Image from "next/image";
-import Link from "next/link";
 
 import { fetchWithAuth } from "@/utils/fetchWithAuth";
 import { useAppDispatch } from "@/store/hooks";
 import { logout } from "@/store/authSlice";
-import styles from "./mypage.module.css";
+import styled from "styled-components";
+
+// components
+import ProfileImage from "./_components/ProfileImage";
+import MyPageButton from "./_components/MyPageButton";
+import PointTable from "./_components/PointTable";
+import Dropdown from "./_components/Dropdown";
+import ProfileModal from "./_components/ProfileModal";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -36,28 +41,62 @@ interface PointHistoryItem {
   date: string;
   change: number;
   total: number;
-  event: string;
+  reason: string;
 }
+
+interface UserData {
+  id: number | null;
+  name: string;
+  major: string;
+  role: string;
+  joinDate: string;
+  isCore: boolean;
+}
+
+const MOCK_DATA = {
+  id: 1,
+  name: "박신디",
+  major: "인공지능학과 25학번",
+  role: "FE / Member",
+  joinDate: "2025-03-28",
+  isCore: true,
+};
+
+const DROPDOWN_MOCK_DATA = [
+  {
+    id: 1,
+    role: "AI/ Core",
+  },
+  {
+    id: 2,
+    role: "DevRel / Member",
+  },
+];
 
 export default function MyPage() {
   const dispatch = useAppDispatch();
 
+  const [userData, setUserData] = useState<UserData>({
+    id: null,
+    name: "",
+    major: "",
+    role: "",
+    joinDate: "",
+    isCore: false,
+  });
   const [profileImageUrl, setProfileImageUrl] = useState<string>("/profile.svg");
-  const [name, setName] = useState<string>("");
-  const [major, setMajor] = useState<string>("");
-  const [role, setRole] = useState<string>("");
-  const [joinDate, setJoinDate] = useState<string>("");
-  const [isCore, setIsCore] = useState<boolean>(false);
-  const [userId, setUserId] = useState<number | null>(null);
   const [totalPoint, setTotalPoint] = useState<number>(0);
   const [pointHistory, setPointHistory] = useState<PointHistoryItem[]>([]);
   const [profilePositions, setProfilePositions] = useState<string[]>([]);
 
+  // Handle Edit Profile Modal
   const [showModal, setShowModal] = useState(false);
-  const [modalNickname, setModalNickname] = useState("");
-  const [modalDepartment, setModalDepartment] = useState("");
-  const [modalStudentNumber, setModalStudentNumber] = useState("");
-  const [modalPositionNames, setModalPositionNames] = useState("");
+  const [modalData, setModalData] = useState({
+    name: "",
+    dept: "",
+    studentNum: "",
+    positionNames: "",
+  });
 
   const formatDate = (dateString: string) => {
     if (!dateString) return "";
@@ -86,18 +125,20 @@ export default function MyPage() {
       });
       if (!res.ok) throw new Error("프로필 조회 실패");
       const data: ProfileResponse = await res.json();
-
-      setName(data.nickname);
-      setMajor(`${data.department} ${data.student_number}학번`);
       setProfilePositions(data.position_names);
 
       const positionsJoined = data.position_names.join(" / ");
       const combinedRole = positionsJoined ? `${data.role} / ${positionsJoined}` : data.role;
-      setRole(combinedRole);
 
-      setJoinDate(formatDate(data.join_date));
-      setIsCore(combinedRole.includes("Organizer") || combinedRole.includes("Core") || combinedRole.includes("Admin"));
-      setUserId(data.id);
+      setUserData({
+        ...userData,
+        id: data.id,
+        name: data.nickname,
+        major: `${data.department} ${data.student_number}학번`,
+        role: combinedRole,
+        joinDate: formatDate(data.join_date),
+        isCore: combinedRole.includes("Organizer") || combinedRole.includes("Core") || combinedRole.includes("Admin"),
+      });
 
       fetchProfileImage();
     } catch (error) {
@@ -106,12 +147,15 @@ export default function MyPage() {
   }, [fetchProfileImage]);
 
   const fetchPointHistory = useCallback(async () => {
-    if (userId === null) return;
+    if (userData?.id === null) return;
     try {
-      const queryRole = role.includes(" / ") ? role.split(" / ")[0].trim() : role;
-      const res = await fetchWithAuth(`${API_BASE_URL}/point/history/${userId}?role=${encodeURIComponent(queryRole)}`, {
-        method: "GET",
-      });
+      const queryRole = userData?.role.includes(" / ") ? userData?.role.split(" / ")[0].trim() : userData?.role;
+      const res = await fetchWithAuth(
+        `${API_BASE_URL}/point/history/${userData?.id}?role=${encodeURIComponent(queryRole)}`,
+        {
+          method: "GET",
+        },
+      );
       if (!res.ok) throw new Error("포인트 히스토리 조회 실패");
       const data: HistoryResponseItem[] = await res.json();
 
@@ -124,7 +168,7 @@ export default function MyPage() {
           date: formatDate(item.date),
           change: item.point_change,
           total: runningTotal,
-          event: item.reason,
+          reason: item.reason,
         };
       });
 
@@ -133,17 +177,22 @@ export default function MyPage() {
     } catch (error) {
       console.error("포인트 히스토리 조회 실패:", error);
     }
-  }, [userId, role]);
+  }, [userData?.id, userData?.role]);
 
   useEffect(() => {
     fetchProfile();
   }, [fetchProfile]);
 
   useEffect(() => {
-    if (userId !== null) {
+    if (userData?.id !== null) {
       fetchPointHistory();
     }
-  }, [userId, fetchPointHistory]);
+  }, [userData?.id, fetchPointHistory]);
+
+  // --------- MOCK DATA testing (unable to log in atm)
+  // useEffect(() => {
+  //   setUserData({ ...MOCK_DATA });
+  // }, []);
 
   const handleProfileImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
@@ -213,11 +262,14 @@ export default function MyPage() {
   };
 
   const openModal = () => {
-    setModalNickname(name);
-    const majorArr = major.split(" ");
-    setModalDepartment(majorArr[0] || "");
-    setModalStudentNumber(majorArr[1] ? majorArr[1].replace("학번", "") : "");
-    setModalPositionNames(profilePositions.join(", "));
+    const majorArr = userData?.major.split(" ");
+    setModalData({
+      ...modalData,
+      name: userData?.name,
+      dept: majorArr[0] || "",
+      studentNum: majorArr[1] ? majorArr[1].replace("학번", "") : "",
+      positionNames: profilePositions.join(", "),
+    });
     setShowModal(true);
   };
 
@@ -227,10 +279,10 @@ export default function MyPage() {
 
   const handleSaveProfile = async () => {
     const body = {
-      nickname: modalNickname,
-      department: modalDepartment,
-      student_number: modalStudentNumber,
-      position_names: modalPositionNames
+      nickname: modalData.name,
+      department: modalData.dept,
+      student_number: modalData.studentNum,
+      position_names: modalData.positionNames
         .split(",")
         .map((v) => v.trim())
         .filter((v) => v !== ""),
@@ -246,110 +298,131 @@ export default function MyPage() {
         return;
       }
       console.log("프로필 정보 수정 성공");
-      setName(modalNickname);
-      setMajor(`${modalDepartment} ${modalStudentNumber}학번`);
       setProfilePositions(body.position_names);
-      setRole(body.position_names.length > 0 ? body.position_names.join(" / ") : "");
+
+      setUserData({
+        ...userData,
+        name: modalData.name,
+        major: `${modalData.dept} ${modalData.studentNum}학번`,
+        role: body.position_names.length > 0 ? body.position_names.join(" / ") : "",
+      });
       setShowModal(false);
     } catch (err) {
       console.error("프로필 정보 수정 에러:", err);
     }
   };
 
+  const handleModalChange = (value: string, name: string) => {
+    setModalData({
+      ...modalData,
+      [name]: value,
+    });
+  };
+
   return (
-    <div className={styles["mypage-container"]}>
-      <section className={styles["profile-section"]}>
-        <div className={styles["profile-image-wrapper"]}>
-          <Image src={profileImageUrl} alt="프로필 사진" width={120} height={120} className={styles["profile-image"]} />
-          <label htmlFor="profileUpload" className={styles["upload-label"]}>
-            프로필 사진 변경
-          </label>
-          <input
-            id="profileUpload"
-            type="file"
-            accept="image/*"
-            style={{ display: "none" }}
-            onChange={handleProfileImageChange}
-          />
-        </div>
-
-        <h2 className={styles["profile-name"]}>{name}</h2>
-        <div className={styles["profile-major"]}>{major}</div>
-        <div className={styles["profile-role"]}>{role}</div>
-        <div className={styles["profile-join-date"]}>가입일: {joinDate}</div>
-
-        <div className={styles["profile-buttons"]}>
-          <button onClick={openModal} className={styles["edit-button"]}>
-            정보 수정
-          </button>
-          {isCore && (
-            <Link href="/admin">
-              <button className={styles["admin-button"]}>관리자 모드</button>
-            </Link>
-          )}
-          <p className={styles["logout-text"]} onClick={handleLogout}>
-            로그아웃
-          </p>
-        </div>
-      </section>
-      <section className={styles["point-section"]}>
-        <h2 className={styles["point-title"]}>My Status</h2>
-        <div className={styles["point-total"]}>
-          {totalPoint}
-          <span className={styles["point-unit"]}>P</span>
-        </div>
-        <div className={styles["point-history-table"]}>
-          <table>
-            <thead>
-              <tr>
-                <th>날짜</th>
-                <th>변동</th>
-                <th>누적</th>
-                <th>이벤트</th>
-              </tr>
-            </thead>
-            <tbody>
-              {pointHistory.map((item, idx) => (
-                <tr key={idx}>
-                  <td>{item.date}</td>
-                  <td>{item.change}</td>
-                  <td>{item.total}</td>
-                  <td>{item.event}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+    <StyledPageContainer>
+      <StyledSection style={{ justifyContent: "center", gap: "2rem" }}>
+        <ProfileImage profileImageUrl={profileImageUrl} onChange={handleProfileImageChange} />
+        <h2>{userData?.name}</h2>
+        <GroupedSection>
+          <p>{userData?.major}</p>
+          <p>{userData?.role}</p>
+          <p>{userData.joinDate && `가입일:  ${userData?.joinDate}`}</p>
+        </GroupedSection>
+        <GroupedSection>
+          <MyPageButton buttonText="정보 수정" onClick={openModal} />
+          <MyPageButton buttonText="관리자 모드" href="/admin" isBlue />
+          <MyPageButton buttonText="멤버 탈퇴" onClick={handleLogout} />
+        </GroupedSection>
+      </StyledSection>
+      <StyledSection style={{ gap: "0.5rem" }}>
+        <StatusSection>
+          <h3>My Status</h3>
+          {/* -----Note: Dropdown is set to read-only for now */}
+          <Dropdown value="" placeholder={userData?.role} data={DROPDOWN_MOCK_DATA} field={""} disabled={true} />
+        </StatusSection>
+        <PointSection>
+          <span>{totalPoint}P</span>
+        </PointSection>
+        <PointTable pointHistory={pointHistory} />
+      </StyledSection>
 
       {showModal && (
-        <div className={styles["modal-overlay"]}>
-          <div className={styles["modal"]}>
-            <h2 className={styles["modal-title"]}>프로필 정보 수정</h2>
-            <div className={styles["modal-content"]}>
-              <label>닉네임</label>
-              <input type="text" value={modalNickname} onChange={(e) => setModalNickname(e.target.value)} />
-              <label>학과</label>
-              <input type="text" value={modalDepartment} onChange={(e) => setModalDepartment(e.target.value)} />
-              <label>학번</label>
-              <input type="text" value={modalStudentNumber} onChange={(e) => setModalStudentNumber(e.target.value)} />
-              <label>Position</label>
-              <input type="text" value={modalPositionNames} onChange={(e) => setModalPositionNames(e.target.value)} />
-            </div>
-            <div className={styles["modal-actions"]}>
-              <button onClick={handleDeleteProfileImage} className={styles["delete-button"]}>
-                프로필 이미지 삭제
-              </button>
-              <button onClick={handleSaveProfile} className={styles["save-button"]}>
-                저장
-              </button>
-              <button onClick={closeModal} className={styles["cancel-button"]}>
-                취소
-              </button>
-            </div>
-          </div>
-        </div>
+        <ProfileModal
+          profileData={modalData}
+          onChange={handleModalChange}
+          onSaveProfile={handleSaveProfile}
+          onDeleteImage={handleDeleteProfileImage}
+          onCloseModal={closeModal}
+        />
       )}
-    </div>
+    </StyledPageContainer>
   );
 }
+
+const StyledPageContainer = styled.div`
+  display: flex;
+
+  width: 100vw;
+  height: 100vh;
+
+  /* margin-left: 240px; */
+  gap: 2rem;
+`;
+
+const StyledSection = styled.section`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  padding: 2rem;
+
+  text-align: center;
+
+  h2 {
+    font-weight: bold;
+    font-size: 25px;
+    margin-bottom: 1em;
+  }
+
+  p {
+    font-size: 14px;
+    font-weight: 200;
+  }
+`;
+
+const PointSection = styled.div`
+  background-color: #fff;
+  border-radius: 16px;
+  width: 100%;
+  min-height: 150px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  span {
+    font-weight: bold;
+    font-size: 40px;
+  }
+`;
+
+const StatusSection = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  width: 100%;
+  padding-bottom: 10px;
+
+  h3 {
+    font-size: 15px;
+  }
+`;
+
+const GroupedSection = styled.div`
+  display: flex;
+  flex-direction: column;
+
+  gap: 0.5rem;
+`;
